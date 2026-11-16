@@ -11,32 +11,34 @@ import com.berryos.audiometadata.wav.WavMetadataReader
 
 /** Reads metadata from any supported format by sniffing the container signature. */
 object AudioMetadataReader {
-    fun read(source: RandomAccessSource): AudioMetadata? = when (detectAudioFormat(source)) {
-        DetectedFormat.Mp3 -> Mp3MetadataReader.read(source)?.toAudioMetadata()
-        DetectedFormat.Flac -> FlacMetadataReader.read(source)?.toAudioMetadata()
-        DetectedFormat.Ogg -> OpusMetadataReader.read(source)?.toAudioMetadata()
+    fun read(source: RandomAccessSource): AudioMetadata? = when (AudioFormatDetector.detect(source)) {
+        AudioFormat.Mp3 -> Mp3MetadataReader.read(source)?.toAudioMetadata()
+        AudioFormat.Flac -> FlacMetadataReader.read(source)?.toAudioMetadata()
+        AudioFormat.Ogg -> OpusMetadataReader.read(source)?.toAudioMetadata()
             ?: OggVorbisMetadataReader.read(source)?.toAudioMetadata()
 
-        DetectedFormat.Mp4 -> Mp4MetadataReader.read(source)?.toAudioMetadata()
-        DetectedFormat.Wav -> WavMetadataReader.read(source)?.toAudioMetadata()
-        DetectedFormat.Aiff -> AiffMetadataReader.read(source)?.toAudioMetadata()
+        AudioFormat.Opus -> OpusMetadataReader.read(source)?.toAudioMetadata()
+        AudioFormat.Mp4 -> Mp4MetadataReader.read(source)?.toAudioMetadata()
+        AudioFormat.Wav -> WavMetadataReader.read(source)?.toAudioMetadata()
+        AudioFormat.Aiff -> AiffMetadataReader.read(source)?.toAudioMetadata()
         // Files without an ID3v2 header may still carry an ID3v1 trailer.
-        DetectedFormat.Unknown -> Mp3MetadataReader.read(source)?.toAudioMetadata()
+        AudioFormat.Unknown -> Mp3MetadataReader.read(source)?.toAudioMetadata()
     }
 }
 
 /** Reads embedded artwork from any supported format. */
 object AudioArtworkReader {
-    fun read(source: RandomAccessSource): List<Artwork> = when (detectAudioFormat(source)) {
-        DetectedFormat.Mp3 -> Mp3MetadataReader.read(source)?.tag?.artworks.orEmpty()
-        DetectedFormat.Flac -> FlacMetadataReader.read(source)?.artworks.orEmpty()
-        DetectedFormat.Ogg -> OpusMetadataReader.read(source)?.artworks.orEmpty().ifEmpty {
+    fun read(source: RandomAccessSource): List<Artwork> = when (AudioFormatDetector.detect(source)) {
+        AudioFormat.Mp3 -> Mp3MetadataReader.read(source)?.tag?.artworks.orEmpty()
+        AudioFormat.Flac -> FlacMetadataReader.read(source)?.artworks.orEmpty()
+        AudioFormat.Ogg -> OpusMetadataReader.read(source)?.artworks.orEmpty().ifEmpty {
             OggVorbisMetadataReader.read(source)?.artworks.orEmpty()
         }
 
-        DetectedFormat.Mp4 -> Mp4MetadataReader.read(source)?.artworks.orEmpty()
-        DetectedFormat.Wav -> WavMetadataReader.read(source)?.artworks.orEmpty()
-        DetectedFormat.Aiff -> AiffMetadataReader.read(source)?.artworks.orEmpty()
-        DetectedFormat.Unknown -> Mp3MetadataReader.read(source)?.tag?.artworks.orEmpty()
+        AudioFormat.Opus -> OpusMetadataReader.read(source)?.artworks.orEmpty()
+        AudioFormat.Mp4 -> Mp4MetadataReader.read(source)?.artworks.orEmpty()
+        AudioFormat.Wav -> WavMetadataReader.read(source)?.artworks.orEmpty()
+        AudioFormat.Aiff -> AiffMetadataReader.read(source)?.artworks.orEmpty()
+        AudioFormat.Unknown -> Mp3MetadataReader.read(source)?.tag?.artworks.orEmpty()
     }
 }

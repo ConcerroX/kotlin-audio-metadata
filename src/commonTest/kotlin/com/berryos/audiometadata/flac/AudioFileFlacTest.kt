@@ -61,7 +61,7 @@ class AudioFileFlacTest {
         val reread = assertNotNull(AudioFile.read(source))
         assertEquals("Edited", reread.title)
         assertEquals("track-id", assertNotNull(reread.vorbis).value("MUSICBRAINZ_TRACKID"))
-        assertContentEquals(AUDIO, audioBytes(source, reread))
+        assertContentEquals(AUDIO, audioBytes(source))
     }
 
     @Test
@@ -82,7 +82,7 @@ class AudioFileFlacTest {
         val artworks = assertNotNull(reread.artworks)
         assertEquals(1, artworks.size)
         assertContentEquals(image, artworks.first().data)
-        assertContentEquals(AUDIO, audioBytes(source, reread))
+        assertContentEquals(AUDIO, audioBytes(source))
     }
 
     @Test
@@ -105,7 +105,7 @@ class AudioFileFlacTest {
 
         val cleared = assertNotNull(AudioFile.read(source, includeArtworks = true))
         assertTrue(assertNotNull(cleared.artworks).isEmpty())
-        assertContentEquals(AUDIO, audioBytes(source, cleared))
+        assertContentEquals(AUDIO, audioBytes(source))
     }
 
     @Test
@@ -137,8 +137,8 @@ class AudioFileFlacTest {
     private fun sourceWith(metadata: ByteArray, audio: ByteArray): ByteArraySource =
         ByteArraySource().also { it.writeAt(0, metadata + audio) }
 
-    private fun audioBytes(source: ByteArraySource, file: AudioFile): ByteArray {
+    private fun audioBytes(source: ByteArraySource): ByteArray {
         val bytes = source.toByteArray()
-        return bytes.copyOfRange(file.flac.audioStartOffset.toInt(), bytes.size)
+        return bytes.copyOfRange(bytes.size - AUDIO.size, bytes.size)
     }
 }

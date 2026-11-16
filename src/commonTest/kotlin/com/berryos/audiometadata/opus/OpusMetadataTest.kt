@@ -95,14 +95,14 @@ class OpusMetadataTest {
     }
 }
 
-private fun opusFile(title: String, artist: String): ByteArray = opusFile(
+internal fun opusFile(title: String, artist: String): ByteArray = opusFile(
     VorbisCommentTag.create().apply {
         this.title = title
         this.artist = artist
     },
 )
 
-private fun opusFile(tag: VorbisCommentTag): ByteArray {
+internal fun opusFile(tag: VorbisCommentTag): ByteArray {
     val head = ByteArray(19)
     "OpusHead".encodeToByteArray().copyInto(head)
     head[8] = 1

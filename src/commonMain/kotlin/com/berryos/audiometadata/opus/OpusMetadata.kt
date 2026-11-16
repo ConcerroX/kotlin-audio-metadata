@@ -16,7 +16,7 @@ import com.berryos.audiometadata.vorbis.VorbisCommentTag
 import com.berryos.audiometadata.vorbis.artworks
 
 /** Parsed Opus tags and stream info; the OpusTags comment block is exposed as [tag]. */
-class OpusMetadata internal constructor(
+internal class OpusMetadata(
     val tag: VorbisCommentTag,
     val audioInfo: AudioInfo?,
 ) {
@@ -27,7 +27,7 @@ class OpusMetadata internal constructor(
 }
 
 /** Reads Opus tags from an Ogg Opus stream. */
-object OpusMetadataReader {
+internal object OpusMetadataReader {
     fun read(source: RandomAccessSource): OpusMetadata? {
         val pages = walkOggPages(source)
         if (pages.size < 2) return null
@@ -61,7 +61,7 @@ object OpusMetadataReader {
  * The comment packet is expected to end on a page boundary; a page with trailing packets is
  * rejected instead of silently dropping them.
  */
-object OpusMetadataWriter {
+internal object OpusMetadataWriter {
     fun write(source: WritableRandomAccessSource, metadata: OpusMetadata) {
         val pages = walkOggPages(source)
         if (pages.size < 2) return

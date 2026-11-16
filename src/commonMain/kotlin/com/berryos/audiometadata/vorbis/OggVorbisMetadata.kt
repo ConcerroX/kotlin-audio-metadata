@@ -14,7 +14,7 @@ import com.berryos.audiometadata.ogg.replaceOggPackets
 import com.berryos.audiometadata.ogg.walkOggPages
 
 /** Parsed Ogg Vorbis tags and stream info; the comment block is exposed as [tag]. */
-class OggVorbisMetadata internal constructor(
+internal class OggVorbisMetadata(
     val tag: VorbisCommentTag,
     val audioInfo: AudioInfo?,
 ) {
@@ -25,7 +25,7 @@ class OggVorbisMetadata internal constructor(
 }
 
 /** Reads Vorbis comments from an Ogg Vorbis stream. */
-object OggVorbisMetadataReader {
+internal object OggVorbisMetadataReader {
     fun read(source: RandomAccessSource): OggVorbisMetadata? {
         val pages = walkOggPages(source)
         if (pages.size < 2) return null
@@ -58,7 +58,7 @@ object OggVorbisMetadataReader {
  *
  * As with Opus, the comment packet is expected to end on a page boundary.
  */
-object OggVorbisMetadataWriter {
+internal object OggVorbisMetadataWriter {
     fun write(source: WritableRandomAccessSource, metadata: OggVorbisMetadata) {
         val pages = walkOggPages(source)
         if (pages.size < 2) return
