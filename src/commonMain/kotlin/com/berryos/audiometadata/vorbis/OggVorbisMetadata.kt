@@ -7,8 +7,9 @@ import com.berryos.audiometadata.io.RandomAccessSource
 import com.berryos.audiometadata.io.WritableRandomAccessSource
 import com.berryos.audiometadata.ogg.OggPages
 import com.berryos.audiometadata.ogg.findOggPacket
+import com.berryos.audiometadata.ogg.findOggPackets
 import com.berryos.audiometadata.ogg.readLittleEndianInt
-import com.berryos.audiometadata.ogg.replaceOggPacket
+import com.berryos.audiometadata.ogg.replaceOggPackets
 import com.berryos.audiometadata.ogg.walkOggPages
 
 /** Parsed Ogg Vorbis tags and stream info; the comment block is exposed as [tag]. */
@@ -57,8 +58,15 @@ object OggVorbisMetadataWriter {
     fun write(source: WritableRandomAccessSource, metadata: OggVorbisMetadata) {
         val pages = walkOggPages(source)
         if (pages.size < 2) return
-        val packet = findOggPacket(source, pages, 1) ?: return
-        replaceOggPacket(source, pages, packet, COMMENT_HEADER + metadata.tag.encode())
+        // The comment and setup headers often share a page; rebuild both packets together.
+        val header = findOggPackets(source, pages, 1, 2) ?: return
+        val setup = header.packets.getOrNull(1) ?: return
+        replaceOggPackets(
+            source,
+            pages,
+            header,
+            listOf(COMMENT_HEADER + metadata.tag.encode(), setup),
+        )
     }
 }
 
