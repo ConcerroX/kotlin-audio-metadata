@@ -4,7 +4,11 @@ import com.berryos.audiometadata.io.RandomAccessSource
 import com.berryos.audiometadata.io.WritableRandomAccessSource
 import com.berryos.audiometadata.io.readFully
 
-/** Parsed Ogg page header and sizes; payload bytes stay in the source. */
+/**
+ * One Ogg page as described by RFC 3533 section 6.
+ *
+ * Only the header and segment table are kept in memory; payload bytes stay in the source.
+ */
 internal class OggPage(
     val offset: Long,
     val headerType: Int,
@@ -13,37 +17,50 @@ internal class OggPage(
     val sequenceNumber: Int,
     val segmentTable: IntArray,
 ) {
-    val headerSize: Int = PAGE_HEADER_SIZE + segmentTable.size
-    val payloadSize: Int = segmentTable.sum()
-    val size: Int = headerSize + payloadSize
+    val headerSize: Int
+        get() = HEADER_BYTES + segmentTable.size
 
-    val isContinued: Boolean = headerType and CONTINUED_FLAG != 0
-    val isBos: Boolean = headerType and BOS_FLAG != 0
-    val isEos: Boolean = headerType and EOS_FLAG != 0
-    val payloadOffset: Long = offset + headerSize
+    val payloadSize: Int
+        get() = segmentTable.sum()
+
+    val size: Int
+        get() = headerSize + payloadSize
+
+    val isContinued: Boolean
+        get() = headerType and HEADER_CONTINUED != 0
+
+    val isBos: Boolean
+        get() = headerType and HEADER_FIRST_PAGE != 0
+
+    val isEos: Boolean
+        get() = headerType and HEADER_LAST_PAGE != 0
+
+    val payloadOffset: Long
+        get() = offset + headerSize
 }
 
+/** Reads, builds and re-checksums Ogg pages (RFC 3533 section 6). */
 internal object OggPages {
     fun read(source: RandomAccessSource, offset: Long): OggPage? {
-        if (offset < 0 || offset + PAGE_HEADER_SIZE > source.size) return null
-        val header = ByteArray(PAGE_HEADER_SIZE)
-        if (source.readAt(offset, header) < PAGE_HEADER_SIZE) return null
-        if (header[0] != 'O'.code.toByte() || header[1] != 'g'.code.toByte() ||
-            header[2] != 'g'.code.toByte() || header[3] != 'S'.code.toByte()
-        ) {
-            return null
-        }
-        if (header[4].toInt() != 0) return null
-        val headerType = header[5].toInt() and 0xFF
-        val granule = header.readLittleEndianLong(6)
-        val serial = header.readLittleEndianInt(14)
-        val sequence = header.readLittleEndianInt(18)
-        val segmentCount = header[26].toInt() and 0xFF
-        if (offset + PAGE_HEADER_SIZE + segmentCount > source.size) return null
-        val segments = ByteArray(segmentCount)
-        if (segmentCount > 0 && source.readAt(offset + PAGE_HEADER_SIZE, segments) < segmentCount) return null
-        val table = IntArray(segmentCount) { segments[it].toInt() and 0xFF }
-        return OggPage(offset, headerType, granule, serial, sequence, table)
+        if (offset < 0 || offset + HEADER_BYTES > source.size) return null
+        val header = ByteArray(HEADER_BYTES)
+        if (source.readAt(offset, header) < HEADER_BYTES) return null
+        if (!header.hasCapturePattern()) return null
+        if (header[VERSION_OFFSET].toInt() != 0) return null
+
+        val segmentCount = header[SEGMENT_COUNT_OFFSET].toInt() and 0xFF
+        if (offset + HEADER_BYTES + segmentCount > source.size) return null
+        val lacing = ByteArray(segmentCount)
+        if (segmentCount > 0 && source.readAt(offset + HEADER_BYTES, lacing) < segmentCount) return null
+
+        return OggPage(
+            offset = offset,
+            headerType = header[HEADER_TYPE_OFFSET].toInt() and 0xFF,
+            granulePosition = header.readLittleEndianLong(GRANULE_OFFSET),
+            serialNumber = header.readLittleEndianInt(SERIAL_OFFSET),
+            sequenceNumber = header.readLittleEndianInt(SEQUENCE_OFFSET),
+            segmentTable = IntArray(segmentCount) { index -> lacing[index].toInt() and 0xFF },
+        )
     }
 
     fun readPayload(source: RandomAccessSource, page: OggPage): ByteArray {
@@ -52,99 +69,129 @@ internal object OggPages {
         return payload
     }
 
-    /** Splits a packet into one or more pages, starting at [startSequence]. */
+    /**
+     * Splits [packet] into pages using the lacing rules from RFC 3533 section 6.
+     *
+     * A page holds at most 255 lacing values; a packet that does not end within those values
+     * continues on the next page with the "continued" header flag. Pages that do not finish the
+     * packet carry the special granule value -1.
+     */
     fun pagePacket(packet: ByteArray, serial: Int, startSequence: Int, granule: Long = 0L): List<ByteArray> {
         val pages = ArrayList<ByteArray>()
-        var position = 0
         var sequence = startSequence
+        var consumed = 0
         var continued = false
-        do {
-            val remaining = packet.size - position
-            val continuesPacket = remaining > MAX_PAGE_PAYLOAD
-            val payloadSize = if (continuesPacket) MAX_PAGE_PAYLOAD else remaining
-            val payload = packet.copyOfRange(position, position + payloadSize)
-            pages += buildPage(payload, serial, sequence++, continued, granule, endsPacket = !continuesPacket)
-            position += payloadSize
+        while (true) {
+            val lacing = ArrayList<Int>(MAX_SEGMENTS_PER_PAGE)
+            var payloadSize = 0
+            var endsPacket = false
+            while (lacing.size < MAX_SEGMENTS_PER_PAGE) {
+                val remaining = packet.size - consumed - payloadSize
+                if (remaining >= MAX_LACING_VALUE) {
+                    lacing += MAX_LACING_VALUE
+                    payloadSize += MAX_LACING_VALUE
+                    continue
+                }
+                lacing += remaining
+                payloadSize += remaining
+                endsPacket = true
+                break
+            }
+            val payload = packet.copyOfRange(consumed, consumed + payloadSize)
+            pages += buildPage(
+                payload = payload,
+                lacing = lacing,
+                serial = serial,
+                sequence = sequence,
+                continued = continued,
+                granule = if (endsPacket) granule else NO_PACKET_GRANULE,
+            )
+            sequence++
+            consumed += payloadSize
             continued = true
-        } while (position < packet.size)
-        return pages
+            if (endsPacket) return pages
+        }
     }
 
-    /**
-     * Rewrites the sequence number and checksum of an existing page, leaving its payload alone.
-     */
+    /** Rewrites [OggPage.sequenceNumber] and the checksum, keeping the payload unchanged. */
     fun renumberPage(source: WritableRandomAccessSource, offset: Long, sequence: Int): Int {
         val page = read(source, offset) ?: return -1
         val bytes = ByteArray(page.size)
         source.readFully(offset, bytes, bytes.size)
-        bytes.writeLittleEndianInt(18, sequence)
-        bytes.writeLittleEndianInt(22, 0)
-        val crc = computeCrc(bytes, 0, bytes.size)
-        bytes.writeLittleEndianInt(22, crc)
+        bytes.writeLittleEndianInt(SEQUENCE_OFFSET, sequence)
+        bytes.writeLittleEndianInt(CRC_OFFSET, 0)
+        bytes.writeLittleEndianInt(CRC_OFFSET, computeCrc(bytes, 0, bytes.size))
         source.writeAt(offset, bytes)
         return page.size
     }
 
+    /** CRC of [from] until [to) with the generator polynomial 0x04c11db7 and an initial value of 0. */
     fun computeCrc(bytes: ByteArray, from: Int, to: Int): Int {
         var crc = 0
         for (index in from until to) {
-            crc = (crc shl 8) xor CRC_TABLE[((crc ushr 24) xor (bytes[index].toInt() and 0xFF)) and 0xFF]
+            val high = (crc ushr 24) and 0xFF
+            crc = (crc shl 8) xor CRC_LOOKUP[high xor (bytes[index].toInt() and 0xFF)]
         }
         return crc
     }
 
     private fun buildPage(
         payload: ByteArray,
+        lacing: List<Int>,
         serial: Int,
         sequence: Int,
         continued: Boolean,
         granule: Long,
-        endsPacket: Boolean,
     ): ByteArray {
-        val segments = ArrayList<Int>()
-        var remaining = payload.size
-        while (remaining >= 255) {
-            segments += 255
-            remaining -= 255
-        }
-        if (endsPacket) segments += remaining
-
-        val header = ByteArray(PAGE_HEADER_SIZE + segments.size)
+        val header = ByteArray(HEADER_BYTES + lacing.size)
         header[0] = 'O'.code.toByte()
         header[1] = 'g'.code.toByte()
         header[2] = 'g'.code.toByte()
         header[3] = 'S'.code.toByte()
-        header[4] = 0
-        header[5] = (if (continued) CONTINUED_FLAG else 0).toByte()
-        header.writeLittleEndianLong(6, granule)
-        header.writeLittleEndianInt(14, serial)
-        header.writeLittleEndianInt(18, sequence)
-        header.writeLittleEndianInt(22, 0)
-        header[26] = segments.size.toByte()
-        segments.forEachIndexed { index, size -> header[PAGE_HEADER_SIZE + index] = size.toByte() }
+        header[VERSION_OFFSET] = 0
+        header[HEADER_TYPE_OFFSET] = (if (continued) HEADER_CONTINUED else 0).toByte()
+        header.writeLittleEndianLong(GRANULE_OFFSET, granule)
+        header.writeLittleEndianInt(SERIAL_OFFSET, serial)
+        header.writeLittleEndianInt(SEQUENCE_OFFSET, sequence)
+        header.writeLittleEndianInt(CRC_OFFSET, 0)
+        header[SEGMENT_COUNT_OFFSET] = lacing.size.toByte()
+        lacing.forEachIndexed { index, value -> header[HEADER_BYTES + index] = value.toByte() }
 
         val page = header + payload
-        val crc = computeCrc(page, 0, page.size)
-        page.writeLittleEndianInt(22, crc)
+        page.writeLittleEndianInt(CRC_OFFSET, computeCrc(page, 0, page.size))
         return page
     }
 
-    private const val MAX_PAGE_PAYLOAD = 255 * 255
+    private fun ByteArray.hasCapturePattern(): Boolean =
+        size >= HEADER_BYTES &&
+            this[0] == 'O'.code.toByte() && this[1] == 'g'.code.toByte() &&
+            this[2] == 'g'.code.toByte() && this[3] == 'S'.code.toByte()
 
-    private val CRC_TABLE = IntArray(256) { index ->
+    private const val VERSION_OFFSET = 4
+    private const val HEADER_TYPE_OFFSET = 5
+    private const val GRANULE_OFFSET = 6
+    private const val SERIAL_OFFSET = 14
+    private const val SEQUENCE_OFFSET = 18
+    private const val CRC_OFFSET = 22
+    private const val SEGMENT_COUNT_OFFSET = 26
+    private const val MAX_SEGMENTS_PER_PAGE = 255
+    private const val MAX_LACING_VALUE = 255
+    private const val NO_PACKET_GRANULE = -1L
+
+    private val CRC_LOOKUP = IntArray(256) { index ->
         var value = index shl 24
         repeat(8) {
-            value = if (value and Int.MIN_VALUE != 0) (value shl 1) xor OGG_CRC_POLY else value shl 1
+            value = if (value and Int.MIN_VALUE != 0) (value shl 1) xor CRC_POLYNOMIAL else value shl 1
         }
         value
     }
-    private const val OGG_CRC_POLY = 0x04C11DB7
+    private const val CRC_POLYNOMIAL = 0x04C11DB7
 }
 
-private const val PAGE_HEADER_SIZE = 27
-private const val CONTINUED_FLAG = 0x01
-private const val BOS_FLAG = 0x02
-private const val EOS_FLAG = 0x04
+private const val HEADER_BYTES = 27
+private const val HEADER_CONTINUED = 0x01
+private const val HEADER_FIRST_PAGE = 0x02
+private const val HEADER_LAST_PAGE = 0x04
 
 internal fun ByteArray.readLittleEndianInt(offset: Int): Int =
     (this[offset].toInt() and 0xFF) or

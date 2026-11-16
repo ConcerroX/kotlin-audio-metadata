@@ -14,8 +14,8 @@ Dependency: `net.jthink:jaudiotagger` 3.0.1
 (https://bitbucket.org/ijabz/jaudiotagger, tag v3.0.1). No upstream source code is embedded in
 this repository.
 
-The Opus reader/writer and the OggPage helper in commonMain are ported from the jaudiotagger 2.3.x
-fork (https://github.com/Adonai/jaudiotagger, version 2.3.15) and adapted to the 3.0.1 APIs.
+The Opus reader/writer and the Ogg page/packet handling are implemented from RFC 3533 (Ogg
+encapsulation) and RFC 7845 (Ogg Opus); no code from the jaudiotagger 2.3.x fork is included.
 
 Because this project contains code derived from the works above, it is distributed under the GNU
 Lesser General Public License, version 2.1 or later. See LICENSE.

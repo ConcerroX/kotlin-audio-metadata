@@ -27,7 +27,10 @@ internal fun findOggPacket(source: RandomAccessSource, pages: List<OggPage>, sta
         OggPacket(header.packets.first(), header.lastPageIndex, header.trailingBytes)
     }
 
-/** Collects [count] consecutive packets starting at [startPageIndex]. */
+/**
+ * Collects [count] consecutive packets starting at [startPageIndex] using the lacing rules from
+ * RFC 3533 section 6: a lacing value below 255 ends a packet, 255 means the packet continues.
+ */
 internal fun findOggPackets(
     source: RandomAccessSource,
     pages: List<OggPage>,
@@ -35,21 +38,22 @@ internal fun findOggPackets(
     count: Int,
 ): OggStreamHeader? {
     if (startPageIndex >= pages.size || count <= 0) return null
-    val packets = ArrayList<ByteArray>()
-    var chunks = ArrayList<ByteArray>()
+    val packets = ArrayList<ByteArray>(count)
+    val segments = ArrayList<ByteArray>()
     for (index in startPageIndex until pages.size) {
         val page = pages[index]
         val payload = OggPages.readPayload(source, page)
-        var consumed = 0
-        for (segment in page.segmentTable) {
-            if (consumed + segment > payload.size) return null
-            chunks += payload.copyOfRange(consumed, consumed + segment)
-            consumed += segment
-            if (segment < 255) {
-                packets += concatenate(chunks)
-                chunks = ArrayList()
+        var position = 0
+        page.segmentTable.forEachIndexed { laceIndex, lacing ->
+            if (position + lacing > payload.size) return null
+            if (lacing > 0) segments += payload.copyOfRange(position, position + lacing)
+            position += lacing
+            if (lacing < 255) {
+                packets += joinSegments(segments)
+                segments.clear()
                 if (packets.size == count) {
-                    return OggStreamHeader(packets, index, trailingBytes = consumed < payload.size)
+                    val trailing = position < payload.size || laceIndex < page.segmentTable.lastIndex
+                    return OggStreamHeader(packets, index, trailing)
                 }
             }
         }
@@ -58,8 +62,8 @@ internal fun findOggPackets(
 }
 
 /**
- * Replaces the packets that [header] describes with [newPackets], then renumbers and re-checksums
- * every following page.
+ * Replaces the packets described by [header] with [newPackets] and rebuilds the pages after the
+ * identification page. Following pages are renumbered and re-checksummed.
  */
 internal fun replaceOggPackets(
     source: WritableRandomAccessSource,
@@ -68,27 +72,27 @@ internal fun replaceOggPackets(
     newPackets: List<ByteArray>,
 ) {
     check(!header.trailingBytes) { "Ogg page contains packets after the tag packet" }
-    val head = pages.first()
-    val lastTagPage = pages[header.lastPageIndex]
-    val audioStart = lastTagPage.offset + lastTagPage.size
+    val identificationPage = pages.first()
+    val lastHeaderPage = pages[header.lastPageIndex]
+    val audioStart = lastHeaderPage.offset + lastHeaderPage.size
 
-    val newPages = ArrayList<ByteArray>()
+    val rebuiltPages = ArrayList<ByteArray>()
     var sequence = 1
     newPackets.forEach { packet ->
-        val packetPages = OggPages.pagePacket(packet, head.serialNumber, sequence)
-        newPages += packetPages
+        val packetPages = OggPages.pagePacket(packet, identificationPage.serialNumber, sequence)
+        rebuiltPages += packetPages
         sequence += packetPages.size
     }
-    val newAudioStart = head.size.toLong() + newPages.sumOf { it.size.toLong() }
+    val newAudioStart = identificationPage.size.toLong() + rebuiltPages.sumOf { page -> page.size.toLong() }
     source.moveTail(audioStart, newAudioStart)
 
-    var writeOffset = head.size.toLong()
-    newPages.forEach { page ->
+    var writeOffset = identificationPage.size.toLong()
+    rebuiltPages.forEach { page ->
         source.writeAt(writeOffset, page)
         writeOffset += page.size
     }
 
-    var nextSequence = newPages.size + 1
+    var nextSequence = rebuiltPages.size + 1
     var offset = newAudioStart
     while (offset < source.size) {
         val size = OggPages.renumberPage(source, offset, nextSequence++)
@@ -99,8 +103,8 @@ internal fun replaceOggPackets(
 }
 
 /**
- * Replaces the packet that [packet] describes with [newPacket], then renumbers and re-checksums
- * every following page.
+ * Replaces the packet described by [packet] with [newPacket], then renumbers and re-checksums the
+ * following pages.
  */
 internal fun replaceOggPacket(
     source: WritableRandomAccessSource,
@@ -116,13 +120,13 @@ internal fun replaceOggPacket(
     )
 }
 
-private fun concatenate(chunks: List<ByteArray>): ByteArray {
-    val total = chunks.sumOf { it.size }
-    val result = ByteArray(total)
+private fun joinSegments(segments: List<ByteArray>): ByteArray {
+    val total = segments.sumOf { segment -> segment.size }
+    val packet = ByteArray(total)
     var offset = 0
-    chunks.forEach { chunk ->
-        chunk.copyInto(result, offset)
-        offset += chunk.size
+    segments.forEach { segment ->
+        segment.copyInto(packet, offset)
+        offset += segment.size
     }
-    return result
+    return packet
 }
