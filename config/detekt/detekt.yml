@@ -1,0 +1,39 @@
+ktlint:
+  active: true
+  autoCorrect: false
+  # The project wraps primary constructors, argument lists and expression bodies deliberately.
+  ClassSignature:
+    active: false
+  FunctionSignature:
+    active: false
+  ArgumentListWrapping:
+    active: false
+  BlankLineBetweenWhenConditions:
+    active: false
+  FunctionLiteral:
+    active: false
+  PropertyWrapping:
+    active: false
+  BinaryExpressionWrapping:
+    active: false
+
+complexity:
+  CyclomaticComplexMethod:
+    allowedComplexity: 25
+  ComplexCondition:
+    allowedConditions: 4
+  TooManyFunctions:
+    allowedFunctionsPerFile: 20
+    allowedFunctionsPerClass: 20
+    allowedFunctionsPerObject: 20
+    allowedFunctionsPerInterface: 20
+
+style:
+  # Binary format parsing reads constants straight from the specification.
+  MagicNumber:
+    active: false
+  # Readers return early on truncated or unexpected data; a single exit would obscure that.
+  ReturnCount:
+    active: false
+  LoopWithTooManyJumpStatements:
+    active: false

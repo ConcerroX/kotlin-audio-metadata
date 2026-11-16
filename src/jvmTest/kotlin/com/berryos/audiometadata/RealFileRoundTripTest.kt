@@ -7,7 +7,6 @@ import com.berryos.audiometadata.flac.FlacMetadataReader
 import com.berryos.audiometadata.flac.FlacMetadataWriter
 import com.berryos.audiometadata.io.FileChannelSource
 import com.berryos.audiometadata.io.RandomAccessSource
-import com.berryos.audiometadata.io.WritableRandomAccessSource
 import com.berryos.audiometadata.mp3.Mp3MetadataReader
 import com.berryos.audiometadata.mp3.Mp3MetadataWriter
 import com.berryos.audiometadata.mp4.Mp4MetadataReader

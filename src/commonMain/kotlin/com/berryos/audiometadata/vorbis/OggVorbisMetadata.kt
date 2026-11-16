@@ -1,9 +1,9 @@
 package com.berryos.audiometadata.vorbis
 
+import com.berryos.audiometadata.Artwork
 import com.berryos.audiometadata.AudioFormat
 import com.berryos.audiometadata.AudioInfo
 import com.berryos.audiometadata.AudioMetadata
-import com.berryos.audiometadata.Artwork
 import com.berryos.audiometadata.io.RandomAccessSource
 import com.berryos.audiometadata.io.WritableRandomAccessSource
 import com.berryos.audiometadata.ogg.OggPages

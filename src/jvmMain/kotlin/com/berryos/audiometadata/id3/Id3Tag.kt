@@ -158,8 +158,8 @@ class Id3Tag internal constructor(
         }
     }
 
-    fun toAudioMetadata(format: AudioFormat = AudioFormat.Mp3, audioInfo: AudioInfo? = null): AudioMetadata {
-        return AudioMetadata(
+    fun toAudioMetadata(format: AudioFormat = AudioFormat.Mp3, audioInfo: AudioInfo? = null): AudioMetadata =
+        AudioMetadata(
             format = format,
             id3Version = version,
             title = text(FieldKey.TITLE).ifEmpty { null },
@@ -177,7 +177,6 @@ class Id3Tag internal constructor(
             replayGain = replayGain,
             audioInfo = audioInfo,
         )
-    }
 
     private fun text(key: FieldKey): String = tag.getFirst(key).orEmpty()
 

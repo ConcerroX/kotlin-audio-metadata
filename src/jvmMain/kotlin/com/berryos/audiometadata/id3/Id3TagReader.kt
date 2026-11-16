@@ -24,7 +24,7 @@ internal fun parseId3v2Tag(bytes: ByteArray): Id3Tag? {
             Id3Version.V23 -> ID3v23Tag(buffer, LOGGING_NAME)
             Id3Version.V24 -> ID3v24Tag(buffer, LOGGING_NAME)
         }
-    } catch (exception: TagException) {
+    } catch (ignored: TagException) {
         return null
     }
     return Id3Tag(version, tag, bytes.size)

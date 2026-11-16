@@ -1,9 +1,9 @@
 package com.berryos.audiometadata.mp4
 
+import com.berryos.audiometadata.Artwork
 import com.berryos.audiometadata.AudioFormat
 import com.berryos.audiometadata.AudioInfo
 import com.berryos.audiometadata.AudioMetadata
-import com.berryos.audiometadata.Artwork
 import com.berryos.audiometadata.guessArtworkMimeType
 import com.berryos.audiometadata.io.RandomAccessSource
 import com.berryos.audiometadata.io.WritableRandomAccessSource
@@ -149,7 +149,11 @@ internal object Mp4MetadataReader {
             if (stsd != null) {
                 val entry = atomsIn(source, stsd, skip = FULL_BOX_HEADER + 4).firstOrNull()
                 if (entry != null) {
-                    val payload = readBytes(source, entry.payloadStart, minOf(entry.payloadSize, AUDIO_SAMPLE_ENTRY_SIZE.toLong()).toInt())
+                    val payload = readBytes(
+                        source,
+                        entry.payloadStart,
+                        minOf(entry.payloadSize, AUDIO_SAMPLE_ENTRY_SIZE.toLong()).toInt(),
+                    )
                     if (payload.size >= AUDIO_SAMPLE_ENTRY_SIZE) {
                         channels = payload.readBigEndianShort(16)
                         sampleRate = payload.readBigEndianInt(24) ushr 16
@@ -359,7 +363,9 @@ internal object Mp4MetadataWriter {
         val metaInUdta = udtaChildren?.firstOrNull { it.type == "meta" }
         val metaInMoov = moovChildren.firstOrNull { it.type == "meta" }
         val meta = metaInUdta ?: metaInMoov
-        val ilst = meta?.let { atomsIn(source, it, skip = FULL_BOX_HEADER).firstOrNull { child -> child.type == "ilst" } }
+        val ilst = meta?.let {
+            atomsIn(source, it, skip = FULL_BOX_HEADER).firstOrNull { child -> child.type == "ilst" }
+        }
         val newIlst = buildIlst(source, ilst, tags)
         val newMeta = buildMeta(source, meta, newIlst)
 
@@ -399,7 +405,11 @@ internal object Mp4MetadataWriter {
     private fun buildMeta(source: RandomAccessSource, meta: Mp4Atom?, newIlst: ByteArray): ByteArray {
         val children = if (meta != null) atomsIn(source, meta, skip = FULL_BOX_HEADER) else emptyList()
         val kept = children.filter { it.type != "ilst" }.map { raw(source, it) }
-        val prefix = if (meta != null) readBytes(source, meta.payloadStart, FULL_BOX_HEADER) else ByteArray(FULL_BOX_HEADER)
+        val prefix = if (meta != null) {
+            readBytes(source, meta.payloadStart, FULL_BOX_HEADER)
+        } else {
+            ByteArray(FULL_BOX_HEADER)
+        }
         return buildAtom("meta", prefix + concat(kept + listOf(newIlst)))
     }
 
@@ -500,7 +510,13 @@ internal object Mp4MetadataWriter {
                     }
                 }
 
-                in CONTAINER_TYPES -> patchChunkOffsetsIn(bytes, position + ATOM_HEADER_SIZE, position + size, threshold, delta)
+                in CONTAINER_TYPES -> patchChunkOffsetsIn(
+                    bytes,
+                    position + ATOM_HEADER_SIZE,
+                    position + size,
+                    threshold,
+                    delta,
+                )
             }
             position += size
         }
