@@ -25,6 +25,7 @@ import java.io.*;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.channels.FileChannel;
+import java.nio.channels.ReadableByteChannel;
 import java.nio.charset.Charset;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -558,5 +559,39 @@ public class Utils
             return true;
         }
         return false;
+    }
+
+    // Added by kotlin-audio-metadata: helpers required by the ported Opus extension, taken from
+    // the jaudiotagger 2.3.x fork.
+    public static int skip(ByteBuffer buffer, int count)
+    {
+        int toSkip = Math.min(buffer.remaining(), count);
+        buffer.position(buffer.position() + toSkip);
+        return toSkip;
+    }
+
+    public static String readString(final ByteBuffer bytes, final int charsToRead)
+    {
+        final byte[] buf = new byte[charsToRead];
+        bytes.get(buf);
+        return new String(buf, US_ASCII);
+    }
+
+    public static ByteBuffer fetchFromChannel(ReadableByteChannel ch, int size) throws IOException
+    {
+        ByteBuffer buf = ByteBuffer.allocate(size);
+        readFromChannel(ch, buf);
+        buf.flip();
+        return buf;
+    }
+
+    public static int readFromChannel(ReadableByteChannel channel, ByteBuffer buffer) throws IOException
+    {
+        int rem = buffer.position();
+        while (channel.read(buffer) != -1 && buffer.hasRemaining())
+        {
+            // keep reading
+        }
+        return buffer.position() - rem;
     }
 }

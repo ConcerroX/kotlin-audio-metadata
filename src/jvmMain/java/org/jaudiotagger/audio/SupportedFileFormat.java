@@ -8,6 +8,8 @@ public enum SupportedFileFormat
 {
     OGG("ogg", "Ogg"),
     OGA("oga", "Oga"),
+    // Added by kotlin-audio-metadata: ported from the jaudiotagger 2.3.x Opus extension.
+    OPUS("opus", "Opus"),
     MP3("mp3", "Mp3"),
     FLAC("flac", "Flac"),
     MP4("mp4", "Mp4"),

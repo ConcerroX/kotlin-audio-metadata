@@ -26,6 +26,7 @@ import org.jaudiotagger.tag.id3.AbstractID3v2Tag;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -289,6 +290,57 @@ public class OggPageHeader
     public byte[] getSegmentTable()
     {
         return this.segmentTable;
+    }
+
+    // Added by kotlin-audio-metadata: page writing helpers required by the ported Opus extension,
+    // taken from the jaudiotagger 2.3.x fork.
+    public static OggPageHeader createCommentHeader(int pageSize, boolean continued, int serial, int sequence)
+    {
+        int fullPacketSegments = pageSize / MAXIMUM_NO_OF_SEGMENT_SIZE;
+        int pageRemainder = pageSize % MAXIMUM_NO_OF_SEGMENT_SIZE;
+        int totalPacketSegments = fullPacketSegments + (pageRemainder > 0 ? 1 : 0);
+
+        byte[] raw = new byte[OGG_PAGE_HEADER_FIXED_LENGTH + totalPacketSegments];
+        ByteBuffer buf = ByteBuffer.wrap(raw).order(ByteOrder.LITTLE_ENDIAN);
+        buf.put(CAPTURE_PATTERN);
+        buf.put((byte) 0x0);
+        buf.put((byte) (continued ? 0x1 : 0x0));
+        buf.putLong(0L);
+        buf.putInt(serial);
+        buf.putInt(sequence);
+        buf.putInt(0x0);
+        buf.put((byte) totalPacketSegments);
+        for (int segment = 0; segment < fullPacketSegments; segment++)
+        {
+            buf.put((byte) 0xFF);
+        }
+        if (pageRemainder > 0)
+        {
+            buf.put((byte) pageRemainder);
+        }
+        return new OggPageHeader(raw);
+    }
+
+    public void write(ByteBuffer dst)
+    {
+        dst.put(rawHeaderData);
+    }
+
+    public void setPageSequence(int seqNo)
+    {
+        ByteBuffer.wrap(rawHeaderData).order(ByteOrder.LITTLE_ENDIAN).putInt(FIELD_PAGE_SEQUENCE_NO_POS, seqNo);
+        this.pageSequenceNumber = seqNo;
+    }
+
+    public void setChecksum(int checksum)
+    {
+        ByteBuffer.wrap(rawHeaderData).order(ByteOrder.LITTLE_ENDIAN).putInt(FIELD_PAGE_CHECKSUM_POS, checksum);
+        this.checksum = checksum;
+    }
+
+    public boolean isContinuedPage()
+    {
+        return (headerTypeFlag & 0x01) != 0;
     }
 
     public boolean isValid()

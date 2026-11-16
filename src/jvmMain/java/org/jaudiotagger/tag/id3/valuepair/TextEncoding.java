@@ -49,6 +49,13 @@ public class TextEncoding extends AbstractIntStringValuePair
     public static final byte UTF_16BE = 2;
     public static final byte UTF_8 = 3;
 
+    // Added by kotlin-audio-metadata: charset names used by the ported Opus extension.
+    public static final String CHARSET_ISO_8859_1 = "ISO-8859-1";
+    public static final String CHARSET_UTF_16 = "UTF-16";
+    public static final String CHARSET_UTF_16BE = "UTF-16BE";
+    public static final String CHARSET_UTF_8 = "UTF-8";
+    public static final String CHARSET_US_ASCII = "US-ASCII";
+
     /** The number of bytes used to hold the text encoding field size. */
     public static final int TEXT_ENCODING_FIELD_SIZE = 1;
 
