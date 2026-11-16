@@ -1,30 +1,33 @@
-package com.berryos.audiometadata.mp3
+package com.berryos.audiometadata.id3
 
 import com.berryos.audiometadata.Artwork
 import com.berryos.audiometadata.AudioFormat
 import com.berryos.audiometadata.AudioInfo
 import com.berryos.audiometadata.AudioMetadata
-import com.berryos.audiometadata.guessArtworkMimeType
 import com.berryos.audiometadata.Id3Version
 import com.berryos.audiometadata.ReplayGain
+import com.berryos.audiometadata.guessArtworkMimeType
 import org.jaudiotagger.tag.FieldKey
 import org.jaudiotagger.tag.TagField
 import org.jaudiotagger.tag.id3.AbstractID3v2Frame
 import org.jaudiotagger.tag.id3.AbstractID3v2Tag
+import org.jaudiotagger.tag.id3.ID3v22Tag
 import org.jaudiotagger.tag.id3.ID3v23Frame
+import org.jaudiotagger.tag.id3.ID3v23Tag
 import org.jaudiotagger.tag.id3.ID3v24Frame
+import org.jaudiotagger.tag.id3.ID3v24Tag
 import org.jaudiotagger.tag.id3.framebody.AbstractFrameBodyTextInfo
 import org.jaudiotagger.tag.id3.framebody.FrameBodyAPIC
 import org.jaudiotagger.tag.id3.framebody.FrameBodyTXXX
 import org.jaudiotagger.tag.reference.GenreTypes
 
 /**
- * Mutable view of an ID3v2 tag.
+ * Mutable view of an ID3v2 tag, shared by MP3 and containers that embed ID3 (WAV, AIFF).
  *
  * Only the edited fields are re-encoded; every other frame stays in the tag and is written back
  * by jaudiotagger unchanged.
  */
-class Mp3Tag internal constructor(
+class Id3Tag internal constructor(
     val version: Id3Version,
     internal val tag: AbstractID3v2Tag,
     internal val originalTagSize: Int,
@@ -136,9 +139,9 @@ class Mp3Tag internal constructor(
         }
     }
 
-    fun toAudioMetadata(audioInfo: AudioInfo? = null): AudioMetadata {
+    fun toAudioMetadata(format: AudioFormat = AudioFormat.Mp3, audioInfo: AudioInfo? = null): AudioMetadata {
         return AudioMetadata(
-            format = AudioFormat.Mp3,
+            format = format,
             id3Version = version,
             title = text(FieldKey.TITLE).ifEmpty { null },
             artists = values(FieldKey.ARTIST),
@@ -187,43 +190,21 @@ class Mp3Tag internal constructor(
         val body = (field as? AbstractID3v2Frame)?.body
         return if (body is AbstractFrameBodyTextInfo) body.values else listOf(field.toString())
     }
+
+    companion object {
+        /** Creates an empty tag of [version], used when a container has no ID3 chunk yet. */
+        fun create(version: Id3Version = Id3Version.V23): Id3Tag {
+            val tag = when (version) {
+                Id3Version.V22 -> ID3v22Tag()
+                Id3Version.V23 -> ID3v23Tag()
+                Id3Version.V24 -> ID3v24Tag()
+            }
+            return Id3Tag(version, tag, 0)
+        }
+    }
 }
 
 private const val REPLAYGAIN_PREFIX = "REPLAYGAIN_"
 private const val DEFAULT_PICTURE_TYPE = 3
 
 private val GENRE_REFERENCE = Regex("\\((\\d+)\\)")
-
-/** Result of reading an MP3 file: the ID3v2 tag (if any), the audio offset and the ID3v1 tag. */
-class Mp3Metadata internal constructor(
-    val tag: Mp3Tag?,
-    internal val audioStartOffset: Long,
-    val id3v1: Id3v1Metadata?,
-    val audioInfo: AudioInfo? = null,
-) {
-    fun toAudioMetadata(): AudioMetadata = tag?.toAudioMetadata(audioInfo)
-        ?: id3v1?.toAudioMetadata(audioInfo)
-        ?: AudioMetadata(format = AudioFormat.Mp3, audioInfo = audioInfo)
-}
-
-/** Fields of a trailing ID3v1/ID3v1.1 tag. */
-data class Id3v1Metadata(
-    val title: String? = null,
-    val artist: String? = null,
-    val album: String? = null,
-    val year: String? = null,
-    val comment: String? = null,
-    val trackNumber: Int? = null,
-    val genreIndex: Int? = null,
-) {
-    fun toAudioMetadata(audioInfo: AudioInfo? = null): AudioMetadata = AudioMetadata(
-        format = AudioFormat.Mp3,
-        title = title,
-        artists = listOfNotNull(artist),
-        album = album,
-        year = year,
-        comments = listOfNotNull(comment),
-        trackNumber = trackNumber,
-        audioInfo = audioInfo,
-    )
-}

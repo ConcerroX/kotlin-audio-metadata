@@ -2,15 +2,16 @@ package com.berryos.audiometadata
 
 import com.berryos.audiometadata.io.RandomAccessSource
 
-internal enum class DetectedFormat { Mp3, Flac, Ogg, Mp4, Unknown }
+internal enum class DetectedFormat { Mp3, Flac, Ogg, Mp4, Wav, Unknown }
 
 internal fun detectAudioFormat(source: RandomAccessSource): DetectedFormat {
-    val magic = ByteArray(8)
+    val magic = ByteArray(12)
     val count = source.readAt(0, magic)
     return when {
         count >= 3 && magic.hasTypeAt(0, "ID3") -> DetectedFormat.Mp3
         count >= 4 && magic.hasTypeAt(0, "fLaC") -> DetectedFormat.Flac
         count >= 4 && magic.hasTypeAt(0, "OggS") -> DetectedFormat.Ogg
+        count >= 12 && magic.hasTypeAt(0, "RIFF") && magic.hasTypeAt(8, "WAVE") -> DetectedFormat.Wav
         count >= 8 && (magic.hasTypeAt(4, "ftyp") || magic.hasTypeAt(0, "moov")) -> DetectedFormat.Mp4
         else -> DetectedFormat.Unknown
     }

@@ -14,6 +14,9 @@ import com.berryos.audiometadata.ogg.walkOggPages
 import com.berryos.audiometadata.vorbis.OggVorbisMetadataReader
 import com.berryos.audiometadata.vorbis.OggVorbisMetadataWriter
 import com.berryos.audiometadata.vorbis.setArtworks
+import com.berryos.audiometadata.wav.WavMetadata
+import com.berryos.audiometadata.wav.WavMetadataReader
+import com.berryos.audiometadata.wav.WavMetadataWriter
 import org.junit.Assume.assumeTrue
 import java.io.File
 import java.nio.file.Files
@@ -57,6 +60,40 @@ class RealFileRoundTripTest {
 
     @Test
     fun mp4_issue198() = mp4ReadOnly("issue-198.m4a")
+
+    @Test
+    fun wav_test() = wavRoundTrip("test.wav")
+
+    @Test
+    fun wav_bug153() = wavRoundTrip("bug153.wav")
+
+    private fun wavRoundTrip(name: String) = withFixture(name) { copy ->
+        val source = FileChannelSource(copy)
+        try {
+            val before = assertNotNull(WavMetadataReader.read(source))
+            val data = chunkPayload(source, before, "data")
+
+            before.tag.title = MARKER
+            WavMetadataWriter.write(source, before)
+
+            val after = assertNotNull(WavMetadataReader.read(source))
+            assertEquals(MARKER, after.toAudioMetadata().title)
+            assertContentEquals(data, chunkPayload(source, after, "data"))
+            assertEquals(AudioFormat.Wav, assertNotNull(AudioMetadataReader.read(source)).format)
+        } finally {
+            source.close()
+        }
+    }
+
+    private fun chunkPayload(source: RandomAccessSource, metadata: WavMetadata, id: String): ByteArray {
+        val chunk = metadata.chunks.first { it.id == id }
+        val payload = ByteArray(chunk.size.toInt())
+        var read = 0
+        while (read < payload.size) {
+            read += source.readAt(chunk.payloadOffset + read, payload, read, payload.size - read)
+        }
+        return payload
+    }
 
     @Test
     fun artworkFromMp4() = withReadOnly("test.m4a") { source ->

@@ -1,12 +1,9 @@
 package com.berryos.audiometadata.mp3
 
 import com.berryos.audiometadata.Id3Version
+import com.berryos.audiometadata.id3.Id3Tag
+import com.berryos.audiometadata.id3.parseId3v2Tag
 import com.berryos.audiometadata.io.RandomAccessSource
-import org.jaudiotagger.tag.TagException
-import org.jaudiotagger.tag.id3.ID3v22Tag
-import org.jaudiotagger.tag.id3.ID3v23Tag
-import org.jaudiotagger.tag.id3.ID3v24Tag
-import java.nio.ByteBuffer
 
 /**
  * Reads ID3v2 (2.2/2.3/2.4) and ID3v1 tags from any random-access source.
@@ -49,17 +46,8 @@ object Mp3MetadataReader {
 
         val bytes = ByteArray(tagSize.toInt())
         if (source.readAt(0, bytes) < bytes.size) return null
-        val buffer = ByteBuffer.wrap(bytes)
-        val tag = try {
-            when (version) {
-                Id3Version.V22 -> ID3v22Tag(buffer, LOGGING_NAME)
-                Id3Version.V23 -> ID3v23Tag(buffer, LOGGING_NAME)
-                Id3Version.V24 -> ID3v24Tag(buffer, LOGGING_NAME)
-            }
-        } catch (exception: TagException) {
-            return null
-        }
-        return ParsedId3v2(Mp3Tag(version, tag, tagSize.toInt()), tagSize)
+        val tag = parseId3v2Tag(bytes) ?: return null
+        return ParsedId3v2(tag, tagSize)
     }
 
     private fun readId3v1(source: RandomAccessSource): Id3v1Metadata? {
@@ -83,7 +71,7 @@ object Mp3MetadataReader {
     }
 }
 
-private class ParsedId3v2(val tag: Mp3Tag, val audioStartOffset: Long)
+private class ParsedId3v2(val tag: Id3Tag, val audioStartOffset: Long)
 
 private fun decodeSyncSafe(bytes: ByteArray, offset: Int): Int {
     var value = 0
@@ -105,4 +93,3 @@ private const val ID3V2_HEADER_SIZE = 10
 private const val ID3V1_SIZE = 128
 private const val FOOTER_SIZE = 10
 private const val FOOTER_FLAG = 0x10
-private const val LOGGING_NAME = "audio"

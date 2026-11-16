@@ -6,6 +6,7 @@ import com.berryos.audiometadata.mp3.Mp3MetadataReader
 import com.berryos.audiometadata.mp4.Mp4MetadataReader
 import com.berryos.audiometadata.opus.OpusMetadataReader
 import com.berryos.audiometadata.vorbis.OggVorbisMetadataReader
+import com.berryos.audiometadata.wav.WavMetadataReader
 
 /** Reads metadata from any supported format by sniffing the container signature. */
 object AudioMetadataReader {
@@ -16,6 +17,7 @@ object AudioMetadataReader {
             ?: OggVorbisMetadataReader.read(source)?.toAudioMetadata()
 
         DetectedFormat.Mp4 -> Mp4MetadataReader.read(source)?.toAudioMetadata()
+        DetectedFormat.Wav -> WavMetadataReader.read(source)?.toAudioMetadata()
         // Files without an ID3v2 header may still carry an ID3v1 trailer.
         DetectedFormat.Unknown -> Mp3MetadataReader.read(source)?.toAudioMetadata()
     }
@@ -31,6 +33,7 @@ object AudioArtworkReader {
         }
 
         DetectedFormat.Mp4 -> Mp4MetadataReader.read(source)?.artworks.orEmpty()
+        DetectedFormat.Wav -> WavMetadataReader.read(source)?.artworks.orEmpty()
         DetectedFormat.Unknown -> Mp3MetadataReader.read(source)?.tag?.artworks.orEmpty()
     }
 }
