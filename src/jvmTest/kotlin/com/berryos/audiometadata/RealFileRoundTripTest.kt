@@ -1,5 +1,8 @@
 package com.berryos.audiometadata
 
+import com.berryos.audiometadata.aiff.AiffMetadata
+import com.berryos.audiometadata.aiff.AiffMetadataReader
+import com.berryos.audiometadata.aiff.AiffMetadataWriter
 import com.berryos.audiometadata.flac.FlacMetadataReader
 import com.berryos.audiometadata.flac.FlacMetadataWriter
 import com.berryos.audiometadata.io.FileChannelSource
@@ -66,6 +69,41 @@ class RealFileRoundTripTest {
 
     @Test
     fun wav_bug153() = wavRoundTrip("bug153.wav")
+
+    @Test
+    fun aiff_test119() = aiffRoundTrip("test119.aif")
+
+    @Test
+    fun aiff_test120() = aiffRoundTrip("test120.aif")
+
+    private fun aiffRoundTrip(name: String) = withFixture(name) { copy ->
+        val source = FileChannelSource(copy)
+        try {
+            val before = assertNotNull(AiffMetadataReader.read(source))
+            val data = aiffChunkPayload(source, before, "SSND")
+
+            before.tag.title = MARKER
+            AiffMetadataWriter.write(source, before)
+
+            val after = assertNotNull(AiffMetadataReader.read(source))
+            assertEquals(MARKER, after.toAudioMetadata().title)
+            assertNotNull(after.audioInfo)
+            assertContentEquals(data, aiffChunkPayload(source, after, "SSND"))
+            assertEquals(AudioFormat.Aiff, assertNotNull(AudioMetadataReader.read(source)).format)
+        } finally {
+            source.close()
+        }
+    }
+
+    private fun aiffChunkPayload(source: RandomAccessSource, metadata: AiffMetadata, id: String): ByteArray {
+        val chunk = metadata.chunks.first { it.id == id }
+        val payload = ByteArray(chunk.size.toInt())
+        var read = 0
+        while (read < payload.size) {
+            read += source.readAt(chunk.payloadOffset + read, payload, read, payload.size - read)
+        }
+        return payload
+    }
 
     private fun wavRoundTrip(name: String) = withFixture(name) { copy ->
         val source = FileChannelSource(copy)

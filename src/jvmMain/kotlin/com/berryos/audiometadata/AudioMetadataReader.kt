@@ -1,5 +1,6 @@
 package com.berryos.audiometadata
 
+import com.berryos.audiometadata.aiff.AiffMetadataReader
 import com.berryos.audiometadata.flac.FlacMetadataReader
 import com.berryos.audiometadata.io.RandomAccessSource
 import com.berryos.audiometadata.mp3.Mp3MetadataReader
@@ -18,6 +19,7 @@ object AudioMetadataReader {
 
         DetectedFormat.Mp4 -> Mp4MetadataReader.read(source)?.toAudioMetadata()
         DetectedFormat.Wav -> WavMetadataReader.read(source)?.toAudioMetadata()
+        DetectedFormat.Aiff -> AiffMetadataReader.read(source)?.toAudioMetadata()
         // Files without an ID3v2 header may still carry an ID3v1 trailer.
         DetectedFormat.Unknown -> Mp3MetadataReader.read(source)?.toAudioMetadata()
     }
@@ -34,6 +36,7 @@ object AudioArtworkReader {
 
         DetectedFormat.Mp4 -> Mp4MetadataReader.read(source)?.artworks.orEmpty()
         DetectedFormat.Wav -> WavMetadataReader.read(source)?.artworks.orEmpty()
+        DetectedFormat.Aiff -> AiffMetadataReader.read(source)?.artworks.orEmpty()
         DetectedFormat.Unknown -> Mp3MetadataReader.read(source)?.tag?.artworks.orEmpty()
     }
 }
