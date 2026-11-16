@@ -80,7 +80,7 @@ class Id3Tag internal constructor(
         get() = text(FieldKey.COMMENT)
         set(value) = setText(FieldKey.COMMENT, value)
 
-    val replayGain: ReplayGain?
+    var replayGain: ReplayGain?
         get() {
             val values = mutableMapOf<String, String>()
             val frames = tag.fields
@@ -97,6 +97,25 @@ class Id3Tag internal constructor(
                 albumGain = values["REPLAYGAIN_ALBUM_GAIN"],
                 albumPeak = values["REPLAYGAIN_ALBUM_PEAK"],
             )
+        }
+        set(value) {
+            if (version == Id3Version.V22) return
+            val kept = tag.getFields("TXXX").filterNot { field ->
+                val body = (field as? AbstractID3v2Frame)?.body
+                body is FrameBodyTXXX && body.description.startsWith(REPLAYGAIN_PREFIX)
+            }
+            tag.removeFrame("TXXX")
+            kept.forEach { field -> tag.addField(field) }
+            if (value == null) return
+            val entries = mapOf(
+                "REPLAYGAIN_TRACK_GAIN" to value.trackGain,
+                "REPLAYGAIN_TRACK_PEAK" to value.trackPeak,
+                "REPLAYGAIN_ALBUM_GAIN" to value.albumGain,
+                "REPLAYGAIN_ALBUM_PEAK" to value.albumPeak,
+            )
+            entries.forEach { (description, text) ->
+                if (text != null) createTxxxFrame(description, text)?.let(tag::addField)
+            }
         }
 
     val artworks: List<Artwork>
@@ -170,12 +189,31 @@ class Id3Tag internal constructor(
         }
     }
 
-    private fun values(key: FieldKey): List<String> = tag.getFields(key)
+    internal fun values(key: FieldKey): List<String> = tag.getFields(key)
         .flatMap(::fieldValues)
         .filter(String::isNotEmpty)
 
+    internal fun setValues(key: FieldKey, values: List<String>) {
+        tag.deleteField(key)
+        // Repeated single-value adds are appended as null-separated values, which works for both
+        // ID3v2.3 and ID3v2.4; the vararg overload keeps only the first value on v2.3.
+        values.forEach { value -> tag.addField(key, value) }
+    }
+
     // TCON may reference ID3v1 genres by number, e.g. "(17)" for Rock; resolve them for display.
-    private fun genres(): List<String> = values(FieldKey.GENRE).flatMap(::resolveGenreReferences)
+    internal fun genres(): List<String> = values(FieldKey.GENRE).flatMap(::resolveGenreReferences)
+
+    private fun createTxxxFrame(description: String, text: String): AbstractID3v2Frame? {
+        val frame = when (version) {
+            Id3Version.V22 -> return null
+            Id3Version.V23 -> ID3v23Frame("TXXX")
+            Id3Version.V24 -> ID3v24Frame("TXXX")
+        }
+        val body = frame.body as FrameBodyTXXX
+        body.description = description
+        body.text = text
+        return frame
+    }
 
     private fun resolveGenreReferences(value: String): List<String> {
         val matches = GENRE_REFERENCE.findAll(value).toList()

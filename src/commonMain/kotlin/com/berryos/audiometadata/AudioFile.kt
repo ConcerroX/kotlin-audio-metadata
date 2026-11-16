@@ -158,8 +158,9 @@ class AudioFile internal constructor(
          * being rolled out; the remaining formats are still available through their dedicated
          * readers.
          */
-        fun read(source: RandomAccessSource, includeArtworks: Boolean = false): AudioFile? =
-            when (AudioFormatDetector.detect(source)) {
+        fun read(source: RandomAccessSource, includeArtworks: Boolean = false): AudioFile? {
+            val format = AudioFormatDetector.detect(source)
+            return when (format) {
                 AudioFormat.Flac -> FlacMetadataReader.read(source, includeArtworks)
                     ?.let { AudioFile(FlacBacking(it)) }
 
@@ -171,7 +172,8 @@ class AudioFile internal constructor(
                 AudioFormat.Mp4 -> Mp4MetadataReader.read(source, includeArtworks)
                     ?.let { AudioFile(Mp4Backing(it)) }
 
-                else -> null
+                else -> openPlatformAudioFile(source, format, includeArtworks)
             }
+        }
     }
 }

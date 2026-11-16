@@ -6,7 +6,7 @@ import com.berryos.audiometadata.AudioMetadata
 import com.berryos.audiometadata.id3.Id3Tag
 
 /** Result of reading an MP3 file: the ID3v2 tag (if any), the audio offset and the ID3v1 tag. */
-class Mp3Metadata internal constructor(
+internal class Mp3Metadata(
     val tag: Id3Tag?,
     internal val audioStartOffset: Long,
     val id3v1: Id3v1Metadata?,
@@ -18,7 +18,7 @@ class Mp3Metadata internal constructor(
 }
 
 /** Fields of a trailing ID3v1/ID3v1.1 tag. */
-data class Id3v1Metadata(
+internal data class Id3v1Metadata(
     val title: String? = null,
     val artist: String? = null,
     val album: String? = null,

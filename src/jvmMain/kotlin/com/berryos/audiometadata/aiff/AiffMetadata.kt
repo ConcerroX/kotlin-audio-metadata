@@ -15,7 +15,7 @@ import kotlin.math.pow
 import kotlin.math.roundToInt
 
 /** Parsed AIFF metadata: the embedded ID3 tag and the `COMM` properties. */
-class AiffMetadata internal constructor(
+internal class AiffMetadata(
     val tag: Id3Tag,
     val audioInfo: AudioInfo?,
     internal val chunks: List<AiffChunk>,
@@ -37,7 +37,7 @@ internal class AiffChunk(
     val end: Long = offset + totalSize
 }
 
-object AiffMetadataReader {
+internal object AiffMetadataReader {
     fun read(source: RandomAccessSource): AiffMetadata? {
         if (source.size < FORM_HEADER_SIZE) return null
         val header = ByteArray(FORM_HEADER_SIZE)
@@ -95,7 +95,7 @@ object AiffMetadataReader {
 }
 
 /** Writes the `ID3 ` chunk, inserting it at the end when absent and updating the FORM size. */
-object AiffMetadataWriter {
+internal object AiffMetadataWriter {
     fun write(source: WritableRandomAccessSource, metadata: AiffMetadata) {
         val tagBytes = ByteArrayOutputStream().use { output ->
             metadata.tag.tag.write(output, 0)

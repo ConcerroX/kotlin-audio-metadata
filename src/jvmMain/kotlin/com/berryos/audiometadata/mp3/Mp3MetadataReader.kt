@@ -10,7 +10,7 @@ import com.berryos.audiometadata.io.RandomAccessSource
  *
  * The tag is parsed by the ported jaudiotagger classes; no File is required.
  */
-object Mp3MetadataReader {
+internal object Mp3MetadataReader {
     fun read(source: RandomAccessSource): Mp3Metadata? {
         val id3v2 = readId3v2(source)
         val id3v1 = readId3v1(source)

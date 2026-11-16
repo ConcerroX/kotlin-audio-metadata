@@ -13,7 +13,7 @@ import com.berryos.audiometadata.io.readFully
 import java.io.ByteArrayOutputStream
 
 /** Parsed WAV metadata: the embedded ID3 tag and the `fmt `/`data` properties. */
-class WavMetadata internal constructor(
+internal class WavMetadata(
     val tag: Id3Tag,
     val audioInfo: AudioInfo?,
     internal val chunks: List<WavChunk>,
@@ -35,7 +35,7 @@ internal class WavChunk(
     val end: Long = offset + totalSize
 }
 
-object WavMetadataReader {
+internal object WavMetadataReader {
     fun read(source: RandomAccessSource): WavMetadata? {
         if (source.size < RIFF_HEADER_SIZE) return null
         val header = ByteArray(RIFF_HEADER_SIZE)
@@ -96,7 +96,7 @@ object WavMetadataReader {
  *
  * The RIFF size is updated and the data chunk keeps its payload.
  */
-object WavMetadataWriter {
+internal object WavMetadataWriter {
     fun write(source: WritableRandomAccessSource, metadata: WavMetadata) {
         val tagBytes = ByteArrayOutputStream().use { output ->
             metadata.tag.tag.write(output, 0)

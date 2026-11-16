@@ -11,7 +11,7 @@ import java.io.ByteArrayOutputStream
  * Otherwise the audio data is shifted by the size difference first. The caller owns the source and
  * therefore any atomicity or backup strategy around it.
  */
-object Mp3MetadataWriter {
+internal object Mp3MetadataWriter {
     fun write(source: WritableRandomAccessSource, metadata: Mp3Metadata, chunkSize: Int = DEFAULT_CHUNK_SIZE) {
         val tag = metadata.tag ?: return
         val bytes = ByteArrayOutputStream().use { output ->
