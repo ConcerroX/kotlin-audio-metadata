@@ -18,10 +18,12 @@ object Mp3MetadataReader {
         val id3v2 = readId3v2(source)
         val id3v1 = readId3v1(source)
         if (id3v2 == null && id3v1 == null) return null
+        val audioStart = id3v2?.audioStartOffset ?: 0L
         return Mp3Metadata(
             tag = id3v2?.tag,
-            audioStartOffset = id3v2?.audioStartOffset ?: 0L,
+            audioStartOffset = audioStart,
             id3v1 = id3v1,
+            audioInfo = Mp3AudioInfoReader.read(source, audioStart),
         )
     }
 
