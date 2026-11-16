@@ -17,16 +17,13 @@ kotlin {
     }
 
     sourceSets {
-        jvmMain.dependencies {
-            implementation(libs.jaudiotagger)
-        }
-
         commonTest.dependencies {
             implementation(kotlin("test"))
         }
 
         jvmTest.dependencies {
             implementation("junit:junit:4.13.2")
+            implementation(libs.jaudiotagger)
         }
     }
 }
