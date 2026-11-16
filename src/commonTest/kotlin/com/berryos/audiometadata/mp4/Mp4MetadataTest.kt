@@ -98,7 +98,12 @@ class Mp4MetadataTest {
     }
 }
 
-internal fun mp4File(artists: List<String> = listOf("Artist"), artwork: ByteArray? = null): ByteArray {
+internal fun mp4File(
+    artists: List<String> = listOf("Artist"),
+    artwork: ByteArray? = null,
+    titleSort: String? = null,
+    compilation: Boolean? = null,
+): ByteArray {
     val ftyp = atom(
         "ftyp",
         "M4A ".encodeToByteArray() + bigEndianInt(0) + "M4A ".encodeToByteArray() + "mp42".encodeToByteArray(),
@@ -129,6 +134,9 @@ internal fun mp4File(artists: List<String> = listOf("Artist"), artwork: ByteArra
     val minf = atom("minf", atom("stbl", stsd + stco))
     val trak = atom("trak", atom("mdia", mdhd + hdlr + minf))
 
+    val compilationItem = compilation?.let { value ->
+        atom("cpil", atom("data", bigEndianInt(21) + bigEndianInt(0) + byteArrayOf(if (value) 1 else 0)))
+    } ?: ByteArray(0)
     val ilst = atom(
         "ilst",
         textItem("©nam", "Song") +
@@ -141,6 +149,8 @@ internal fun mp4File(artists: List<String> = listOf("Artist"), artwork: ByteArra
             textItem("©gen", "Rock") +
             textItem("©wrt", "Composer") +
             textItem("©cmt", "Comment") +
+            (titleSort?.let { textItem("sonm", it) } ?: ByteArray(0)) +
+            compilationItem +
             (artwork?.let { coverItem(it) } ?: ByteArray(0)),
     )
     val moov = atom(

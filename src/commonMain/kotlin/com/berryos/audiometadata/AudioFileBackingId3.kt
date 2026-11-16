@@ -102,14 +102,55 @@ internal interface Id3FileBacking {
     val id3Tag: Id3Tag
 }
 
+/** Extension storage for ID3 tags; ID3v2.2 has no sort/compilation frames. */
+internal class Id3ExtensionFields(private val tag: Id3v2Tag) : ExtensionFields {
+    private val supported = tag.version != Id3Version.V22
+
+    override var titleSort: String?
+        get() = if (supported) tag.frameText("TSOT") else null
+        set(value) = setText("TSOT", value)
+
+    override var artistSort: String?
+        get() = if (supported) tag.frameText("TSOP") else null
+        set(value) = setText("TSOP", value)
+
+    override var albumSort: String?
+        get() = if (supported) tag.frameText("TSOA") else null
+        set(value) = setText("TSOA", value)
+
+    override var albumArtistSort: String?
+        get() = if (supported) tag.frameText("TSO2") else null
+        set(value) = setText("TSO2", value)
+
+    override var compilation: Boolean?
+        get() = if (supported) tag.frameText("TCMP")?.let { it == "1" } else null
+        set(value) = setText("TCMP", value?.let { if (it) "1" else "0" })
+
+    override var bpm: Int?
+        get() = if (supported) tag.frameText("TBPM")?.toIntOrNull() else null
+        set(value) = setText("TBPM", value?.toString())
+
+    override var isrc: String?
+        get() = if (supported) tag.frameText("TSRC") else null
+        set(value) = setText("TSRC", value)
+
+    private fun setText(id: String, value: String?) {
+        if (supported) tag.setFrameText(id, value)
+    }
+}
+
 /** Common plumbing for containers whose metadata is an [Id3v2Tag]. */
 internal abstract class SpecId3Backing(tag: Id3v2Tag, loadArtworks: Boolean) : AudioFileBacking(), Id3FileBacking {
     private var currentTag = tag
     private var fieldView = Id3TagFields(currentTag)
+    private var extensionView = Id3ExtensionFields(currentTag)
     private var loadedArtworks: List<Artwork>? = if (loadArtworks) currentTag.artworks else null
 
     override val text: TagFields
         get() = fieldView
+
+    override val extensions: ExtensionFields
+        get() = extensionView
 
     override val id3Version: Id3Version
         get() = currentTag.version
@@ -130,6 +171,7 @@ internal abstract class SpecId3Backing(tag: Id3v2Tag, loadArtworks: Boolean) : A
     protected fun replaceTag(tag: Id3v2Tag, loadArtworks: Boolean) {
         currentTag = tag
         fieldView = Id3TagFields(tag)
+        extensionView = Id3ExtensionFields(tag)
         loadedArtworks = if (loadArtworks) tag.artworks else null
     }
 }

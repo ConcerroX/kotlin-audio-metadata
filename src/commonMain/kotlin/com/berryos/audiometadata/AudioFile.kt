@@ -22,6 +22,7 @@ import com.berryos.audiometadata.wav.WavMetadataReader
  * [artworks] is null when the file was opened without pictures; [save] then preserves the embedded
  * ones. Set it to an empty list to remove them.
  */
+@OptIn(ExperimentalAudioMetadataApi::class)
 class AudioFile internal constructor(
     internal val backing: AudioFileBacking,
 ) {
@@ -33,6 +34,10 @@ class AudioFile internal constructor(
 
     val audioInfo: AudioInfo?
         get() = backing.audioInfo
+
+    /** Well-known non-core tags, kept separate from the standard properties above. */
+    @ExperimentalAudioMetadataApi
+    val extensions: AudioExtensions = AudioExtensions(backing.extensions)
 
     /** Low-level Vorbis comments, shared by FLAC, Ogg Vorbis and Opus. */
     @ExperimentalAudioMetadataApi

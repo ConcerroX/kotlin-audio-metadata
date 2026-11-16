@@ -35,6 +35,12 @@ data class Mp4Tags(
     val genres: List<String> = emptyList(),
     val composers: List<String> = emptyList(),
     val comments: List<String> = emptyList(),
+    val titleSort: String? = null,
+    val albumSort: String? = null,
+    val artistSort: String? = null,
+    val albumArtistSort: String? = null,
+    val compilation: Boolean? = null,
+    val bpm: Int? = null,
     /** Loaded pictures, or null when the reader was asked to skip them. */
     val artworks: List<Artwork>? = null,
 ) {
@@ -102,6 +108,12 @@ internal object Mp4MetadataReader {
             genres = texts(FIELD_GENRE),
             composers = texts(FIELD_COMPOSER),
             comments = texts(FIELD_COMMENT),
+            titleSort = texts(FIELD_TITLE_SORT).firstOrNull(),
+            albumSort = texts(FIELD_ALBUM_SORT).firstOrNull(),
+            artistSort = texts(FIELD_ARTIST_SORT).firstOrNull(),
+            albumArtistSort = texts(FIELD_ALBUM_ARTIST_SORT).firstOrNull(),
+            compilation = readIntegerValue(source, items[ITEM_COMPILATION]?.firstOrNull())?.let { it != 0 },
+            bpm = readIntegerValue(source, items[ITEM_BPM]?.firstOrNull()),
             artworks = if (includeArtworks) readArtworks(source, items[COVER_ITEM].orEmpty()) else null,
         )
     }
@@ -241,6 +253,18 @@ internal object Mp4MetadataReader {
         val bytes = readBytes(source, data.payloadStart, DATA_HEADER_SIZE + 6)
         return bytes.readBigEndianShort(DATA_HEADER_SIZE + 2) to bytes.readBigEndianShort(DATA_HEADER_SIZE + 4)
     }
+
+    /** Reads an implicit integer atom such as `cpil` (1 byte) or `tmpo` (2 bytes). */
+    private fun readIntegerValue(source: RandomAccessSource, item: Mp4Atom?): Int? {
+        if (item == null) return null
+        val data = atomsIn(source, item).firstOrNull { it.type == "data" } ?: return null
+        if (data.payloadSize <= DATA_HEADER_SIZE) return null
+        val length = minOf(data.payloadSize - DATA_HEADER_SIZE, 4L).toInt()
+        val bytes = readBytes(source, data.payloadStart + DATA_HEADER_SIZE, length)
+        var value = 0
+        bytes.forEach { byte -> value = (value shl 8) or (byte.toInt() and 0xFF) }
+        return value
+    }
 }
 
 private fun topLevelAtoms(source: RandomAccessSource): List<Mp4Atom>? {
@@ -335,9 +359,16 @@ private const val FIELD_YEAR = "©day"
 private const val FIELD_GENRE = "©gen"
 private const val FIELD_COMPOSER = "©wrt"
 private const val FIELD_COMMENT = "©cmt"
+private const val FIELD_TITLE_SORT = "sonm"
+private const val FIELD_ALBUM_SORT = "soal"
+private const val FIELD_ARTIST_SORT = "soar"
+private const val FIELD_ALBUM_ARTIST_SORT = "soaa"
+private const val ITEM_COMPILATION = "cpil"
+private const val ITEM_BPM = "tmpo"
 private const val DATA_TYPE_JPEG = 13
 private const val DATA_TYPE_PNG = 14
 private const val DATA_TYPE_IMPLICIT = 0
+private const val DATA_TYPE_IMPLICIT_INTEGER = 21
 private const val DATA_TYPE_UTF8 = 1
 
 /** Rebuilds `moov` with the supplied tags and keeps sample offsets valid. */
@@ -440,6 +471,14 @@ internal object Mp4MetadataWriter {
         if (tags.genres.isNotEmpty()) items += multiTextItem(FIELD_GENRE, tags.genres)
         if (tags.composers.isNotEmpty()) items += multiTextItem(FIELD_COMPOSER, tags.composers)
         if (tags.comments.isNotEmpty()) items += multiTextItem(FIELD_COMMENT, tags.comments)
+        tags.titleSort?.takeIf(String::isNotEmpty)?.let { items += textItem(FIELD_TITLE_SORT, it) }
+        tags.albumSort?.takeIf(String::isNotEmpty)?.let { items += textItem(FIELD_ALBUM_SORT, it) }
+        tags.artistSort?.takeIf(String::isNotEmpty)?.let { items += textItem(FIELD_ARTIST_SORT, it) }
+        tags.albumArtistSort?.takeIf(String::isNotEmpty)?.let { items += textItem(FIELD_ALBUM_ARTIST_SORT, it) }
+        tags.compilation?.let { compilation ->
+            items += integerItem(ITEM_COMPILATION, byteArrayOf(if (compilation) 1 else 0))
+        }
+        tags.bpm?.let { bpm -> items += integerItem(ITEM_BPM, bigEndianShort(bpm.coerceIn(0, 0xFFFF))) }
         val artworks = tags.artworks
         if (!artworks.isNullOrEmpty()) items += coverItem(artworks)
         return items
@@ -477,6 +516,9 @@ internal object Mp4MetadataWriter {
 
     private fun dataAtom(dataType: Int, value: ByteArray): ByteArray =
         buildAtom("data", bigEndianInt(dataType) + bigEndianInt(0) + value)
+
+    private fun integerItem(type: String, value: ByteArray): ByteArray =
+        buildAtom(type, dataAtom(DATA_TYPE_IMPLICIT_INTEGER, value))
 
     private fun patchChunkOffsets(moovBytes: ByteArray, threshold: Long, delta: Long) {
         patchChunkOffsetsIn(moovBytes, 0, moovBytes.size, threshold, delta)
@@ -604,6 +646,8 @@ private fun ByteArray.writeBigEndianLong(offset: Int, value: Long) {
 private val REPLACED_ITEMS = setOf(
     FIELD_TITLE, FIELD_ARTIST, FIELD_ALBUM, FIELD_ALBUM_ARTIST, FIELD_YEAR,
     FIELD_GENRE, FIELD_COMPOSER, FIELD_COMMENT, ITEM_TRACK, ITEM_DISC, COVER_ITEM,
+    FIELD_TITLE_SORT, FIELD_ALBUM_SORT, FIELD_ARTIST_SORT, FIELD_ALBUM_ARTIST_SORT,
+    ITEM_COMPILATION, ITEM_BPM,
 )
 
 private val CONTAINER_TYPES = setOf("moov", "trak", "mdia", "minf", "stbl")

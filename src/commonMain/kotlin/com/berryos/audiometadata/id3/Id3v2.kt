@@ -57,6 +57,14 @@ class Id3v2Tag internal constructor(
 
     fun firstText(id: String): String? = textValues(id).firstOrNull()
 
+    /** Reads a text frame by raw frame ID; used by the extension layer. */
+    internal fun frameText(id: String): String? = firstText(id)?.takeIf(String::isNotEmpty)
+
+    /** Replaces a text frame by raw frame ID; null removes it. */
+    internal fun setFrameText(id: String, value: String?) {
+        setTextFrame(id, listOfNotNull(value?.takeIf(String::isNotEmpty)))
+    }
+
     override var title: String?
         get() = firstText(titleFrameId)?.takeIf(String::isNotEmpty)
         set(value) = setTextFrame(titleFrameId, listOfNotNull(value?.takeIf(String::isNotEmpty)))

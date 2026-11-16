@@ -37,6 +37,7 @@ internal abstract class AudioFileBacking {
     abstract val format: AudioFormat
     abstract val audioInfo: AudioInfo?
     abstract val text: TagFields
+    abstract val extensions: ExtensionFields
     abstract var artworks: List<Artwork>?
 
     open val id3Version: Id3Version?
@@ -134,9 +135,45 @@ internal class VorbisTagFields(private val tag: VorbisCommentTag) : TagFields {
     }
 }
 
+internal class VorbisExtensionFields(private val tag: VorbisCommentTag) : ExtensionFields {
+    override var titleSort: String?
+        get() = value("TITLESORT")
+        set(value) = tag.set("TITLESORT", value.orEmpty())
+
+    override var artistSort: String?
+        get() = value("ARTISTSORT")
+        set(value) = tag.set("ARTISTSORT", value.orEmpty())
+
+    override var albumSort: String?
+        get() = value("ALBUMSORT")
+        set(value) = tag.set("ALBUMSORT", value.orEmpty())
+
+    override var albumArtistSort: String?
+        get() = value("ALBUMARTISTSORT")
+        set(value) = tag.set("ALBUMARTISTSORT", value.orEmpty())
+
+    override var compilation: Boolean?
+        get() = tag.value("COMPILATION")?.let(::parseBoolean)
+        set(value) = tag.set("COMPILATION", value?.let { if (it) "1" else "0" }.orEmpty())
+
+    override var bpm: Int?
+        get() = value("BPM")?.toIntOrNull()
+        set(value) = tag.set("BPM", value?.toString().orEmpty())
+
+    override var isrc: String?
+        get() = value("ISRC")
+        set(value) = tag.set("ISRC", value.orEmpty())
+
+    private fun value(key: String): String? = tag.value(key)?.takeIf(String::isNotEmpty)
+
+    private fun parseBoolean(value: String): Boolean =
+        value == "1" || value.equals("true", ignoreCase = true) || value.equals("yes", ignoreCase = true)
+}
+
 internal class FlacBacking(initial: FlacMetadata) : AudioFileBacking() {
     private var metadata = initial
     private var fields = VorbisTagFields(metadata.tag)
+    private var extensionView = VorbisExtensionFields(metadata.tag)
 
     override val format: AudioFormat
         get() = AudioFormat.Flac
@@ -146,6 +183,9 @@ internal class FlacBacking(initial: FlacMetadata) : AudioFileBacking() {
 
     override val text: TagFields
         get() = fields
+
+    override val extensions: ExtensionFields
+        get() = extensionView
 
     override val vorbisTag: VorbisCommentTag
         get() = metadata.tag
@@ -162,6 +202,7 @@ internal class FlacBacking(initial: FlacMetadata) : AudioFileBacking() {
         metadata = FlacMetadataReader.read(source, includeArtworks = current.artworks != null)
             ?: throw AudioMetadataException("FLAC metadata could not be read back after save")
         fields = VorbisTagFields(metadata.tag)
+        extensionView = VorbisExtensionFields(metadata.tag)
     }
 }
 
@@ -178,6 +219,8 @@ internal class OggVorbisBacking(
         get() = metadata.audioInfo
 
     override val text: TagFields = VorbisTagFields(metadata.tag)
+
+    override val extensions: ExtensionFields = VorbisExtensionFields(metadata.tag)
 
     override val vorbisTag: VorbisCommentTag
         get() = metadata.tag
@@ -208,6 +251,8 @@ internal class OpusBacking(
 
     override val text: TagFields = VorbisTagFields(metadata.tag)
 
+    override val extensions: ExtensionFields = VorbisExtensionFields(metadata.tag)
+
     override val vorbisTag: VorbisCommentTag
         get() = metadata.tag
 
@@ -224,7 +269,7 @@ internal class OpusBacking(
 }
 
 /** iTunes fields are an immutable value object, so every edit replaces [tags] with a copy. */
-internal class Mp4TagFields(var tags: Mp4Tags) : TagFields {
+internal class Mp4TagFields(var tags: Mp4Tags) : TagFields, ExtensionFields {
     override var title: String?
         get() = tags.title
         set(value) {
@@ -302,6 +347,48 @@ internal class Mp4TagFields(var tags: Mp4Tags) : TagFields {
         set(value) {
             if (value != null) throw UnsupportedOperationException("MP4 does not store ReplayGain")
         }
+
+    override var titleSort: String?
+        get() = tags.titleSort
+        set(value) {
+            tags = tags.copy(titleSort = value)
+        }
+
+    override var artistSort: String?
+        get() = tags.artistSort
+        set(value) {
+            tags = tags.copy(artistSort = value)
+        }
+
+    override var albumSort: String?
+        get() = tags.albumSort
+        set(value) {
+            tags = tags.copy(albumSort = value)
+        }
+
+    override var albumArtistSort: String?
+        get() = tags.albumArtistSort
+        set(value) {
+            tags = tags.copy(albumArtistSort = value)
+        }
+
+    override var compilation: Boolean?
+        get() = tags.compilation
+        set(value) {
+            tags = tags.copy(compilation = value)
+        }
+
+    override var bpm: Int?
+        get() = tags.bpm
+        set(value) {
+            tags = tags.copy(bpm = value)
+        }
+
+    override var isrc: String?
+        get() = null
+        set(value) {
+            if (value != null) throw UnsupportedOperationException("MP4 ISRC requires freeform atom support")
+        }
 }
 
 internal class Mp4Backing(private val metadata: Mp4Metadata) : AudioFileBacking() {
@@ -314,6 +401,9 @@ internal class Mp4Backing(private val metadata: Mp4Metadata) : AudioFileBacking(
         get() = metadata.audioInfo
 
     override val text: TagFields
+        get() = tagFields
+
+    override val extensions: ExtensionFields
         get() = tagFields
 
     override val mp4Tags: Mp4Tags
