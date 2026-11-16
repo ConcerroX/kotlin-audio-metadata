@@ -235,8 +235,9 @@ class RealFileRoundTripTest {
             FlacMetadataWriter.write(source, before, artworks = listOf(Artwork(image, "image/png", 3)))
 
             val after = assertNotNull(FlacMetadataReader.read(source))
-            assertEquals(1, after.artworks.size)
-            assertContentEquals(image, after.artworks.first().data)
+            val artworks = assertNotNull(after.artworks)
+            assertEquals(1, artworks.size)
+            assertContentEquals(image, artworks.first().data)
             assertContentEquals(tail, readTail(source, after.audioStartOffset))
         } finally {
             source.close()

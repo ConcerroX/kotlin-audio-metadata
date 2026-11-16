@@ -11,7 +11,7 @@ import com.berryos.audiometadata.io.readFully
 import com.berryos.audiometadata.vorbis.VorbisCommentTag
 
 /** Fields of the mandatory FLAC STREAMINFO block. */
-data class FlacStreamInfo(
+internal data class FlacStreamInfo(
     val minBlockSize: Int,
     val maxBlockSize: Int,
     val sampleRateHz: Int,
@@ -36,10 +36,11 @@ data class FlacStreamInfo(
  * Other blocks (pictures, seek tables, applications, ...) stay referenced by offset and are copied
  * back unchanged by [FlacMetadataWriter].
  */
-class FlacMetadata internal constructor(
+internal class FlacMetadata(
     val tag: VorbisCommentTag,
     val streamInfo: FlacStreamInfo?,
-    val artworks: List<Artwork>,
+    /** Loaded pictures, or null when the reader was asked to skip them. */
+    var artworks: List<Artwork>?,
     internal val blocks: List<FlacBlock>,
     internal val audioStartOffset: Long,
 ) {
@@ -50,8 +51,8 @@ class FlacMetadata internal constructor(
 internal class FlacBlock(val type: Int, val offset: Long, val length: Int)
 
 /** Reads FLAC metadata blocks from any random-access source. */
-object FlacMetadataReader {
-    fun read(source: RandomAccessSource): FlacMetadata? {
+internal object FlacMetadataReader {
+    fun read(source: RandomAccessSource, includeArtworks: Boolean = true): FlacMetadata? {
         if (source.size < FLAC_MAGIC.size) return null
         val magic = ByteArray(FLAC_MAGIC.size)
         if (source.readAt(0, magic) < magic.size || !magic.contentEquals(FLAC_MAGIC)) return null
@@ -60,7 +61,7 @@ object FlacMetadataReader {
         var last = false
         var streamInfo: FlacStreamInfo? = null
         var tag = VorbisCommentTag.create()
-        val artworks = ArrayList<Artwork>()
+        val artworks = if (includeArtworks) ArrayList<Artwork>() else null
         val blocks = ArrayList<FlacBlock>()
         val header = ByteArray(BLOCK_HEADER_SIZE)
         while (!last) {
@@ -87,9 +88,12 @@ object FlacMetadataReader {
                 }
 
                 TYPE_PICTURE -> {
-                    val data = ByteArray(length)
-                    source.readFully(dataOffset, data, data.size)
-                    parseFlacPicture(data)?.let { artworks += it }
+                    val target = artworks
+                    if (target != null) {
+                        val data = ByteArray(length)
+                        source.readFully(dataOffset, data, data.size)
+                        parseFlacPicture(data)?.let(target::add)
+                    }
                 }
             }
             position = dataOffset + length
@@ -104,17 +108,27 @@ object FlacMetadataReader {
  * Existing padding is reused so the audio frames stay in place; if the new comment does not fit,
  * the audio is shifted by the difference first. Padding is always written as the last block.
  */
-object FlacMetadataWriter {
+internal object FlacMetadataWriter {
+    /**
+     * Rewrites the Vorbis comment block.
+     *
+     * Pass `null` for [artworks] to leave the existing picture blocks untouched; an empty list
+     * removes them.
+     */
     fun write(
         source: WritableRandomAccessSource,
         metadata: FlacMetadata,
-        artworks: List<Artwork> = metadata.artworks,
+        artworks: List<Artwork>? = metadata.artworks,
     ) {
         val commentPayload = metadata.tag.encode()
-        val preserved = metadata.blocks.filter {
-            it.type != TYPE_VORBIS_COMMENT && it.type != TYPE_PADDING && it.type != TYPE_PICTURE
+        val preserved = metadata.blocks.filter { block ->
+            when (block.type) {
+                TYPE_VORBIS_COMMENT, TYPE_PADDING -> false
+                TYPE_PICTURE -> artworks == null
+                else -> true
+            }
         }
-        val picturePayloads = artworks.map(::encodeFlacPicture)
+        val picturePayloads = artworks?.map(::encodeFlacPicture).orEmpty()
         val baseSize = FLAC_MAGIC.size.toLong() +
             preserved.sumOf { BLOCK_HEADER_SIZE + it.length.toLong() } +
             picturePayloads.sumOf { BLOCK_HEADER_SIZE + it.size.toLong() } +

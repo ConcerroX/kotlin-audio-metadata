@@ -107,8 +107,9 @@ class FlacMetadataTest {
             FlacMetadataReader.read(sourceWith(buildFlac(tag, extra = listOf(TYPE_PICTURE to picture)), AUDIO)),
         )
 
-        assertEquals(1, metadata.artworks.size)
-        val artwork = metadata.artworks.first()
+        val artworks = assertNotNull(metadata.artworks)
+        assertEquals(1, artworks.size)
+        val artwork = artworks.first()
         assertContentEquals(image, artwork.data)
         assertEquals("image/png", artwork.mimeType)
         assertEquals(3, artwork.pictureType)
@@ -138,21 +139,23 @@ class FlacMetadataTest {
         FlacMetadataWriter.write(source, metadata, artworks = listOf(Artwork(image, "image/png", 3)))
 
         val after = assertNotNull(FlacMetadataReader.read(source))
-        assertEquals(1, after.artworks.size)
-        assertContentEquals(image, after.artworks.first().data)
-        assertEquals("image/png", after.artworks.first().mimeType)
+        val artworks = assertNotNull(after.artworks)
+        assertEquals(1, artworks.size)
+        assertContentEquals(image, artworks.first().data)
+        assertEquals("image/png", artworks.first().mimeType)
         val bytes = source.toByteArray()
         assertContentEquals(AUDIO, bytes.copyOfRange(after.audioStartOffset.toInt(), bytes.size))
 
         FlacMetadataWriter.write(source, after, artworks = emptyList())
-        assertTrue(assertNotNull(FlacMetadataReader.read(source)).artworks.isEmpty())
+        val cleared = assertNotNull(FlacMetadataReader.read(source))
+        assertTrue(assertNotNull(cleared.artworks).isEmpty())
     }
 
     private fun sourceWith(tag: ByteArray, audio: ByteArray): ByteArraySource =
         ByteArraySource().also { it.writeAt(0, tag + audio) }
 }
 
-private fun buildFlac(
+internal fun buildFlac(
     tag: VorbisCommentTag?,
     extra: List<Pair<Int, ByteArray>> = emptyList(),
     padding: Int = 64,
@@ -198,9 +201,9 @@ private fun streamInfo(): ByteArray {
 private fun ByteArray.containsAscii(value: String): Boolean =
     String(this, Charsets.ISO_8859_1).contains(value)
 
-private const val TYPE_STREAMINFO = 0
-private const val TYPE_PADDING = 1
-private const val TYPE_APPLICATION = 2
-private const val TYPE_VORBIS_COMMENT = 4
-private const val TYPE_PICTURE = 6
-private val AUDIO = ByteArray(1024) { (it * 7 % 251).toByte() }
+internal const val TYPE_STREAMINFO = 0
+internal const val TYPE_PADDING = 1
+internal const val TYPE_APPLICATION = 2
+internal const val TYPE_VORBIS_COMMENT = 4
+internal const val TYPE_PICTURE = 6
+internal val AUDIO = ByteArray(1024) { (it * 7 % 251).toByte() }
