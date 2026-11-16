@@ -23,6 +23,7 @@ data class AudioInfo(
     val bitrateKbps: Int? = null,
     val sampleRateHz: Int? = null,
     val channels: Int? = null,
+    val bitsPerSample: Int? = null,
     val durationMs: Long? = null,
 )
 
