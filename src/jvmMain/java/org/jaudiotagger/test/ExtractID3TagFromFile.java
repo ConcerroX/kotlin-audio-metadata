@@ -8,12 +8,15 @@ import java.io.File;
  * Simple class that will attempt to recusively read all files within a directory, flags
  * errors that occur.
  */
-public class ExtractID3TagFromFile {
+public class ExtractID3TagFromFile
+{
 
-    public static void main(final String[] args) {
-        ExtractID3TagFromFile test = new ExtractID3TagFromFile();
+    public static void main(final String[] args)
+    {
+        new ExtractID3TagFromFile();
 
-        if (args.length != 2) {
+        if (args.length != 2)
+        {
             System.err.println("usage ExtractID3TagFromFile Filename FilenameOut");
             System.err.println("      You must enter the file to extract the tag from and where to extract to");
             System.exit(1);
@@ -21,22 +24,27 @@ public class ExtractID3TagFromFile {
 
         File file = new File(args[0]);
         File outFile = new File(args[1]);
-        if (!file.isFile()) {
+        if (!file.isFile())
+        {
             System.err.println("usage ExtractID3TagFromFile Filename FilenameOut");
             System.err.println("      File " + args[0] + " could not be found");
             System.exit(1);
         }
 
-        try {
+        try
+        {
             final MP3File tmpMP3 = new MP3File(file);
             tmpMP3.extractID3v2TagDataIntoFile(outFile);
-        } catch (Exception e) {
+        }
+        catch (Exception e)
+        {
             System.err.println("Unable to extract tag");
             System.exit(1);
         }
     }
 
-    final class MP3FileFilter extends javax.swing.filechooser.FileFilter implements java.io.FileFilter {
+    final class MP3FileFilter extends javax.swing.filechooser.FileFilter implements java.io.FileFilter
+    {
 
         /**
          * allows Directories
@@ -47,7 +55,8 @@ public class ExtractID3TagFromFile {
          * Create a default MP3FileFilter.  The allowDirectories field will
          * default to false.
          */
-        public MP3FileFilter() {
+        public MP3FileFilter()
+        {
             this(false);
         }
 
@@ -58,7 +67,8 @@ public class ExtractID3TagFromFile {
          *
          * @param allowDirectories whether or not to accept directories
          */
-        private MP3FileFilter(final boolean allowDirectories) {
+        private MP3FileFilter(final boolean allowDirectories)
+        {
             this.allowDirectories = allowDirectories;
         }
 
@@ -70,7 +80,8 @@ public class ExtractID3TagFromFile {
          * @param file the file to test
          * @return true if this file or directory should be accepted
          */
-        public final boolean accept(final File file) {
+        public final boolean accept(final File file)
+        {
             return (((file.getName()).toLowerCase().endsWith(".mp3")) || (file.isDirectory() && (this.allowDirectories)));
         }
 
@@ -79,7 +90,8 @@ public class ExtractID3TagFromFile {
          *
          * @return The Description of the Filter
          */
-        public final String getDescription() {
+        public final String getDescription()
+        {
             return ".mp3 Files";
         }
     }

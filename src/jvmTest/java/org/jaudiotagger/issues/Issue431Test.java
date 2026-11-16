@@ -36,16 +36,13 @@ public class Issue431Test extends AbstractTestCase
         assertEquals("1", tag.getFirst(FieldKey.TRACK));
 
         //Check the underlying frame
-        ID3v23Frame frame = (ID3v23Frame)((ID3v23Tag) tag).getFrame("TRCK");
+        ID3v23Frame frame = (ID3v23Frame)((ID3v23Tag) tag).getFrame("TRCK").get(0);
         ID3v23FrameBody frameBody = (ID3v23FrameBody)frame.getBody();
         FrameBodyTRCK frameBodyTrck = (FrameBodyTRCK)frameBody;
         assertEquals(frameBodyTrck.getText(),"1");
 
         //Check Bytes
-        FileChannel fc = new RandomAccessFile(testFile, "r").getChannel();
-        ByteBuffer buffer = ByteBuffer.allocate(100);
-        fc.read(buffer);
-        fc.close();
+        ByteBuffer buffer = readBytesFromFile(testFile, 100);
         assertTrue((buffer.get(10) & 0xff) == 'T');
         assertTrue((buffer.get(11) & 0xff) == 'R');
         assertTrue((buffer.get(12) & 0xff) == 'C');
@@ -67,10 +64,7 @@ public class Issue431Test extends AbstractTestCase
 
         //Frame Header
         //Check Bytes
-        FileChannel fc = new RandomAccessFile(testFile, "r").getChannel();
-        ByteBuffer buffer = ByteBuffer.allocate(100);
-        fc.read(buffer);
-        fc.close();
+        ByteBuffer buffer = readBytesFromFile(testFile, 100);
         assertTrue((buffer.get(10) & 0xff) == 'T');
         assertTrue((buffer.get(11) & 0xff) == 'R');
         assertTrue((buffer.get(12) & 0xff) == 'C');
@@ -100,16 +94,13 @@ public class Issue431Test extends AbstractTestCase
         assertEquals("1", tag.getFirst(FieldKey.TRACK));
 
         //Check the underlying frame
-        ID3v23Frame frame = (ID3v23Frame)((ID3v23Tag) tag).getFrame("TRCK");
+        ID3v23Frame frame = (ID3v23Frame)((ID3v23Tag) tag).getFrame("TRCK").get(0);
         ID3v23FrameBody frameBody = (ID3v23FrameBody)frame.getBody();
         FrameBodyTRCK frameBodyTrck = (FrameBodyTRCK)frameBody;
         assertEquals(frameBodyTrck.getText(),"1");
 
         //Check Bytes
-        FileChannel fc = new RandomAccessFile(testFile, "r").getChannel();
-        ByteBuffer buffer = ByteBuffer.allocate(100);
-        fc.read(buffer);
-        fc.close();
+        ByteBuffer buffer = readBytesFromFile(testFile, 100);
 
         //Frame Header
         assertTrue((buffer.get(10) & 0xff) == 'T');
@@ -128,7 +119,7 @@ public class Issue431Test extends AbstractTestCase
 
 
         //Check the underlying frame
-        frame = (ID3v23Frame)((ID3v23Tag) tag).getFrame("TRCK");
+        frame = (ID3v23Frame)((ID3v23Tag) tag).getFrame("TRCK").get(0);
         frameBody = (ID3v23FrameBody)frame.getBody();
         frameBodyTrck = (FrameBodyTRCK)frameBody;
         assertEquals(frameBodyTrck.getText(),"01");
@@ -265,10 +256,7 @@ public class Issue431Test extends AbstractTestCase
 
         //Frame Header
         //Check Bytes
-        FileChannel fc = new RandomAccessFile(testFile, "r").getChannel();
-        ByteBuffer buffer = ByteBuffer.allocate(100);
-        fc.read(buffer);
-        fc.close();
+        ByteBuffer buffer = readBytesFromFile(testFile, 100);
         assertTrue((buffer.get(10) & 0xff) == 'T');
         assertTrue((buffer.get(11) & 0xff) == 'R');
         assertTrue((buffer.get(12) & 0xff) == 'C');
@@ -297,16 +285,13 @@ public class Issue431Test extends AbstractTestCase
         assertEquals("1", tag.getFirst(FieldKey.DISC_NO));
 
         //Check the underlying frame
-        ID3v23Frame frame = (ID3v23Frame)((ID3v23Tag) tag).getFrame("TPOS");
+        ID3v23Frame frame = (ID3v23Frame)((ID3v23Tag) tag).getFrame("TPOS").get(0);
         ID3v23FrameBody frameBody = (ID3v23FrameBody)frame.getBody();
         FrameBodyTPOS frameBodyTpos = (FrameBodyTPOS)frameBody;
         assertEquals(frameBodyTpos.getText(),"1");
 
         //Check Bytes
-        FileChannel fc = new RandomAccessFile(testFile, "r").getChannel();
-        ByteBuffer buffer = ByteBuffer.allocate(100);
-        fc.read(buffer);
-        fc.close();
+        ByteBuffer buffer = readBytesFromFile(testFile, 100);
         assertTrue((buffer.get(10) & 0xff) == 'T');
         assertTrue((buffer.get(11) & 0xff) == 'P');
         assertTrue((buffer.get(12) & 0xff) == 'O');
@@ -328,10 +313,7 @@ public class Issue431Test extends AbstractTestCase
 
         //Frame Header
         //Check Bytes
-        FileChannel fc = new RandomAccessFile(testFile, "r").getChannel();
-        ByteBuffer buffer = ByteBuffer.allocate(100);
-        fc.read(buffer);
-        fc.close();
+        ByteBuffer buffer = readBytesFromFile(testFile, 100);
         assertTrue((buffer.get(10) & 0xff) == 'T');
         assertTrue((buffer.get(11) & 0xff) == 'P');
         assertTrue((buffer.get(12) & 0xff) == 'O');
@@ -361,16 +343,13 @@ public class Issue431Test extends AbstractTestCase
         assertEquals("1", tag.getFirst(FieldKey.DISC_NO));
 
         //Check the underlying frame
-        ID3v23Frame frame = (ID3v23Frame)((ID3v23Tag) tag).getFrame("TPOS");
+        ID3v23Frame frame = (ID3v23Frame)((ID3v23Tag) tag).getFrame("TPOS").get(0);
         ID3v23FrameBody frameBody = (ID3v23FrameBody)frame.getBody();
         FrameBodyTPOS frameBodyTpos = (FrameBodyTPOS)frameBody;
         assertEquals(frameBodyTpos.getText(),"1");
 
         //Check Bytes
-        FileChannel fc = new RandomAccessFile(testFile, "r").getChannel();
-        ByteBuffer buffer = ByteBuffer.allocate(100);
-        fc.read(buffer);
-        fc.close();
+        ByteBuffer buffer = readBytesFromFile(testFile, 100);
 
         //Frame Header
         assertTrue((buffer.get(10) & 0xff) == 'T');
@@ -389,7 +368,7 @@ public class Issue431Test extends AbstractTestCase
 
 
         //Check the underlying frame
-        frame = (ID3v23Frame)((ID3v23Tag) tag).getFrame("TPOS");
+        frame = (ID3v23Frame)((ID3v23Tag) tag).getFrame("TPOS").get(0);
         frameBody = (ID3v23FrameBody)frame.getBody();
         frameBodyTpos = (FrameBodyTPOS)frameBody;
         assertEquals(frameBodyTpos.getText(),"01");
@@ -526,10 +505,7 @@ public class Issue431Test extends AbstractTestCase
 
         //Frame Header
         //Check Bytes
-        FileChannel fc = new RandomAccessFile(testFile, "r").getChannel();
-        ByteBuffer buffer = ByteBuffer.allocate(100);
-        fc.read(buffer);
-        fc.close();
+        ByteBuffer buffer = readBytesFromFile(testFile, 100);
         assertTrue((buffer.get(10) & 0xff) == 'T');
         assertTrue((buffer.get(11) & 0xff) == 'P');
         assertTrue((buffer.get(12) & 0xff) == 'O');
@@ -557,10 +533,7 @@ public class Issue431Test extends AbstractTestCase
 
         //Frame Header
         //Check Bytes
-        FileChannel fc = new RandomAccessFile(testFile, "r").getChannel();
-        ByteBuffer buffer = ByteBuffer.allocate(100);
-        fc.read(buffer);
-        fc.close();
+        ByteBuffer buffer = readBytesFromFile(testFile, 100);
         assertTrue((buffer.get(10) & 0xff) == 'T');
         assertTrue((buffer.get(11) & 0xff) == 'P');
         assertTrue((buffer.get(12) & 0xff) == 'O');
@@ -590,10 +563,7 @@ public class Issue431Test extends AbstractTestCase
 
         //Frame Header
         //Check Bytes
-        FileChannel fc = new RandomAccessFile(testFile, "r").getChannel();
-        ByteBuffer buffer = ByteBuffer.allocate(100);
-        fc.read(buffer);
-        fc.close();
+        ByteBuffer buffer = readBytesFromFile(testFile, 100);
         assertTrue((buffer.get(10) & 0xff) == 'T');
         assertTrue((buffer.get(11) & 0xff) == 'P');
         assertTrue((buffer.get(12) & 0xff) == 'O');
@@ -608,5 +578,18 @@ public class Issue431Test extends AbstractTestCase
         f = AudioFileIO.read(testFile);
         tag = f.getTag();
         assertEquals("08", tag.getFirst(FieldKey.DISC_TOTAL));
+    }
+    
+    private ByteBuffer readBytesFromFile(File file, int numBytes) {
+    	FileChannel fc;
+		try (RandomAccessFile raFile = new RandomAccessFile(file, "r")) {
+			fc = raFile.getChannel();
+	        ByteBuffer buffer = ByteBuffer.allocate(100);
+	        fc.read(buffer);
+	        fc.close();
+	        return buffer;
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		}
     }
 }

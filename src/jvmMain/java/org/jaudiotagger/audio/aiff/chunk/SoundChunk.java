@@ -10,13 +10,15 @@ import java.nio.ByteBuffer;
  * Sound chunk.
  * Doesn't actually read the content, but skips it.
  */
-public class SoundChunk extends Chunk {
+public class SoundChunk extends Chunk
+{
 
     /**
-     * @param chunkHeader The header for this chunk
-     * @param chunkData   The file from which the AIFF data are being read
+     * @param chunkHeader  The header for this chunk
+     * @param chunkData  The file from which the AIFF data are being read
      */
-    public SoundChunk(final ChunkHeader chunkHeader, final ByteBuffer chunkData) {
+    public SoundChunk(final ChunkHeader chunkHeader, final ByteBuffer chunkData)
+    {
         super(chunkData, chunkHeader);
     }
 
@@ -26,7 +28,8 @@ public class SoundChunk extends Chunk {
      * @return <code>false</code> if the chunk is structurally
      * invalid, otherwise <code>true</code>
      */
-    public boolean readChunk() {
+    public boolean readChunk() throws IOException
+    {
         return true;
     }
 

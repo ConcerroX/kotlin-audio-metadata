@@ -12,7 +12,7 @@ import org.jaudiotagger.tag.reference.PictureTypes;
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.File;
-import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 
 /**
  * basic Flac tests
@@ -65,7 +65,7 @@ public class FlacHeaderTest extends TestCase
 
             //Image
             MetadataBlockDataPicture image = tag.getImages().get(0);
-            assertEquals((int) PictureTypes.DEFAULT_ID, image.getPictureType());
+            assertEquals((int) PictureTypes.DEFAULT_ID, (int) image.getPictureType());
             assertEquals("image/png", image.getMimeType());
             assertFalse(image.isImageUrl());
             assertEquals("", image.getImageUrl());
@@ -78,10 +78,10 @@ public class FlacHeaderTest extends TestCase
 
             //Image Link
             image = tag.getImages().get(1);
-            assertEquals(7, image.getPictureType());
+            assertEquals(7, (int) image.getPictureType());
             assertEquals("-->", image.getMimeType());
             assertTrue(image.isImageUrl());
-            assertEquals("coverart.gif", new String(image.getImageData(), 0, image.getImageData().length, Charset.forName("ISO-8859-1")));
+            assertEquals("coverart.gif", new String(image.getImageData(), 0, image.getImageData().length, StandardCharsets.ISO_8859_1));
             assertEquals("coverart.gif", image.getImageUrl());
 
             //Create Image Link
@@ -89,10 +89,10 @@ public class FlacHeaderTest extends TestCase
             f.commit();
             f = AudioFileIO.read(testFile);
             image = tag.getImages().get(2);
-            assertEquals(3, image.getPictureType());
+            assertEquals(3, (int) image.getPictureType());
             assertEquals("-->", image.getMimeType());
             assertTrue(image.isImageUrl());
-            assertEquals("../testdata/coverart.jpg", new String(image.getImageData(), 0, image.getImageData().length, Charset.forName("ISO-8859-1")));
+            assertEquals("../testdata/coverart.jpg", new String(image.getImageData(), 0, image.getImageData().length, StandardCharsets.ISO_8859_1));
             assertEquals("../testdata/coverart.jpg", image.getImageUrl());
 
             //Can we actually createField Buffered Image from the url  of course remember url is relative to the audio file
@@ -246,6 +246,63 @@ public class FlacHeaderTest extends TestCase
             f = AudioFileIO.read(testFile);
             System.out.println(f);
 
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+            exceptionCaught = e;
+        }
+        assertNull(exceptionCaught);
+    }
+
+    public void testSaveFileWithMulitByteCharsInImageDescription()
+    {
+        File orig = new File("testdata", "test537.flac");
+        if (!orig.isFile())
+        {
+            System.err.println("Unable to test file - not available");
+            return;
+        }
+
+        Exception exceptionCaught = null;
+        try
+        {
+            File testFile = AbstractTestCase.copyAudioToTmp("test537.flac");
+            AudioFile f = AudioFileIO.read(testFile);
+            System.out.println(f.getAudioHeader());
+
+
+            assertEquals("2614", f.getAudioHeader().getBitRate());
+            assertEquals("FLAC 24 bits", f.getAudioHeader().getEncodingType());
+            assertEquals("2", f.getAudioHeader().getChannels());
+            assertEquals("96000", f.getAudioHeader().getSampleRate());
+            assertEquals(301, f.getAudioHeader().getTrackLength());
+
+            assertTrue(f.getTag() instanceof FlacTag);
+            FlacTag tag = (FlacTag) f.getTag();
+            FlacInfoReader infoReader = new FlacInfoReader();
+            assertEquals(4, infoReader.countMetaBlocks(f.getFile()));
+            assertEquals(1, tag.getImages().size());
+            assertEquals(3, tag.getImages().get(0).getPictureType());
+            assertEquals("Hejira (Édition StudioMasters) (Édition StudioMasters)", tag.getImages().get(0).getDescription());
+            assertEquals(57839, tag.getImages().get(0).getImageData().length);
+            assertEquals(0, tag.getImages().get(0).getHeight());
+            assertEquals(0, tag.getImages().get(0).getWidth());
+            System.out.println(tag);
+
+            tag.setField(FieldKey.ALBUM, "albums");
+            System.out.println(tag);
+            f.commit();
+            f = AudioFileIO.read(testFile);
+            System.out.println(f.getAudioHeader());
+            System.out.println(f.getTag());
+            assertEquals(4, infoReader.countMetaBlocks(f.getFile()));
+            assertEquals(1, tag.getImages().size());
+            assertEquals(3, tag.getImages().get(0).getPictureType());
+            assertEquals("Hejira (Édition StudioMasters) (Édition StudioMasters)", tag.getImages().get(0).getDescription());
+            assertEquals(57839, tag.getImages().get(0).getImageData().length);
+            assertEquals(0, tag.getImages().get(0).getHeight());
+            assertEquals(0, tag.getImages().get(0).getWidth());
         }
         catch (Exception e)
         {

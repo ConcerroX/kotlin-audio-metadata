@@ -13,7 +13,8 @@ public class SyncSafeIntegerTest extends AbstractTestCase
     /**
      * Ensure bytes contian value >128 are read as a postive integer rather  than a negative integer
      */
-    public void testReadFileContainingLargeSyncSizedFrame() {
+    public void testReadFileContainingLargeSyncSizedFrame() throws Exception
+    {
         Exception e = null;
         try
         {

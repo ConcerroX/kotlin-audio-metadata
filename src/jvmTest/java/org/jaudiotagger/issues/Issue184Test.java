@@ -11,7 +11,8 @@ import java.io.File;
  */
 public class Issue184Test extends AbstractTestCase
 {
-    public void testReadCorruptWma() {
+    public void testReadCorruptWma() throws Exception
+    {
         File orig = new File("testdata", "test509.wma");
         if (!orig.isFile())
         {

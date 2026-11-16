@@ -8,7 +8,8 @@ import org.jaudiotagger.tag.id3.valuepair.TextEncoding;
  */
 public class FrameTPE2Test extends AbstractTestCase
 {
-    public void testID3Specific() {
+    public void testID3Specific() throws Exception
+    {
         Exception e=null;
         try
         {

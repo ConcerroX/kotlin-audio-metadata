@@ -2,9 +2,7 @@ package org.jaudiotagger.tag.id3;
 
 import org.jaudiotagger.AbstractTestCase;
 import org.jaudiotagger.audio.mp3.MP3File;
-import org.jaudiotagger.tag.id3.framebody.FrameBodyIPLS;
-import org.jaudiotagger.tag.id3.framebody.FrameBodyTIPL;
-import org.jaudiotagger.tag.id3.framebody.FrameBodyTIPLTest;
+import org.jaudiotagger.tag.id3.framebody.*;
 import org.jaudiotagger.tag.id3.valuepair.TextEncoding;
 
 import java.io.File;
@@ -100,7 +98,7 @@ public class FrameTIPLTest extends AbstractTestCase
 
         //Reload
         mp3File = new MP3File(testFile);
-        ID3v24Frame frame = (ID3v24Frame) mp3File.getID3v2Tag().getFrame(ID3v24Frames.FRAME_ID_INVOLVED_PEOPLE);
+        ID3v24Frame frame = (ID3v24Frame) mp3File.getID3v2Tag().getFrame(ID3v24Frames.FRAME_ID_INVOLVED_PEOPLE).get(0);
         FrameBodyTIPL body = (FrameBodyTIPL) frame.getBody();
         assertEquals(TextEncoding.ISO_8859_1, body.getTextEncoding());
     }
@@ -118,7 +116,7 @@ public class FrameTIPLTest extends AbstractTestCase
 
         //Reload
         mp3File = new MP3File(testFile);
-        ID3v24Frame frame = (ID3v24Frame) mp3File.getID3v2Tag().getFrame(ID3v24Frames.FRAME_ID_INVOLVED_PEOPLE);
+        ID3v24Frame frame = (ID3v24Frame) mp3File.getID3v2Tag().getFrame(ID3v24Frames.FRAME_ID_INVOLVED_PEOPLE).get(0);
         FrameBodyTIPL body = (FrameBodyTIPL) frame.getBody();
         assertEquals(TextEncoding.ISO_8859_1, body.getTextEncoding());
     }
@@ -139,7 +137,7 @@ public class FrameTIPLTest extends AbstractTestCase
 
         //Reload
         mp3File = new MP3File(testFile);
-        frame = (ID3v24Frame) mp3File.getID3v2Tag().getFrame(ID3v24Frames.FRAME_ID_INVOLVED_PEOPLE);
+        frame = (ID3v24Frame) mp3File.getID3v2Tag().getFrame(ID3v24Frames.FRAME_ID_INVOLVED_PEOPLE).get(0);
         FrameBodyTIPL body = (FrameBodyTIPL) frame.getBody();
         assertEquals(TextEncoding.ISO_8859_1, body.getTextEncoding());
     }
@@ -156,7 +154,7 @@ public class FrameTIPLTest extends AbstractTestCase
         mp3File.setID3v2Tag(tag);
         mp3File.save();
 
-        //Reload and convert to v23 and save
+        //Reload and convertMetadata to v23 and save
         mp3File = new MP3File(testFile);
         ID3v23Tag v23Tag = new ID3v23Tag(mp3File.getID3v2TagAsv24());
         mp3File.setID3v2TagOnly(v23Tag);
@@ -166,11 +164,45 @@ public class FrameTIPLTest extends AbstractTestCase
 
         //Reload
         mp3File = new MP3File(testFile);
-        ID3v23Frame frame = (ID3v23Frame) mp3File.getID3v2Tag().getFrame(ID3v23Frames.FRAME_ID_V3_INVOLVED_PEOPLE);
+        ID3v23Frame frame = (ID3v23Frame) mp3File.getID3v2Tag().getFrame(ID3v23Frames.FRAME_ID_V3_INVOLVED_PEOPLE).get(0);
         FrameBodyIPLS body = (FrameBodyIPLS) frame.getBody();
         assertEquals(TextEncoding.ISO_8859_1, body.getTextEncoding());
         assertEquals(FrameBodyTIPLTest.INVOLVED_PEOPLE, body.getText());
         assertEquals("producer", body.getKeyAtIndex(0));
         assertEquals("eno,lanois", body.getValueAtIndex(0));
+    }
+
+    public void testConvertV24ToV23v2() throws Exception
+    {
+        File testFile = AbstractTestCase.copyAudioToTmp("testV1.mp3",new File("test1005b.mp3"));
+        MP3File mp3File = new MP3File(testFile);
+
+        //Create and Save
+        ID3v24Tag tag = new ID3v24Tag();
+        tag.setFrame(FrameTIPLTest.getInitialisedFrame());
+        tag.setFrame(FrameTMCLTest.getInitialisedFrame());
+        mp3File.setID3v2Tag(tag);
+        mp3File.save();
+        assertTrue(tag.hasFrame("TIPL"));
+        assertTrue(tag.hasFrame("TMCL"));
+
+        //Reload and convertMetadata to v23 and save
+        mp3File = new MP3File(testFile);
+        ID3v23Tag v23Tag = new ID3v23Tag(mp3File.getID3v2TagAsv24());
+        mp3File.setID3v2TagOnly(v23Tag);
+
+        assertTrue(v23Tag.hasFrame("IPLS"));
+        mp3File.save();
+
+        //Reload
+        mp3File = new MP3File(testFile);
+        ID3v23Frame frame = (ID3v23Frame) mp3File.getID3v2Tag().getFrame(ID3v23Frames.FRAME_ID_V3_INVOLVED_PEOPLE).get(0);
+        FrameBodyIPLS body = (FrameBodyIPLS) frame.getBody();
+        assertEquals(TextEncoding.ISO_8859_1, body.getTextEncoding());
+        assertEquals(FrameBodyTIPLTest.INVOLVED_PEOPLE+"\0"+ FrameBodyTMCLTest.MUSICIANS, body.getText());
+        assertEquals("producer", body.getKeyAtIndex(0));
+        assertEquals("eno,lanois", body.getValueAtIndex(0));
+        assertEquals("violinist", body.getKeyAtIndex(1));
+        assertEquals("eno,lanois", body.getValueAtIndex(1));
     }
 }

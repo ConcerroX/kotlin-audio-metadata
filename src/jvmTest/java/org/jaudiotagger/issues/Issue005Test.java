@@ -13,12 +13,13 @@ import java.io.FileNotFoundException;
  */
 public class Issue005Test extends AbstractTestCase
 {
-    public void testReadingNonExistentFile() {
+    public void testReadingNonExistentFile() throws Exception
+    {
         Exception e=null;
         try
         {
             File orig = new File("testdata", "testNonExistent.mp3");
-            MP3File f = (MP3File)AudioFileIO.read(orig);
+            AudioFileIO.read(orig);
         }
         catch(Exception ex)
         {
@@ -27,12 +28,13 @@ public class Issue005Test extends AbstractTestCase
         assertTrue(e instanceof FileNotFoundException);
     }
 
-    public void testReadingNonExistentFileMp3() {
+    public void testReadingNonExistentFileMp3() throws Exception
+    {
         Exception e=null;
         try
         {
             File orig = new File("testdata", "testNonExistent.mp3");
-            MP3File f = new MP3File(orig);
+            new MP3File(orig);
         }
         catch(Exception ex)
         {
@@ -41,7 +43,8 @@ public class Issue005Test extends AbstractTestCase
         assertTrue(e instanceof FileNotFoundException);
     }
 
-    public void testReadingNonExistentFileFlac() {
+    public void testReadingNonExistentFileFlac() throws Exception
+    {
         Exception e=null;
         try
         {
@@ -57,7 +60,8 @@ public class Issue005Test extends AbstractTestCase
         assertTrue(e instanceof FileNotFoundException);
     }
 
-    public void testReadingNonExistentFileOgg() {
+    public void testReadingNonExistentFileOgg() throws Exception
+    {
         Exception e=null;
         try
         {
@@ -73,7 +77,8 @@ public class Issue005Test extends AbstractTestCase
         assertTrue(e instanceof FileNotFoundException);
     }
 
-    public void testReadingNonExistentFileM4a() {
+    public void testReadingNonExistentFileM4a() throws Exception
+    {
         Exception e=null;
         try
         {
@@ -89,7 +94,8 @@ public class Issue005Test extends AbstractTestCase
         assertTrue(e instanceof FileNotFoundException);
     }
 
-    public void testReadingNonExistentFileWma() {
+    public void testReadingNonExistentFileWma() throws Exception
+    {
         Exception e=null;
         try
         {
@@ -105,7 +111,8 @@ public class Issue005Test extends AbstractTestCase
         assertTrue(e instanceof FileNotFoundException);
     }
 
-    public void testReadingNonExistentFileWav() {
+    public void testReadingNonExistentFileWav() throws Exception
+    {
         Exception e=null;
         try
         {

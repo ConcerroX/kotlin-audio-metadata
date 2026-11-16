@@ -2,7 +2,6 @@ package org.jaudiotagger.audio.mp3;
 
 import junit.framework.TestCase;
 import org.jaudiotagger.AbstractTestCase;
-import org.w3c.dom.Document;
 import org.xml.sax.InputSource;
 
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -39,7 +38,7 @@ public class LoggingTest extends TestCase
         File testFile2 = AbstractTestCase.copyAudioToTmp("Issue96-1.id3", "testV1.mp3");
         MP3File mp3File2 = new MP3File(testFile2);
         System.out.println(mp3File2.displayStructureAsXML());
-        Document d2 = DocumentBuilderFactory.newInstance()
+        DocumentBuilderFactory.newInstance()
                 .newDocumentBuilder().parse(new InputSource(new StringReader(mp3File2.displayStructureAsXML())));
         assertEquals("TIT2", xpath1.evaluate(new InputSource(new StringReader(mp3File2.displayStructureAsXML()))));
     }
@@ -86,7 +85,8 @@ public class LoggingTest extends TestCase
     }
 
     public static int count=0;
-    public void testMultiThreadedSimpleDataAccess() {
+    public void testMultiThreadedSimpleDataAccess() throws Exception
+    {                               
         final SimpleDateFormat timeInFormat = new SimpleDateFormat("ss");
         final Thread[] threads = new Thread[1000];
         for(int i = 0; i < 1000; i++)
@@ -99,7 +99,7 @@ public class LoggingTest extends TestCase
                          //Must be synced fo rtest to reliably pass
                          synchronized(timeInFormat)
                          {
-                            Date timeIn = timeInFormat.parse(String.valueOf(-28.05122222d));
+                            timeInFormat.parse(String.valueOf(-28.05122222d));
                          }
 
                     }

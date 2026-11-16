@@ -171,7 +171,7 @@ public class AiffAudioTagTest extends TestCase {
             System.out.println(ah.getEncodingType());
             assertEquals("44100",ah.getSampleRate());
             assertEquals(5,ah.getTrackLength());
-            assertEquals(5.0d, ah.getPreciseTrackLength());
+            assertEquals(5.0d,((AiffAudioHeader) ah).getPreciseTrackLength());
 
             System.out.println(tag);
             assertNotNull(tag);
@@ -220,7 +220,7 @@ public class AiffAudioTagTest extends TestCase {
             System.out.println(ah.getEncodingType());
             assertEquals("44100",ah.getSampleRate());
             assertEquals(5,ah.getTrackLength());
-            assertEquals(5.0d, ah.getPreciseTrackLength());
+            assertEquals(5.0d,((AiffAudioHeader) ah).getPreciseTrackLength());
 
             System.out.println(tag);
             assertNotNull(tag);
@@ -461,6 +461,7 @@ public class AiffAudioTagTest extends TestCase {
             AudioHeader ah = f.getAudioHeader();
             assertTrue(ah instanceof AiffAudioHeader);
             Tag tag = f.getTag();
+            System.out.println(f.getTag());
             assertEquals(10274L,((AiffTag) tag).getSizeOfID3TagIncludingChunkHeader());
             assertEquals(10266L,((AiffTag) tag).getSizeOfID3TagOnly());
             assertEquals(12L,((AiffTag) tag).getStartLocationInFileOfId3Chunk());
@@ -511,7 +512,7 @@ public class AiffAudioTagTest extends TestCase {
     private static List<String> readChunkIds(final File file) throws IOException {
         final List<String> chunkIds = new ArrayList<>();
         try (final RandomAccessFile raf = new RandomAccessFile(file, "r")) {
-            raf.seek(IffHeaderChunk.HEADER_LENGTH);
+            raf.seek(IffHeaderChunk.FORM_HEADER_LENGTH);
             final ChunkHeader chunkHeader = new ChunkHeader(ByteOrder.BIG_ENDIAN);
 
             while (raf.getFilePointer() != raf.length()) {

@@ -1,11 +1,8 @@
 package org.jaudiotagger.issues;
 
 import org.jaudiotagger.AbstractTestCase;
-import org.jaudiotagger.audio.AudioFile;
 import org.jaudiotagger.audio.AudioFileIO;
 import org.jaudiotagger.audio.exceptions.CannotReadException;
-import org.jaudiotagger.tag.FieldKey;
-
 import java.io.File;
 
 /**
@@ -13,7 +10,8 @@ import java.io.File;
  */
 public class Issue183Test extends AbstractTestCase
 {
-    public void testReadCorruptOgg() {
+    public void testReadCorruptOgg() throws Exception
+    {
         File orig = new File("testdata", "test508.ogg");
         if (!orig.isFile())
         {

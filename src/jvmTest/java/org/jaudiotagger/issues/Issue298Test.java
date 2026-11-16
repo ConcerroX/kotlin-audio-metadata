@@ -42,6 +42,16 @@ public class Issue298Test extends AbstractTestCase
             tag.setField(tag.createField(FieldKey.CUSTOM4,"custom4"));
             tag.setField(tag.createField(FieldKey.CUSTOM5,"custom5"));
             tag.setField(tag.createField(FieldKey.FBPM,"155.5"));
+            tag.setField(tag.createField(FieldKey.GROUP,"group"));
+            tag.setField(tag.createField(FieldKey.INSTRUMENT,"instrument"));
+            tag.setField(tag.createField(FieldKey.IPI,"ipi"));
+            tag.setField(tag.createField(FieldKey.ISRC,"isrc"));
+            tag.setField(tag.createField(FieldKey.ISWC,"iswc"));
+            tag.setField(tag.createField(FieldKey.IS_GREATEST_HITS,"1"));
+            tag.setField(tag.createField(FieldKey.IS_HD,"1"));
+            tag.setField(tag.createField(FieldKey.IS_LIVE,"1"));
+            tag.setField(tag.createField(FieldKey.LYRICIST,"lyricist"));
+            tag.setField(tag.createField(FieldKey.LYRICIST_SORT,"lyricistsort"));
             tag.setField(tag.createField(FieldKey.MUSICBRAINZ_RELEASE_GROUP_ID,"c1f657ba-8177-3cbb-b84a-f62bc684a94e"));
             tag.setField(tag.createField(FieldKey.MUSICBRAINZ_RELEASE_TRACK_ID,"c1f657ba-8177-3cbb-b84a-f62bc684a94f"));
             tag.setField(tag.createField(FieldKey.MUSICBRAINZ_WORK_ID,"0410c22a-0b2b-4793-9f18-5f1fab36338e"));
@@ -70,6 +80,7 @@ public class Issue298Test extends AbstractTestCase
             tag.setField(tag.createField(FieldKey.TONALITY,"72"));
             tag.setField(tag.createField(FieldKey.KEY,"Am"));
             tag.setField(tag.createField(FieldKey.ORCHESTRA,"Orchestra"));
+            tag.setField(tag.createField(FieldKey.OVERALL_WORK,"OverallWork"));
             tag.setField(tag.createField(FieldKey.PART,"Part"));
             tag.setField(tag.createField(FieldKey.PART_TYPE,"Composition Type"));
             tag.setField(tag.createField(FieldKey.WORK,"Work"));
@@ -79,14 +90,14 @@ public class Issue298Test extends AbstractTestCase
             tag.setField(tag.createField(FieldKey.ENSEMBLE_SORT,"EnsembleSort"));
             tag.setField(tag.createField(FieldKey.PERFORMER_NAME,"PerformerName"));
             tag.setField(tag.createField(FieldKey.PERFORMER_NAME_SORT,"PerformerNameSort"));
-            tag.setField(tag.createField(FieldKey.MUSICBRAINZ_WORK_COMPOSITION_ID,"c1f657ba-8177-3cbb-b84a-f62bc684a94g"));
+            tag.setField(tag.createField(FieldKey.MUSICBRAINZ_RECORDING_WORK_ID,"c1f657ba-8177-3cbb-b84a-f62bc684a94g"));
             tag.setField(tag.createField(FieldKey.MUSICBRAINZ_WORK_PART_LEVEL1_ID,"c1f657ba-8177-3cbb-b84a-f62bc684a94g"));
             tag.setField(tag.createField(FieldKey.MUSICBRAINZ_WORK_PART_LEVEL2_ID,"c1f657ba-8177-3cbb-b84a-f62bc684a94h"));
             tag.setField(tag.createField(FieldKey.MUSICBRAINZ_WORK_PART_LEVEL3_ID,"c1f657ba-8177-3cbb-b84a-f62bc684a94i"));
             tag.setField(tag.createField(FieldKey.MUSICBRAINZ_WORK_PART_LEVEL4_ID,"c1f657ba-8177-3cbb-b84a-f62bc684a94j"));
             tag.setField(tag.createField(FieldKey.MUSICBRAINZ_WORK_PART_LEVEL5_ID,"c1f657ba-8177-3cbb-b84a-f62bc684a94k"));
             tag.setField(tag.createField(FieldKey.MUSICBRAINZ_WORK_PART_LEVEL6_ID,"c1f657ba-8177-3cbb-b84a-f62bc684a94l"));
-            tag.setField(tag.createField(FieldKey.MUSICBRAINZ_WORK_COMPOSITION,"MusicBrainzWorkComposition"));
+            tag.setField(tag.createField(FieldKey.MUSICBRAINZ_RECORDING_WORK,"MusicBrainzWorkComposition"));
             tag.setField(tag.createField(FieldKey.MUSICBRAINZ_WORK_PART_LEVEL1,"Level1"));
             tag.setField(tag.createField(FieldKey.MUSICBRAINZ_WORK_PART_LEVEL1_TYPE,"Level1Type"));
             tag.setField(tag.createField(FieldKey.MUSICBRAINZ_WORK_PART_LEVEL2,"Level2"));
@@ -102,6 +113,7 @@ public class Issue298Test extends AbstractTestCase
             tag.setField(tag.createField(FieldKey.PART_NUMBER,"PartNumber"));
             tag.setField(tag.createField(FieldKey.ARTISTS_SORT,"ArtistsSort"));
             tag.setField(tag.createField(FieldKey.CONDUCTOR_SORT,"ConductorSort"));
+            tag.setField(tag.createField(FieldKey.COPYRIGHT,"Copyright"));
             tag.setField(tag.createField(FieldKey.ENSEMBLE_SORT,"EnsembleSort"));
             tag.setField(tag.createField(FieldKey.ORCHESTRA_SORT,"OrchestraSort"));
             tag.setField(tag.createField(FieldKey.ARRANGER_SORT,"ArrangerSort"));
@@ -125,8 +137,11 @@ public class Issue298Test extends AbstractTestCase
             tag.setField(tag.createField(FieldKey.TITLE_MOVEMENT,"TitleMovement"));
             tag.setField(tag.createField(FieldKey.MUSICBRAINZ_WORK,"MusicBrainzWork"));
             tag.setField(tag.createField(FieldKey.ITUNES_GROUPING,"ITUNESGROUPING"));
-
-
+            tag.setField(tag.createField(FieldKey.INVOLVEDPEOPLE,"ArtDirection\0INVOLVEDPEOPLE"));
+            tag.setField(tag.createField(FieldKey.DJMIXER_SORT,"DJMixerSort"));
+            tag.setField(tag.createField(FieldKey.ENGINEER_SORT,"EngineerSort"));
+            tag.setField(tag.createField(FieldKey.MIXER_SORT,"MixerSort"));
+            tag.setField(tag.createField(FieldKey.PRODUCER_SORT,"ProducerSort"));
 
             assertEquals("custom1",af.getTag().getFirst(FieldKey.CUSTOM1));
             assertEquals("custom2",af.getTag().getFirst(FieldKey.CUSTOM2));
@@ -162,12 +177,13 @@ public class Issue298Test extends AbstractTestCase
             assertEquals("72",af.getTag().getFirst(FieldKey.TONALITY));
             assertEquals("Am",af.getTag().getFirst(FieldKey.KEY));
             assertEquals("Orchestra",af.getTag().getFirst(FieldKey.ORCHESTRA));
+            assertEquals("OverallWork",af.getTag().getFirst(FieldKey.OVERALL_WORK));
             assertEquals("Part",af.getTag().getFirst(FieldKey.PART));
             assertEquals("Work",af.getTag().getFirst(FieldKey.WORK));
             assertEquals("Performer",af.getTag().getFirst(FieldKey.PERFORMER));
             assertEquals("WorkType",af.getTag().getFirst(FieldKey.WORK_TYPE));
             assertEquals("ChoirSort",af.getTag().getFirst(FieldKey.CHOIR_SORT));
-            assertEquals("c1f657ba-8177-3cbb-b84a-f62bc684a94g",af.getTag().getFirst(FieldKey.MUSICBRAINZ_WORK_COMPOSITION_ID));
+            assertEquals("c1f657ba-8177-3cbb-b84a-f62bc684a94g",af.getTag().getFirst(FieldKey.MUSICBRAINZ_RECORDING_WORK_ID));
             assertEquals("Composition Type",af.getTag().getFirst(FieldKey.PART_TYPE));
             assertEquals("c1f657ba-8177-3cbb-b84a-f62bc684a94g",af.getTag().getFirst(FieldKey.MUSICBRAINZ_WORK_PART_LEVEL1_ID));
             assertEquals("c1f657ba-8177-3cbb-b84a-f62bc684a94h",af.getTag().getFirst(FieldKey.MUSICBRAINZ_WORK_PART_LEVEL2_ID));
@@ -175,7 +191,7 @@ public class Issue298Test extends AbstractTestCase
             assertEquals("c1f657ba-8177-3cbb-b84a-f62bc684a94j",af.getTag().getFirst(FieldKey.MUSICBRAINZ_WORK_PART_LEVEL4_ID));
             assertEquals("c1f657ba-8177-3cbb-b84a-f62bc684a94k",af.getTag().getFirst(FieldKey.MUSICBRAINZ_WORK_PART_LEVEL5_ID));
             assertEquals("c1f657ba-8177-3cbb-b84a-f62bc684a94l",af.getTag().getFirst(FieldKey.MUSICBRAINZ_WORK_PART_LEVEL6_ID));
-            assertEquals("MusicBrainzWorkComposition",af.getTag().getFirst(FieldKey.MUSICBRAINZ_WORK_COMPOSITION));
+            assertEquals("MusicBrainzWorkComposition",af.getTag().getFirst(FieldKey.MUSICBRAINZ_RECORDING_WORK));
             assertEquals("Level1",af.getTag().getFirst(FieldKey.MUSICBRAINZ_WORK_PART_LEVEL1));
             assertEquals("Level2",af.getTag().getFirst(FieldKey.MUSICBRAINZ_WORK_PART_LEVEL2));
             assertEquals("Level3",af.getTag().getFirst(FieldKey.MUSICBRAINZ_WORK_PART_LEVEL3));
@@ -191,6 +207,7 @@ public class Issue298Test extends AbstractTestCase
             assertEquals("PartNumber",af.getTag().getFirst(FieldKey.PART_NUMBER));
             assertEquals("ArtistsSort",af.getTag().getFirst(FieldKey.ARTISTS_SORT));
             assertEquals("ConductorSort",af.getTag().getFirst(FieldKey.CONDUCTOR_SORT));
+            assertEquals("Copyright",af.getTag().getFirst(FieldKey.COPYRIGHT));
             assertEquals("EnsembleSort",af.getTag().getFirst(FieldKey.ENSEMBLE_SORT));
             assertEquals("OrchestraSort",af.getTag().getFirst(FieldKey.ORCHESTRA_SORT));
             assertEquals("ArrangerSort",af.getTag().getFirst(FieldKey.ARRANGER_SORT));
@@ -217,7 +234,11 @@ public class Issue298Test extends AbstractTestCase
             assertEquals("TitleMovement", af.getTag().getFirst(FieldKey.TITLE_MOVEMENT));
             assertEquals("MusicBrainzWork", af.getTag().getFirst(FieldKey.MUSICBRAINZ_WORK));
             assertEquals("ITUNESGROUPING", af.getTag().getFirst(FieldKey.ITUNES_GROUPING));
-
+            assertEquals("ArtDirection\0INVOLVEDPEOPLE", af.getTag().getFirst(FieldKey.INVOLVEDPEOPLE));
+            assertEquals("DJMixerSort", af.getTag().getFirst(FieldKey.DJMIXER_SORT));
+            assertEquals("EngineerSort", af.getTag().getFirst(FieldKey.ENGINEER_SORT));
+            assertEquals("MixerSort", af.getTag().getFirst(FieldKey.MIXER_SORT));
+            assertEquals("ProducerSort", af.getTag().getFirst(FieldKey.PRODUCER_SORT));
 
             {
                 TagField tagField = af.getTag().getFirstField(FieldKey.CUSTOM1);
@@ -233,6 +254,15 @@ public class Issue298Test extends AbstractTestCase
             assertEquals("custom4",af.getTag().getFirst(FieldKey.CUSTOM4));
             assertEquals("custom5",af.getTag().getFirst(FieldKey.CUSTOM5));
             assertEquals("155.5",af.getTag().getFirst(FieldKey.FBPM));
+            assertEquals("group",af.getTag().getFirst(FieldKey.GROUP));
+            assertEquals("instrument",af.getTag().getFirst(FieldKey.INSTRUMENT));
+            assertEquals("ipi",af.getTag().getFirst(FieldKey.IPI));
+            assertEquals("isrc",af.getTag().getFirst(FieldKey.ISRC));
+            assertEquals("iswc",af.getTag().getFirst(FieldKey.ISWC));
+            assertEquals("1",af.getTag().getFirst(FieldKey.IS_GREATEST_HITS));
+            assertEquals("1",af.getTag().getFirst(FieldKey.IS_HD));
+            assertEquals("lyricist",af.getTag().getFirst(FieldKey.LYRICIST));
+            assertEquals("lyricistsort",af.getTag().getFirst(FieldKey.LYRICIST_SORT));
             assertEquals("c1f657ba-8177-3cbb-b84a-f62bc684a94e",af.getTag().getFirst(FieldKey.MUSICBRAINZ_RELEASE_GROUP_ID));
             assertEquals("c1f657ba-8177-3cbb-b84a-f62bc684a94f", af.getTag().getFirst(FieldKey.MUSICBRAINZ_RELEASE_TRACK_ID));
             assertEquals("0410c22a-0b2b-4793-9f18-5f1fab36338e",af.getTag().getFirst(FieldKey.MUSICBRAINZ_WORK_ID));
@@ -261,6 +291,7 @@ public class Issue298Test extends AbstractTestCase
             assertEquals("72",af.getTag().getFirst(FieldKey.TONALITY));
             assertEquals("Am",af.getTag().getFirst(FieldKey.KEY));
             assertEquals("Orchestra",af.getTag().getFirst(FieldKey.ORCHESTRA));
+            assertEquals("OverallWork",af.getTag().getFirst(FieldKey.OVERALL_WORK));
             assertEquals("Part",af.getTag().getFirst(FieldKey.PART));
             assertEquals("Work",af.getTag().getFirst(FieldKey.WORK));
             assertEquals("Performer",af.getTag().getFirst(FieldKey.PERFORMER));
@@ -268,6 +299,7 @@ public class Issue298Test extends AbstractTestCase
             tag.setField(tag.createField(FieldKey.ENSEMBLE_SORT,"EnsembleSort"));
             tag.setField(tag.createField(FieldKey.PERFORMER_NAME,"PerformerName"));
             tag.setField(tag.createField(FieldKey.PERFORMER_NAME_SORT,"PerformerNameSort"));
+
             {
                 TagField tagField = af.getTag().getFirstField(FieldKey.CUSTOM1);
                 assertTrue(tagField instanceof ID3v24Frame);
@@ -340,6 +372,16 @@ public class Issue298Test extends AbstractTestCase
             tag.setField(tag.createField(FieldKey.CUSTOM4,"custom4"));
             tag.setField(tag.createField(FieldKey.CUSTOM5,"custom5"));
             tag.setField(tag.createField(FieldKey.FBPM,"155.5"));
+            tag.setField(tag.createField(FieldKey.GROUP,"group"));
+            tag.setField(tag.createField(FieldKey.INSTRUMENT,"instrument"));
+            tag.setField(tag.createField(FieldKey.IPI,"ipi"));
+            tag.setField(tag.createField(FieldKey.ISRC,"isrc"));
+            tag.setField(tag.createField(FieldKey.ISWC,"iswc"));
+            tag.setField(tag.createField(FieldKey.IS_GREATEST_HITS,"1"));
+            tag.setField(tag.createField(FieldKey.IS_HD,"1"));
+            tag.setField(tag.createField(FieldKey.IS_LIVE,"1"));
+            tag.setField(tag.createField(FieldKey.LYRICIST,"lyricist"));
+            tag.setField(tag.createField(FieldKey.LYRICIST_SORT,"lyricistsort"));
             tag.setField(tag.createField(FieldKey.MUSICBRAINZ_RELEASE_GROUP_ID,"c1f657ba-8177-3cbb-b84a-f62bc684a94e"));
             tag.setField(tag.createField(FieldKey.MUSICBRAINZ_RELEASE_TRACK_ID,"c1f657ba-8177-3cbb-b84a-f62bc684a94f"));
             tag.setField(tag.createField(FieldKey.MUSICBRAINZ_WORK_ID,"0410c22a-0b2b-4793-9f18-5f1fab36338e"));
@@ -369,6 +411,7 @@ public class Issue298Test extends AbstractTestCase
             tag.setField(tag.createField(FieldKey.TONALITY,"72"));
             tag.setField(tag.createField(FieldKey.KEY,"Am"));
             tag.setField(tag.createField(FieldKey.ORCHESTRA,"Orchestra"));
+            tag.setField(tag.createField(FieldKey.OVERALL_WORK,"OverallWork"));
             tag.setField(tag.createField(FieldKey.PART,"Part"));
             tag.setField(tag.createField(FieldKey.WORK,"Work"));
             tag.setField(tag.createField(FieldKey.CHOIR,"Choir"));
@@ -376,14 +419,14 @@ public class Issue298Test extends AbstractTestCase
             tag.setField(tag.createField(FieldKey.PERFORMER,"Performer"));
             tag.setField(tag.createField(FieldKey.WORK_TYPE,"WorkType"));
             tag.setField(tag.createField(FieldKey.CHOIR_SORT,"ChoirSort"));
-            tag.setField(tag.createField(FieldKey.MUSICBRAINZ_WORK_COMPOSITION_ID,"c1f657ba-8177-3cbb-b84a-f62bc684a94g"));
+            tag.setField(tag.createField(FieldKey.MUSICBRAINZ_RECORDING_WORK_ID,"c1f657ba-8177-3cbb-b84a-f62bc684a94g"));
             tag.setField(tag.createField(FieldKey.MUSICBRAINZ_WORK_PART_LEVEL1_ID,"c1f657ba-8177-3cbb-b84a-f62bc684a94g"));
             tag.setField(tag.createField(FieldKey.MUSICBRAINZ_WORK_PART_LEVEL2_ID,"c1f657ba-8177-3cbb-b84a-f62bc684a94h"));
             tag.setField(tag.createField(FieldKey.MUSICBRAINZ_WORK_PART_LEVEL3_ID,"c1f657ba-8177-3cbb-b84a-f62bc684a94i"));
             tag.setField(tag.createField(FieldKey.MUSICBRAINZ_WORK_PART_LEVEL4_ID,"c1f657ba-8177-3cbb-b84a-f62bc684a94j"));
             tag.setField(tag.createField(FieldKey.MUSICBRAINZ_WORK_PART_LEVEL5_ID,"c1f657ba-8177-3cbb-b84a-f62bc684a94k"));
             tag.setField(tag.createField(FieldKey.MUSICBRAINZ_WORK_PART_LEVEL6_ID,"c1f657ba-8177-3cbb-b84a-f62bc684a94l"));
-            tag.setField(tag.createField(FieldKey.MUSICBRAINZ_WORK_COMPOSITION,"MusicBrainzWorkComposition"));
+            tag.setField(tag.createField(FieldKey.MUSICBRAINZ_RECORDING_WORK,"MusicBrainzWorkComposition"));
             tag.setField(tag.createField(FieldKey.MUSICBRAINZ_WORK_PART_LEVEL1,"Level1"));
             tag.setField(tag.createField(FieldKey.MUSICBRAINZ_WORK_PART_LEVEL1_TYPE,"Level1Type"));
             tag.setField(tag.createField(FieldKey.MUSICBRAINZ_WORK_PART_LEVEL2,"Level2"));
@@ -399,6 +442,7 @@ public class Issue298Test extends AbstractTestCase
             tag.setField(tag.createField(FieldKey.PART_NUMBER,"PartNumber"));
             tag.setField(tag.createField(FieldKey.ARTISTS_SORT,"ArtistsSort"));
             tag.setField(tag.createField(FieldKey.CONDUCTOR_SORT,"ConductorSort"));
+            tag.setField(tag.createField(FieldKey.COPYRIGHT,"Copyright"));
             tag.setField(tag.createField(FieldKey.ENSEMBLE_SORT,"EnsembleSort"));
             tag.setField(tag.createField(FieldKey.ORCHESTRA_SORT,"OrchestraSort"));
             tag.setField(tag.createField(FieldKey.PERFORMER_NAME_SORT,"Performer"));
@@ -426,6 +470,11 @@ public class Issue298Test extends AbstractTestCase
             tag.setField(tag.createField(FieldKey.TITLE_MOVEMENT,"TitleMovement"));
             tag.setField(tag.createField(FieldKey.MUSICBRAINZ_WORK,"MusicBrainzWork"));
             tag.setField(tag.createField(FieldKey.ITUNES_GROUPING,"ITUNESGROUPING"));
+            tag.setField(tag.createField(FieldKey.INVOLVEDPEOPLE,"ArtDirection\0INVOLVEDPEOPLE"));
+            tag.setField(tag.createField(FieldKey.DJMIXER_SORT,"DJMixerSort"));
+            tag.setField(tag.createField(FieldKey.ENGINEER_SORT,"EngineerSort"));
+            tag.setField(tag.createField(FieldKey.MIXER_SORT,"MixerSort"));
+            tag.setField(tag.createField(FieldKey.PRODUCER_SORT,"ProducerSort"));
 
             assertEquals("1", af.getTag().getFirst(FieldKey.MOVEMENT_NO));
             assertEquals("2", af.getTag().getFirst(FieldKey.MOVEMENT_TOTAL));
@@ -434,6 +483,7 @@ public class Issue298Test extends AbstractTestCase
             assertEquals("AlbumArtists", af.getTag().getFirst(FieldKey.ALBUM_ARTISTS));
             assertEquals("AlbumArtistsSort", af.getTag().getFirst(FieldKey.ALBUM_ARTISTS_SORT));
             assertEquals("ITUNESGROUPING", af.getTag().getFirst(FieldKey.ITUNES_GROUPING));
+            assertEquals("ArtDirection\0INVOLVEDPEOPLE", af.getTag().getFirst(FieldKey.INVOLVEDPEOPLE));
 
             Iterator<TagField> i =af.getTag().getFields();
             while(i.hasNext())
@@ -450,6 +500,16 @@ public class Issue298Test extends AbstractTestCase
             assertEquals("custom4",af.getTag().getFirst(FieldKey.CUSTOM4));
             assertEquals("custom5",af.getTag().getFirst(FieldKey.CUSTOM5));
             assertEquals("155.5",af.getTag().getFirst(FieldKey.FBPM));
+            assertEquals("group",af.getTag().getFirst(FieldKey.GROUP));
+            assertEquals("instrument",af.getTag().getFirst(FieldKey.INSTRUMENT));
+            assertEquals("ipi",af.getTag().getFirst(FieldKey.IPI));
+            assertEquals("isrc",af.getTag().getFirst(FieldKey.ISRC));
+            assertEquals("iswc",af.getTag().getFirst(FieldKey.ISWC));
+            assertEquals("1",af.getTag().getFirst(FieldKey.IS_GREATEST_HITS));
+            assertEquals("1",af.getTag().getFirst(FieldKey.IS_HD));
+            assertEquals("1",af.getTag().getFirst(FieldKey.IS_LIVE));
+            assertEquals("lyricist",af.getTag().getFirst(FieldKey.LYRICIST));
+            assertEquals("lyricistsort",af.getTag().getFirst(FieldKey.LYRICIST_SORT));
             assertEquals("c1f657ba-8177-3cbb-b84a-f62bc684a94e",af.getTag().getFirst(FieldKey.MUSICBRAINZ_RELEASE_GROUP_ID));
             assertEquals("c1f657ba-8177-3cbb-b84a-f62bc684a94f", af.getTag().getFirst(FieldKey.MUSICBRAINZ_RELEASE_TRACK_ID));
             assertEquals("0410c22a-0b2b-4793-9f18-5f1fab36338e",af.getTag().getFirst(FieldKey.MUSICBRAINZ_WORK_ID));
@@ -478,13 +538,13 @@ public class Issue298Test extends AbstractTestCase
             assertEquals("72",af.getTag().getFirst(FieldKey.TONALITY));
             assertEquals("Am",af.getTag().getFirst(FieldKey.KEY));
             assertEquals("Orchestra",af.getTag().getFirst(FieldKey.ORCHESTRA));
+            assertEquals("OverallWork",af.getTag().getFirst(FieldKey.OVERALL_WORK));
             assertEquals("Part",af.getTag().getFirst(FieldKey.PART));
-
             assertEquals("Work",af.getTag().getFirst(FieldKey.WORK));
             assertEquals("Performer",af.getTag().getFirst(FieldKey.PERFORMER));
             assertEquals("WorkType",af.getTag().getFirst(FieldKey.WORK_TYPE));
             assertEquals("ChoirSort",af.getTag().getFirst(FieldKey.CHOIR_SORT));
-            assertEquals("c1f657ba-8177-3cbb-b84a-f62bc684a94g",af.getTag().getFirst(FieldKey.MUSICBRAINZ_WORK_COMPOSITION_ID));
+            assertEquals("c1f657ba-8177-3cbb-b84a-f62bc684a94g",af.getTag().getFirst(FieldKey.MUSICBRAINZ_RECORDING_WORK_ID));
             assertEquals("Composition Type",af.getTag().getFirst(FieldKey.PART_TYPE));
             assertEquals("c1f657ba-8177-3cbb-b84a-f62bc684a94g",af.getTag().getFirst(FieldKey.MUSICBRAINZ_WORK_PART_LEVEL1_ID));
             assertEquals("c1f657ba-8177-3cbb-b84a-f62bc684a94h",af.getTag().getFirst(FieldKey.MUSICBRAINZ_WORK_PART_LEVEL2_ID));
@@ -492,7 +552,7 @@ public class Issue298Test extends AbstractTestCase
             assertEquals("c1f657ba-8177-3cbb-b84a-f62bc684a94j",af.getTag().getFirst(FieldKey.MUSICBRAINZ_WORK_PART_LEVEL4_ID));
             assertEquals("c1f657ba-8177-3cbb-b84a-f62bc684a94k",af.getTag().getFirst(FieldKey.MUSICBRAINZ_WORK_PART_LEVEL5_ID));
             assertEquals("c1f657ba-8177-3cbb-b84a-f62bc684a94l",af.getTag().getFirst(FieldKey.MUSICBRAINZ_WORK_PART_LEVEL6_ID));
-            assertEquals("MusicBrainzWorkComposition",af.getTag().getFirst(FieldKey.MUSICBRAINZ_WORK_COMPOSITION));
+            assertEquals("MusicBrainzWorkComposition",af.getTag().getFirst(FieldKey.MUSICBRAINZ_RECORDING_WORK));
             assertEquals("Level1",af.getTag().getFirst(FieldKey.MUSICBRAINZ_WORK_PART_LEVEL1));
             assertEquals("Level2",af.getTag().getFirst(FieldKey.MUSICBRAINZ_WORK_PART_LEVEL2));
             assertEquals("Level3",af.getTag().getFirst(FieldKey.MUSICBRAINZ_WORK_PART_LEVEL3));
@@ -509,6 +569,7 @@ public class Issue298Test extends AbstractTestCase
             assertEquals("PartNumber",af.getTag().getFirst(FieldKey.PART_NUMBER));
             assertEquals("ArtistsSort",af.getTag().getFirst(FieldKey.ARTISTS_SORT));
             assertEquals("ConductorSort",af.getTag().getFirst(FieldKey.CONDUCTOR_SORT));
+            assertEquals("Copyright",af.getTag().getFirst(FieldKey.COPYRIGHT));
             assertEquals("EnsembleSort",af.getTag().getFirst(FieldKey.ENSEMBLE_SORT));
             assertEquals("OrchestraSort",af.getTag().getFirst(FieldKey.ORCHESTRA_SORT));
             assertEquals("ArrangerSort",af.getTag().getFirst(FieldKey.ARRANGER_SORT));
@@ -534,6 +595,12 @@ public class Issue298Test extends AbstractTestCase
             assertEquals("TitleMovement", af.getTag().getFirst(FieldKey.TITLE_MOVEMENT));
             assertEquals("MusicBrainzWork", af.getTag().getFirst(FieldKey.MUSICBRAINZ_WORK));
             assertEquals("ITUNESGROUPING", af.getTag().getFirst(FieldKey.ITUNES_GROUPING));
+            assertEquals("ArtDirection\0INVOLVEDPEOPLE", af.getTag().getFirst(FieldKey.INVOLVEDPEOPLE));
+            assertEquals("DJMixerSort", af.getTag().getFirst(FieldKey.DJMIXER_SORT));
+            assertEquals("EngineerSort", af.getTag().getFirst(FieldKey.ENGINEER_SORT));
+            assertEquals("MixerSort", af.getTag().getFirst(FieldKey.MIXER_SORT));
+            assertEquals("ProducerSort", af.getTag().getFirst(FieldKey.PRODUCER_SORT));
+
             i =af.getTag().getFields();
             while(i.hasNext())
             {
@@ -575,6 +642,16 @@ public class Issue298Test extends AbstractTestCase
             tag.setField(tag.createField(FieldKey.CUSTOM4,"custom4"));
             tag.setField(tag.createField(FieldKey.CUSTOM5,"custom5"));
             tag.setField(tag.createField(FieldKey.FBPM,"155.5"));
+            tag.setField(tag.createField(FieldKey.GROUP,"group"));
+            tag.setField(tag.createField(FieldKey.INSTRUMENT,"instrument"));
+            tag.setField(tag.createField(FieldKey.IPI,"ipi"));
+            tag.setField(tag.createField(FieldKey.ISRC,"isrc"));
+            tag.setField(tag.createField(FieldKey.ISWC,"iswc"));
+            tag.setField(tag.createField(FieldKey.IS_GREATEST_HITS,"1"));
+            tag.setField(tag.createField(FieldKey.IS_HD,"1"));
+            tag.setField(tag.createField(FieldKey.IS_LIVE,"1"));
+            tag.setField(tag.createField(FieldKey.LYRICIST,"lyricist"));
+            tag.setField(tag.createField(FieldKey.LYRICIST_SORT,"lyricistsort"));
             tag.setField(tag.createField(FieldKey.MUSICBRAINZ_RELEASE_GROUP_ID,"c1f657ba-8177-3cbb-b84a-f62bc684a94e"));
             tag.setField(tag.createField(FieldKey.MUSICBRAINZ_RELEASE_TRACK_ID,"c1f657ba-8177-3cbb-b84a-f62bc684a94f"));
             tag.setField(tag.createField(FieldKey.MUSICBRAINZ_WORK_ID,"0410c22a-0b2b-4793-9f18-5f1fab36338e"));
@@ -604,22 +681,22 @@ public class Issue298Test extends AbstractTestCase
             tag.setField(tag.createField(FieldKey.TONALITY,"72"));
             tag.setField(tag.createField(FieldKey.KEY,"Am"));
             tag.setField(tag.createField(FieldKey.ORCHESTRA,"Orchestra"));
+            tag.setField(tag.createField(FieldKey.OVERALL_WORK,"OverallWork"));
             tag.setField(tag.createField(FieldKey.PART,"Part"));
             tag.setField(tag.createField(FieldKey.CHOIR,"Choir"));
             tag.setField(tag.createField(FieldKey.RANKING,"Ranking"));
-
             tag.setField(tag.createField(FieldKey.WORK,"Work"));
             tag.setField(tag.createField(FieldKey.PERFORMER,"Performer"));
             tag.setField(tag.createField(FieldKey.WORK_TYPE,"WorkType"));
             tag.setField(tag.createField(FieldKey.CHOIR_SORT,"ChoirSort"));
-            tag.setField(tag.createField(FieldKey.MUSICBRAINZ_WORK_COMPOSITION_ID,"c1f657ba-8177-3cbb-b84a-f62bc684a94g"));
+            tag.setField(tag.createField(FieldKey.MUSICBRAINZ_RECORDING_WORK_ID,"c1f657ba-8177-3cbb-b84a-f62bc684a94g"));
             tag.setField(tag.createField(FieldKey.MUSICBRAINZ_WORK_PART_LEVEL1_ID,"c1f657ba-8177-3cbb-b84a-f62bc684a94g"));
             tag.setField(tag.createField(FieldKey.MUSICBRAINZ_WORK_PART_LEVEL2_ID,"c1f657ba-8177-3cbb-b84a-f62bc684a94h"));
             tag.setField(tag.createField(FieldKey.MUSICBRAINZ_WORK_PART_LEVEL3_ID,"c1f657ba-8177-3cbb-b84a-f62bc684a94i"));
             tag.setField(tag.createField(FieldKey.MUSICBRAINZ_WORK_PART_LEVEL4_ID,"c1f657ba-8177-3cbb-b84a-f62bc684a94j"));
             tag.setField(tag.createField(FieldKey.MUSICBRAINZ_WORK_PART_LEVEL5_ID,"c1f657ba-8177-3cbb-b84a-f62bc684a94k"));
             tag.setField(tag.createField(FieldKey.MUSICBRAINZ_WORK_PART_LEVEL6_ID,"c1f657ba-8177-3cbb-b84a-f62bc684a94l"));
-            tag.setField(tag.createField(FieldKey.MUSICBRAINZ_WORK_COMPOSITION,"MusicBrainzWorkComposition"));
+            tag.setField(tag.createField(FieldKey.MUSICBRAINZ_RECORDING_WORK,"MusicBrainzWorkComposition"));
             tag.setField(tag.createField(FieldKey.MUSICBRAINZ_WORK_PART_LEVEL1,"Level1"));
             tag.setField(tag.createField(FieldKey.MUSICBRAINZ_WORK_PART_LEVEL1_TYPE,"Level1Type"));
             tag.setField(tag.createField(FieldKey.MUSICBRAINZ_WORK_PART_LEVEL2,"Level2"));
@@ -635,6 +712,7 @@ public class Issue298Test extends AbstractTestCase
             tag.setField(tag.createField(FieldKey.PART_NUMBER,"PartNumber"));
             tag.setField(tag.createField(FieldKey.ARTISTS_SORT,"ArtistsSort"));
             tag.setField(tag.createField(FieldKey.CONDUCTOR_SORT,"ConductorSort"));
+            tag.setField(tag.createField(FieldKey.COPYRIGHT,"Copyright"));
             tag.setField(tag.createField(FieldKey.ENSEMBLE_SORT,"EnsembleSort"));
             tag.setField(tag.createField(FieldKey.ORCHESTRA_SORT,"OrchestraSort"));
             tag.setField(tag.createField(FieldKey.PERFORMER_NAME_SORT,"Performer"));
@@ -661,6 +739,11 @@ public class Issue298Test extends AbstractTestCase
             tag.setField(tag.createField(FieldKey.TITLE_MOVEMENT,"TitleMovement"));
             tag.setField(tag.createField(FieldKey.MUSICBRAINZ_WORK,"MusicBrainzWork"));
             tag.setField(tag.createField(FieldKey.ITUNES_GROUPING,"ITUNESGROUPING"));
+            tag.setField(tag.createField(FieldKey.INVOLVEDPEOPLE,"INVOLVEDPEOPLE"));
+            tag.setField(tag.createField(FieldKey.DJMIXER_SORT,"DJMixerSort"));
+            tag.setField(tag.createField(FieldKey.ENGINEER_SORT,"EngineerSort"));
+            tag.setField(tag.createField(FieldKey.MIXER_SORT,"MixerSort"));
+            tag.setField(tag.createField(FieldKey.PRODUCER_SORT,"ProducerSort"));
 
 
             af.commit();
@@ -671,6 +754,17 @@ public class Issue298Test extends AbstractTestCase
             assertEquals("custom4",af.getTag().getFirst(FieldKey.CUSTOM4));
             assertEquals("custom5",af.getTag().getFirst(FieldKey.CUSTOM5));
             assertEquals("155.5",af.getTag().getFirst(FieldKey.FBPM));
+            assertEquals("group",af.getTag().getFirst(FieldKey.GROUP));
+            assertEquals("instrument",af.getTag().getFirst(FieldKey.INSTRUMENT));
+            assertEquals("ipi",af.getTag().getFirst(FieldKey.IPI));
+            assertEquals("isrc",af.getTag().getFirst(FieldKey.ISRC));
+            assertEquals("iswc",af.getTag().getFirst(FieldKey.ISWC));
+            assertEquals("1",af.getTag().getFirst(FieldKey.IS_GREATEST_HITS));
+            assertEquals("1",af.getTag().getFirst(FieldKey.IS_HD));
+            assertEquals("1",af.getTag().getFirst(FieldKey.IS_LIVE));
+            assertEquals("lyricist",af.getTag().getFirst(FieldKey.LYRICIST));
+            assertEquals("lyricistsort",af.getTag().getFirst(FieldKey.LYRICIST_SORT));
+
             assertEquals("c1f657ba-8177-3cbb-b84a-f62bc684a94e",af.getTag().getFirst(FieldKey.MUSICBRAINZ_RELEASE_GROUP_ID));
             assertEquals("c1f657ba-8177-3cbb-b84a-f62bc684a94f", af.getTag().getFirst(FieldKey.MUSICBRAINZ_RELEASE_TRACK_ID));
             assertEquals("0410c22a-0b2b-4793-9f18-5f1fab36338e",af.getTag().getFirst(FieldKey.MUSICBRAINZ_WORK_ID));
@@ -699,19 +793,20 @@ public class Issue298Test extends AbstractTestCase
             assertEquals("72",af.getTag().getFirst(FieldKey.TONALITY));
             assertEquals("Am",af.getTag().getFirst(FieldKey.KEY));
             assertEquals("Orchestra",af.getTag().getFirst(FieldKey.ORCHESTRA));
+            assertEquals("OverallWork",af.getTag().getFirst(FieldKey.OVERALL_WORK));
             assertEquals("Part",af.getTag().getFirst(FieldKey.PART));
             assertEquals("Work",af.getTag().getFirst(FieldKey.WORK));
             assertEquals("Performer",af.getTag().getFirst(FieldKey.PERFORMER));
             assertEquals("WorkType",af.getTag().getFirst(FieldKey.WORK_TYPE));
             assertEquals("ChoirSort",af.getTag().getFirst(FieldKey.CHOIR_SORT));
-            assertEquals("c1f657ba-8177-3cbb-b84a-f62bc684a94g",af.getTag().getFirst(FieldKey.MUSICBRAINZ_WORK_COMPOSITION_ID));
+            assertEquals("c1f657ba-8177-3cbb-b84a-f62bc684a94g",af.getTag().getFirst(FieldKey.MUSICBRAINZ_RECORDING_WORK_ID));
             assertEquals("c1f657ba-8177-3cbb-b84a-f62bc684a94g",af.getTag().getFirst(FieldKey.MUSICBRAINZ_WORK_PART_LEVEL1_ID));
             assertEquals("c1f657ba-8177-3cbb-b84a-f62bc684a94h",af.getTag().getFirst(FieldKey.MUSICBRAINZ_WORK_PART_LEVEL2_ID));
             assertEquals("c1f657ba-8177-3cbb-b84a-f62bc684a94i",af.getTag().getFirst(FieldKey.MUSICBRAINZ_WORK_PART_LEVEL3_ID));
             assertEquals("c1f657ba-8177-3cbb-b84a-f62bc684a94j",af.getTag().getFirst(FieldKey.MUSICBRAINZ_WORK_PART_LEVEL4_ID));
             assertEquals("c1f657ba-8177-3cbb-b84a-f62bc684a94k",af.getTag().getFirst(FieldKey.MUSICBRAINZ_WORK_PART_LEVEL5_ID));
             assertEquals("c1f657ba-8177-3cbb-b84a-f62bc684a94l",af.getTag().getFirst(FieldKey.MUSICBRAINZ_WORK_PART_LEVEL6_ID));
-            assertEquals("MusicBrainzWorkComposition",af.getTag().getFirst(FieldKey.MUSICBRAINZ_WORK_COMPOSITION));
+            assertEquals("MusicBrainzWorkComposition",af.getTag().getFirst(FieldKey.MUSICBRAINZ_RECORDING_WORK));
             assertEquals("Level1",af.getTag().getFirst(FieldKey.MUSICBRAINZ_WORK_PART_LEVEL1));
             assertEquals("Level2",af.getTag().getFirst(FieldKey.MUSICBRAINZ_WORK_PART_LEVEL2));
             assertEquals("Level3",af.getTag().getFirst(FieldKey.MUSICBRAINZ_WORK_PART_LEVEL3));
@@ -728,6 +823,7 @@ public class Issue298Test extends AbstractTestCase
             assertEquals("PartNumber",af.getTag().getFirst(FieldKey.PART_NUMBER));
             assertEquals("ArtistsSort",af.getTag().getFirst(FieldKey.ARTISTS_SORT));
             assertEquals("ConductorSort",af.getTag().getFirst(FieldKey.CONDUCTOR_SORT));
+            assertEquals("Copyright",af.getTag().getFirst(FieldKey.COPYRIGHT));
             assertEquals("EnsembleSort",af.getTag().getFirst(FieldKey.ENSEMBLE_SORT));
             assertEquals("OrchestraSort",af.getTag().getFirst(FieldKey.ORCHESTRA_SORT));
             assertEquals("ArrangerSort",af.getTag().getFirst(FieldKey.ARRANGER_SORT));
@@ -755,6 +851,11 @@ public class Issue298Test extends AbstractTestCase
             assertEquals("TitleMovement", af.getTag().getFirst(FieldKey.TITLE_MOVEMENT));
             assertEquals("MusicBrainzWork", af.getTag().getFirst(FieldKey.MUSICBRAINZ_WORK));
             assertEquals("ITUNESGROUPING", af.getTag().getFirst(FieldKey.ITUNES_GROUPING));
+            assertEquals("INVOLVEDPEOPLE", af.getTag().getFirst(FieldKey.INVOLVEDPEOPLE));
+            assertEquals("DJMixerSort", af.getTag().getFirst(FieldKey.DJMIXER_SORT));
+            assertEquals("EngineerSort", af.getTag().getFirst(FieldKey.ENGINEER_SORT));
+            assertEquals("MixerSort", af.getTag().getFirst(FieldKey.MIXER_SORT));
+            assertEquals("ProducerSort", af.getTag().getFirst(FieldKey.PRODUCER_SORT));
 
         }
         catch(Exception e)
@@ -786,6 +887,16 @@ public class Issue298Test extends AbstractTestCase
             tag.setField(tag.createField(FieldKey.CUSTOM4,"custom4"));
             tag.setField(tag.createField(FieldKey.CUSTOM5,"custom5"));
             tag.setField(tag.createField(FieldKey.FBPM,"155.5"));
+            tag.setField(tag.createField(FieldKey.GROUP,"group"));
+            tag.setField(tag.createField(FieldKey.INSTRUMENT,"instrument"));
+            tag.setField(tag.createField(FieldKey.IPI,"ipi"));
+            tag.setField(tag.createField(FieldKey.ISRC,"isrc"));
+            tag.setField(tag.createField(FieldKey.ISWC,"iswc"));
+            tag.setField(tag.createField(FieldKey.IS_GREATEST_HITS,"1"));
+            tag.setField(tag.createField(FieldKey.IS_HD,"1"));
+            tag.setField(tag.createField(FieldKey.IS_LIVE,"1"));
+            tag.setField(tag.createField(FieldKey.LYRICIST,"lyricist"));
+            tag.setField(tag.createField(FieldKey.LYRICIST_SORT,"lyricistsort"));
             tag.setField(tag.createField(FieldKey.MUSICBRAINZ_RELEASE_GROUP_ID,"c1f657ba-8177-3cbb-b84a-f62bc684a94e"));
             tag.setField(tag.createField(FieldKey.MUSICBRAINZ_RELEASE_TRACK_ID,"c1f657ba-8177-3cbb-b84a-f62bc684a94f"));
             tag.setField(tag.createField(FieldKey.MUSICBRAINZ_WORK_ID,"0410c22a-0b2b-4793-9f18-5f1fab36338e"));
@@ -814,12 +925,13 @@ public class Issue298Test extends AbstractTestCase
             tag.setField(tag.createField(FieldKey.TONALITY,"72"));
             tag.setField(tag.createField(FieldKey.KEY,"Am"));
             tag.setField(tag.createField(FieldKey.ORCHESTRA,"Orchestra"));
+            tag.setField(tag.createField(FieldKey.OVERALL_WORK,"OverallWork"));
             tag.setField(tag.createField(FieldKey.PART,"Part"));
             tag.setField(tag.createField(FieldKey.WORK,"Work"));
             tag.setField(tag.createField(FieldKey.PERFORMER, PerformerHelper.formatForNonId3("Nigel Kennedy", "violinist")));
             tag.setField(tag.createField(FieldKey.WORK_TYPE,"WorkType"));
             tag.setField(tag.createField(FieldKey.CHOIR_SORT,"ChoirSort"));
-            tag.setField(tag.createField(FieldKey.MUSICBRAINZ_WORK_COMPOSITION_ID,"c1f657ba-8177-3cbb-b84a-f62bc684a94g"));
+            tag.setField(tag.createField(FieldKey.MUSICBRAINZ_RECORDING_WORK_ID,"c1f657ba-8177-3cbb-b84a-f62bc684a94g"));
             tag.setField(tag.createField(FieldKey.PART_TYPE,"CompositionType"));
             tag.setField(tag.createField(FieldKey.MUSICBRAINZ_WORK_PART_LEVEL1_ID,"c1f657ba-8177-3cbb-b84a-f62bc684a94g"));
             tag.setField(tag.createField(FieldKey.MUSICBRAINZ_WORK_PART_LEVEL2_ID,"c1f657ba-8177-3cbb-b84a-f62bc684a94h"));
@@ -827,7 +939,7 @@ public class Issue298Test extends AbstractTestCase
             tag.setField(tag.createField(FieldKey.MUSICBRAINZ_WORK_PART_LEVEL4_ID,"c1f657ba-8177-3cbb-b84a-f62bc684a94j"));
             tag.setField(tag.createField(FieldKey.MUSICBRAINZ_WORK_PART_LEVEL5_ID,"c1f657ba-8177-3cbb-b84a-f62bc684a94k"));
             tag.setField(tag.createField(FieldKey.MUSICBRAINZ_WORK_PART_LEVEL6_ID,"c1f657ba-8177-3cbb-b84a-f62bc684a94l"));
-            tag.setField(tag.createField(FieldKey.MUSICBRAINZ_WORK_COMPOSITION,"MusicBrainzWorkComposition"));
+            tag.setField(tag.createField(FieldKey.MUSICBRAINZ_RECORDING_WORK,"MusicBrainzWorkComposition"));
             tag.setField(tag.createField(FieldKey.MUSICBRAINZ_WORK_PART_LEVEL1,"Level1"));
             tag.setField(tag.createField(FieldKey.MUSICBRAINZ_WORK_PART_LEVEL1_TYPE,"Level1Type"));
             tag.setField(tag.createField(FieldKey.MUSICBRAINZ_WORK_PART_LEVEL2,"Level2"));
@@ -843,6 +955,7 @@ public class Issue298Test extends AbstractTestCase
             tag.setField(tag.createField(FieldKey.PART_NUMBER,"PartNumber"));
             tag.setField(tag.createField(FieldKey.ARTISTS_SORT,"ArtistsSort"));
             tag.setField(tag.createField(FieldKey.CONDUCTOR_SORT,"ConductorSort"));
+            tag.setField(tag.createField(FieldKey.COPYRIGHT,"Copyright"));
             tag.setField(tag.createField(FieldKey.ENSEMBLE_SORT,"EnsembleSort"));
             tag.setField(tag.createField(FieldKey.ORCHESTRA_SORT,"OrchestraSort"));
             tag.setField(tag.createField(FieldKey.PERFORMER_NAME_SORT,"Performer"));
@@ -871,6 +984,10 @@ public class Issue298Test extends AbstractTestCase
             tag.setField(tag.createField(FieldKey.ALBUM_ARTISTS_SORT,"AlbumArtistsSort"));
             tag.setField(tag.createField(FieldKey.TITLE_MOVEMENT,"TitleMovement"));
             tag.setField(tag.createField(FieldKey.MUSICBRAINZ_WORK,"MusicBrainzWork"));
+            tag.setField(tag.createField(FieldKey.DJMIXER_SORT,"DJMixerSort"));
+            tag.setField(tag.createField(FieldKey.ENGINEER_SORT,"EngineerSort"));
+            tag.setField(tag.createField(FieldKey.MIXER_SORT,"MixerSort"));
+            tag.setField(tag.createField(FieldKey.PRODUCER_SORT,"ProducerSort"));
 
             af.commit();
             af = AudioFileIO.read(testFile);
@@ -880,6 +997,16 @@ public class Issue298Test extends AbstractTestCase
             assertEquals("custom4",af.getTag().getFirst(FieldKey.CUSTOM4));
             assertEquals("custom5",af.getTag().getFirst(FieldKey.CUSTOM5));
             assertEquals("155.5",af.getTag().getFirst(FieldKey.FBPM));
+            assertEquals("group",af.getTag().getFirst(FieldKey.GROUP));
+            assertEquals("instrument",af.getTag().getFirst(FieldKey.INSTRUMENT));
+            assertEquals("ipi",af.getTag().getFirst(FieldKey.IPI));
+            assertEquals("isrc",af.getTag().getFirst(FieldKey.ISRC));
+            assertEquals("iswc",af.getTag().getFirst(FieldKey.ISWC));
+            assertEquals("1",af.getTag().getFirst(FieldKey.IS_GREATEST_HITS));
+            assertEquals("1",af.getTag().getFirst(FieldKey.IS_HD));
+            assertEquals("1",af.getTag().getFirst(FieldKey.IS_LIVE));
+            assertEquals("lyricist",af.getTag().getFirst(FieldKey.LYRICIST));
+            assertEquals("lyricistsort",af.getTag().getFirst(FieldKey.LYRICIST_SORT));
             assertEquals("c1f657ba-8177-3cbb-b84a-f62bc684a94e",af.getTag().getFirst(FieldKey.MUSICBRAINZ_RELEASE_GROUP_ID));
             assertEquals("c1f657ba-8177-3cbb-b84a-f62bc684a94f", af.getTag().getFirst(FieldKey.MUSICBRAINZ_RELEASE_TRACK_ID));
             assertEquals("0410c22a-0b2b-4793-9f18-5f1fab36338e",af.getTag().getFirst(FieldKey.MUSICBRAINZ_WORK_ID));
@@ -908,13 +1035,14 @@ public class Issue298Test extends AbstractTestCase
             assertEquals("72",af.getTag().getFirst(FieldKey.TONALITY));
             assertEquals("Am",af.getTag().getFirst(FieldKey.KEY));
             assertEquals("Orchestra",af.getTag().getFirst(FieldKey.ORCHESTRA));
+            assertEquals("OverallWork",af.getTag().getFirst(FieldKey.OVERALL_WORK));
             assertEquals("Part",af.getTag().getFirst(FieldKey.PART));
             assertEquals("Work",af.getTag().getFirst(FieldKey.WORK));
             assertEquals("Nigel Kennedy (violinist)",af.getTag().getFirst(FieldKey.PERFORMER));
             assertEquals("WorkType",af.getTag().getFirst(FieldKey.WORK_TYPE));
             assertEquals("ChoirSort",af.getTag().getFirst(FieldKey.CHOIR_SORT));
-            assertEquals("MusicBrainzWorkComposition",af.getTag().getFirst(FieldKey.MUSICBRAINZ_WORK_COMPOSITION));
-            assertEquals("c1f657ba-8177-3cbb-b84a-f62bc684a94g",af.getTag().getFirst(FieldKey.MUSICBRAINZ_WORK_COMPOSITION_ID));
+            assertEquals("MusicBrainzWorkComposition",af.getTag().getFirst(FieldKey.MUSICBRAINZ_RECORDING_WORK));
+            assertEquals("c1f657ba-8177-3cbb-b84a-f62bc684a94g",af.getTag().getFirst(FieldKey.MUSICBRAINZ_RECORDING_WORK_ID));
             assertEquals("c1f657ba-8177-3cbb-b84a-f62bc684a94g",af.getTag().getFirst(FieldKey.MUSICBRAINZ_WORK_PART_LEVEL1_ID));
             assertEquals("c1f657ba-8177-3cbb-b84a-f62bc684a94h",af.getTag().getFirst(FieldKey.MUSICBRAINZ_WORK_PART_LEVEL2_ID));
             assertEquals("c1f657ba-8177-3cbb-b84a-f62bc684a94i",af.getTag().getFirst(FieldKey.MUSICBRAINZ_WORK_PART_LEVEL3_ID));
@@ -937,6 +1065,7 @@ public class Issue298Test extends AbstractTestCase
             assertEquals("PartNumber",af.getTag().getFirst(FieldKey.PART_NUMBER));
             assertEquals("ArtistsSort",af.getTag().getFirst(FieldKey.ARTISTS_SORT));
             assertEquals("ConductorSort",af.getTag().getFirst(FieldKey.CONDUCTOR_SORT));
+            assertEquals("Copyright",af.getTag().getFirst(FieldKey.COPYRIGHT));
             assertEquals("EnsembleSort",af.getTag().getFirst(FieldKey.ENSEMBLE_SORT));
             assertEquals("OrchestraSort",af.getTag().getFirst(FieldKey.ORCHESTRA_SORT));
             assertEquals("ArrangerSort",af.getTag().getFirst(FieldKey.ARRANGER_SORT));
@@ -963,7 +1092,10 @@ public class Issue298Test extends AbstractTestCase
             assertEquals("AlbumArtistsSort", af.getTag().getFirst(FieldKey.ALBUM_ARTISTS_SORT));
             assertEquals("TitleMovement", af.getTag().getFirst(FieldKey.TITLE_MOVEMENT));
             assertEquals("MusicBrainzWork", af.getTag().getFirst(FieldKey.MUSICBRAINZ_WORK));
-
+            assertEquals("DJMixerSort", af.getTag().getFirst(FieldKey.DJMIXER_SORT));
+            assertEquals("EngineerSort", af.getTag().getFirst(FieldKey.ENGINEER_SORT));
+            assertEquals("MixerSort", af.getTag().getFirst(FieldKey.MIXER_SORT));
+            assertEquals("ProducerSort", af.getTag().getFirst(FieldKey.PRODUCER_SORT));
         }
         catch(Exception e)
         {
@@ -994,6 +1126,16 @@ public class Issue298Test extends AbstractTestCase
             tag.setField(tag.createField(FieldKey.CUSTOM4,"custom4"));
             tag.setField(tag.createField(FieldKey.CUSTOM5,"custom5"));
             tag.setField(tag.createField(FieldKey.FBPM,"155.5"));
+            tag.setField(tag.createField(FieldKey.GROUP,"group"));
+            tag.setField(tag.createField(FieldKey.INSTRUMENT,"instrument"));
+            tag.setField(tag.createField(FieldKey.IPI,"ipi"));
+            tag.setField(tag.createField(FieldKey.ISRC,"isrc"));
+            tag.setField(tag.createField(FieldKey.ISWC,"iswc"));
+            tag.setField(tag.createField(FieldKey.IS_GREATEST_HITS,"1"));
+            tag.setField(tag.createField(FieldKey.IS_HD,"1"));
+            tag.setField(tag.createField(FieldKey.IS_LIVE,"1"));
+            tag.setField(tag.createField(FieldKey.LYRICIST,"lyricist"));
+            tag.setField(tag.createField(FieldKey.LYRICIST_SORT,"lyricistsort"));
             tag.setField(tag.createField(FieldKey.MUSICBRAINZ_RELEASE_GROUP_ID,"c1f657ba-8177-3cbb-b84a-f62bc684a94e"));
             tag.setField(tag.createField(FieldKey.MUSICBRAINZ_RELEASE_TRACK_ID,"c1f657ba-8177-3cbb-b84a-f62bc684a94f"));
             tag.setField(tag.createField(FieldKey.MUSICBRAINZ_WORK_ID,"0410c22a-0b2b-4793-9f18-5f1fab36338e"));
@@ -1022,19 +1164,20 @@ public class Issue298Test extends AbstractTestCase
             tag.setField(tag.createField(FieldKey.TONALITY,"72"));
             tag.setField(tag.createField(FieldKey.KEY,"Am"));
             tag.setField(tag.createField(FieldKey.ORCHESTRA,"Orchestra"));
+            tag.setField(tag.createField(FieldKey.OVERALL_WORK,"OverallWork"));
             tag.setField(tag.createField(FieldKey.PART,"Part"));
             tag.setField(tag.createField(FieldKey.WORK,"Work"));
             tag.setField(tag.createField(FieldKey.PERFORMER, PerformerHelper.formatForNonId3("Nigel Kennedy", "violinist")));
             tag.setField(tag.createField(FieldKey.WORK_TYPE,"WorkType"));
             tag.setField(tag.createField(FieldKey.CHOIR_SORT,"ChoirSort"));
-            tag.setField(tag.createField(FieldKey.MUSICBRAINZ_WORK_COMPOSITION_ID,"c1f657ba-8177-3cbb-b84a-f62bc684a94g"));
+            tag.setField(tag.createField(FieldKey.MUSICBRAINZ_RECORDING_WORK_ID,"c1f657ba-8177-3cbb-b84a-f62bc684a94g"));
             tag.setField(tag.createField(FieldKey.MUSICBRAINZ_WORK_PART_LEVEL1_ID,"c1f657ba-8177-3cbb-b84a-f62bc684a94g"));
             tag.setField(tag.createField(FieldKey.MUSICBRAINZ_WORK_PART_LEVEL2_ID,"c1f657ba-8177-3cbb-b84a-f62bc684a94h"));
             tag.setField(tag.createField(FieldKey.MUSICBRAINZ_WORK_PART_LEVEL3_ID,"c1f657ba-8177-3cbb-b84a-f62bc684a94i"));
             tag.setField(tag.createField(FieldKey.MUSICBRAINZ_WORK_PART_LEVEL4_ID,"c1f657ba-8177-3cbb-b84a-f62bc684a94j"));
             tag.setField(tag.createField(FieldKey.MUSICBRAINZ_WORK_PART_LEVEL5_ID,"c1f657ba-8177-3cbb-b84a-f62bc684a94k"));
             tag.setField(tag.createField(FieldKey.MUSICBRAINZ_WORK_PART_LEVEL6_ID,"c1f657ba-8177-3cbb-b84a-f62bc684a94l"));
-            tag.setField(tag.createField(FieldKey.MUSICBRAINZ_WORK_COMPOSITION,"MusicBrainzWorkComposition"));
+            tag.setField(tag.createField(FieldKey.MUSICBRAINZ_RECORDING_WORK,"MusicBrainzWorkComposition"));
             tag.setField(tag.createField(FieldKey.MUSICBRAINZ_WORK_PART_LEVEL1,"Level1"));
             tag.setField(tag.createField(FieldKey.MUSICBRAINZ_WORK_PART_LEVEL1_TYPE,"Level1Type"));
             tag.setField(tag.createField(FieldKey.MUSICBRAINZ_WORK_PART_LEVEL2,"Level2"));
@@ -1050,6 +1193,7 @@ public class Issue298Test extends AbstractTestCase
             tag.setField(tag.createField(FieldKey.PART_NUMBER,"PartNumber"));
             tag.setField(tag.createField(FieldKey.ARTISTS_SORT,"ArtistsSort"));
             tag.setField(tag.createField(FieldKey.CONDUCTOR_SORT,"ConductorSort"));
+            tag.setField(tag.createField(FieldKey.COPYRIGHT,"Copyright"));
             tag.setField(tag.createField(FieldKey.ENSEMBLE_SORT,"EnsembleSort"));
             tag.setField(tag.createField(FieldKey.ORCHESTRA_SORT,"OrchestraSort"));
             tag.setField(tag.createField(FieldKey.PERFORMER_NAME_SORT,"Performer"));
@@ -1077,6 +1221,11 @@ public class Issue298Test extends AbstractTestCase
             tag.setField(tag.createField(FieldKey.CLASSICAL_NICKNAME,"classicalnickname"));
             tag.setField(tag.createField(FieldKey.TITLE_MOVEMENT,"TitleMovement"));
             tag.setField(tag.createField(FieldKey.MUSICBRAINZ_WORK,"MusicBrainzWork"));
+            tag.setField(tag.createField(FieldKey.INVOLVEDPEOPLE,"INVOLVEDPEOPLE"));
+            tag.setField(tag.createField(FieldKey.DJMIXER_SORT,"DJMixerSort"));
+            tag.setField(tag.createField(FieldKey.ENGINEER_SORT,"EngineerSort"));
+            tag.setField(tag.createField(FieldKey.MIXER_SORT,"MixerSort"));
+            tag.setField(tag.createField(FieldKey.PRODUCER_SORT,"ProducerSort"));
 
             af.commit();
 
@@ -1087,6 +1236,18 @@ public class Issue298Test extends AbstractTestCase
             assertEquals("custom4",af.getTag().getFirst(FieldKey.CUSTOM4));
             assertEquals("custom5",af.getTag().getFirst(FieldKey.CUSTOM5));
             assertEquals("155.5",af.getTag().getFirst(FieldKey.FBPM));
+            assertEquals("group",af.getTag().getFirst(FieldKey.GROUP));
+            assertEquals("instrument",af.getTag().getFirst(FieldKey.INSTRUMENT));
+            assertEquals("ipi",af.getTag().getFirst(FieldKey.IPI));
+            assertEquals("isrc",af.getTag().getFirst(FieldKey.ISRC));
+            assertEquals("iswc",af.getTag().getFirst(FieldKey.ISWC));
+            assertEquals("1",af.getTag().getFirst(FieldKey.IS_GREATEST_HITS));
+            assertEquals("1",af.getTag().getFirst(FieldKey.IS_HD));
+            assertEquals("1",af.getTag().getFirst(FieldKey.IS_LIVE));
+
+            assertEquals("lyricist",af.getTag().getFirst(FieldKey.LYRICIST));
+            assertEquals("lyricistsort",af.getTag().getFirst(FieldKey.LYRICIST_SORT));
+
             assertEquals("c1f657ba-8177-3cbb-b84a-f62bc684a94e",af.getTag().getFirst(FieldKey.MUSICBRAINZ_RELEASE_GROUP_ID));
             assertEquals("c1f657ba-8177-3cbb-b84a-f62bc684a94f", af.getTag().getFirst(FieldKey.MUSICBRAINZ_RELEASE_TRACK_ID));
             assertEquals("0410c22a-0b2b-4793-9f18-5f1fab36338e",af.getTag().getFirst(FieldKey.MUSICBRAINZ_WORK_ID));
@@ -1115,19 +1276,20 @@ public class Issue298Test extends AbstractTestCase
             assertEquals("72",af.getTag().getFirst(FieldKey.TONALITY));
             assertEquals("Am",af.getTag().getFirst(FieldKey.KEY));
             assertEquals("Orchestra",af.getTag().getFirst(FieldKey.ORCHESTRA));
+            assertEquals("OverallWork",af.getTag().getFirst(FieldKey.OVERALL_WORK));
             assertEquals("Part",af.getTag().getFirst(FieldKey.PART));
             assertEquals("Nigel Kennedy (violinist)",af.getTag().getFirst(FieldKey.PERFORMER));
 
             assertEquals("WorkType",af.getTag().getFirst(FieldKey.WORK_TYPE));
             assertEquals("ChoirSort",af.getTag().getFirst(FieldKey.CHOIR_SORT));
-            assertEquals("c1f657ba-8177-3cbb-b84a-f62bc684a94g",af.getTag().getFirst(FieldKey.MUSICBRAINZ_WORK_COMPOSITION_ID));
+            assertEquals("c1f657ba-8177-3cbb-b84a-f62bc684a94g",af.getTag().getFirst(FieldKey.MUSICBRAINZ_RECORDING_WORK_ID));
             assertEquals("c1f657ba-8177-3cbb-b84a-f62bc684a94g",af.getTag().getFirst(FieldKey.MUSICBRAINZ_WORK_PART_LEVEL1_ID));
             assertEquals("c1f657ba-8177-3cbb-b84a-f62bc684a94h",af.getTag().getFirst(FieldKey.MUSICBRAINZ_WORK_PART_LEVEL2_ID));
             assertEquals("c1f657ba-8177-3cbb-b84a-f62bc684a94i",af.getTag().getFirst(FieldKey.MUSICBRAINZ_WORK_PART_LEVEL3_ID));
             assertEquals("c1f657ba-8177-3cbb-b84a-f62bc684a94j",af.getTag().getFirst(FieldKey.MUSICBRAINZ_WORK_PART_LEVEL4_ID));
             assertEquals("c1f657ba-8177-3cbb-b84a-f62bc684a94k",af.getTag().getFirst(FieldKey.MUSICBRAINZ_WORK_PART_LEVEL5_ID));
             assertEquals("c1f657ba-8177-3cbb-b84a-f62bc684a94l",af.getTag().getFirst(FieldKey.MUSICBRAINZ_WORK_PART_LEVEL6_ID));
-            assertEquals("MusicBrainzWorkComposition",af.getTag().getFirst(FieldKey.MUSICBRAINZ_WORK_COMPOSITION));
+            assertEquals("MusicBrainzWorkComposition",af.getTag().getFirst(FieldKey.MUSICBRAINZ_RECORDING_WORK));
             assertEquals("Level1",af.getTag().getFirst(FieldKey.MUSICBRAINZ_WORK_PART_LEVEL1));
             assertEquals("Level2",af.getTag().getFirst(FieldKey.MUSICBRAINZ_WORK_PART_LEVEL2));
             assertEquals("Level3",af.getTag().getFirst(FieldKey.MUSICBRAINZ_WORK_PART_LEVEL3));
@@ -1143,7 +1305,7 @@ public class Issue298Test extends AbstractTestCase
             assertEquals("Work",af.getTag().getFirst(FieldKey.WORK));
             assertEquals("WorkType",af.getTag().getFirst(FieldKey.WORK_TYPE));
             assertEquals("ChoirSort",af.getTag().getFirst(FieldKey.CHOIR_SORT));
-            assertEquals("c1f657ba-8177-3cbb-b84a-f62bc684a94g",af.getTag().getFirst(FieldKey.MUSICBRAINZ_WORK_COMPOSITION_ID));
+            assertEquals("c1f657ba-8177-3cbb-b84a-f62bc684a94g",af.getTag().getFirst(FieldKey.MUSICBRAINZ_RECORDING_WORK_ID));
             assertEquals("CompositionType",af.getTag().getFirst(FieldKey.PART_TYPE));
             assertEquals("c1f657ba-8177-3cbb-b84a-f62bc684a94g",af.getTag().getFirst(FieldKey.MUSICBRAINZ_WORK_PART_LEVEL1_ID));
             assertEquals("c1f657ba-8177-3cbb-b84a-f62bc684a94h",af.getTag().getFirst(FieldKey.MUSICBRAINZ_WORK_PART_LEVEL2_ID));
@@ -1167,6 +1329,7 @@ public class Issue298Test extends AbstractTestCase
             assertEquals("PartNumber",af.getTag().getFirst(FieldKey.PART_NUMBER));
             assertEquals("ArtistsSort",af.getTag().getFirst(FieldKey.ARTISTS_SORT));
             assertEquals("ConductorSort",af.getTag().getFirst(FieldKey.CONDUCTOR_SORT));
+            assertEquals("Copyright",af.getTag().getFirst(FieldKey.COPYRIGHT));
             assertEquals("EnsembleSort",af.getTag().getFirst(FieldKey.ENSEMBLE_SORT));
             assertEquals("OrchestraSort",af.getTag().getFirst(FieldKey.ORCHESTRA_SORT));
             assertEquals("ArrangerSort",af.getTag().getFirst(FieldKey.ARRANGER_SORT));
@@ -1193,7 +1356,11 @@ public class Issue298Test extends AbstractTestCase
             assertEquals("AlbumArtistsSort", af.getTag().getFirst(FieldKey.ALBUM_ARTISTS_SORT));
             assertEquals("TitleMovement", af.getTag().getFirst(FieldKey.TITLE_MOVEMENT));
             assertEquals("MusicBrainzWork", af.getTag().getFirst(FieldKey.MUSICBRAINZ_WORK));
-
+            assertEquals("INVOLVEDPEOPLE", af.getTag().getFirst(FieldKey.INVOLVEDPEOPLE));
+            assertEquals("DJMixerSort", af.getTag().getFirst(FieldKey.DJMIXER_SORT));
+            assertEquals("EngineerSort", af.getTag().getFirst(FieldKey.ENGINEER_SORT));
+            assertEquals("MixerSort", af.getTag().getFirst(FieldKey.MIXER_SORT));
+            assertEquals("ProducerSort", af.getTag().getFirst(FieldKey.PRODUCER_SORT));
         }
         catch(Exception e)
         {
@@ -1226,6 +1393,16 @@ public class Issue298Test extends AbstractTestCase
             tag.setField(tag.createField(FieldKey.CUSTOM4,"custom4"));
             tag.setField(tag.createField(FieldKey.CUSTOM5,"custom5"));
             tag.setField(tag.createField(FieldKey.FBPM,"155.5"));
+            tag.setField(tag.createField(FieldKey.GROUP,"group"));
+            tag.setField(tag.createField(FieldKey.INSTRUMENT,"instrument"));
+            tag.setField(tag.createField(FieldKey.IPI,"ipi"));
+            tag.setField(tag.createField(FieldKey.ISRC,"isrc"));
+            tag.setField(tag.createField(FieldKey.ISWC,"iswc"));
+            tag.setField(tag.createField(FieldKey.IS_GREATEST_HITS,"1"));
+            tag.setField(tag.createField(FieldKey.IS_HD,"1"));
+            tag.setField(tag.createField(FieldKey.IS_LIVE,"1"));
+            tag.setField(tag.createField(FieldKey.LYRICIST,"lyricist"));
+            tag.setField(tag.createField(FieldKey.LYRICIST_SORT,"lyricistsort"));
             tag.setField(tag.createField(FieldKey.MUSICBRAINZ_RELEASE_GROUP_ID,"c1f657ba-8177-3cbb-b84a-f62bc684a94e"));
             tag.setField(tag.createField(FieldKey.MUSICBRAINZ_RELEASE_TRACK_ID,"c1f657ba-8177-3cbb-b84a-f62bc684a94f"));
             tag.setField(tag.createField(FieldKey.MUSICBRAINZ_WORK_ID,"0410c22a-0b2b-4793-9f18-5f1fab36338e"));
@@ -1254,12 +1431,13 @@ public class Issue298Test extends AbstractTestCase
             tag.setField(tag.createField(FieldKey.TONALITY,"72"));
             tag.setField(tag.createField(FieldKey.KEY,"Am"));
             tag.setField(tag.createField(FieldKey.ORCHESTRA,"Orchestra"));
+            tag.setField(tag.createField(FieldKey.OVERALL_WORK,"OverallWork"));
             tag.setField(tag.createField(FieldKey.PART,"Part"));
             tag.setField(tag.createField(FieldKey.WORK,"Work"));
             tag.setField(tag.createField(FieldKey.PERFORMER, PerformerHelper.formatForNonId3("Nigel Kennedy", "violinist")));
             tag.setField(tag.createField(FieldKey.WORK_TYPE,"WorkType"));
             tag.setField(tag.createField(FieldKey.CHOIR_SORT,"ChoirSort"));
-            tag.setField(tag.createField(FieldKey.MUSICBRAINZ_WORK_COMPOSITION_ID,"c1f657ba-8177-3cbb-b84a-f62bc684a94g"));
+            tag.setField(tag.createField(FieldKey.MUSICBRAINZ_RECORDING_WORK_ID,"c1f657ba-8177-3cbb-b84a-f62bc684a94g"));
             tag.setField(tag.createField(FieldKey.PART_TYPE,"CompositionType"));
             tag.setField(tag.createField(FieldKey.MUSICBRAINZ_WORK_PART_LEVEL1_ID,"c1f657ba-8177-3cbb-b84a-f62bc684a94g"));
             tag.setField(tag.createField(FieldKey.MUSICBRAINZ_WORK_PART_LEVEL2_ID,"c1f657ba-8177-3cbb-b84a-f62bc684a94h"));
@@ -1267,7 +1445,7 @@ public class Issue298Test extends AbstractTestCase
             tag.setField(tag.createField(FieldKey.MUSICBRAINZ_WORK_PART_LEVEL4_ID,"c1f657ba-8177-3cbb-b84a-f62bc684a94j"));
             tag.setField(tag.createField(FieldKey.MUSICBRAINZ_WORK_PART_LEVEL5_ID,"c1f657ba-8177-3cbb-b84a-f62bc684a94k"));
             tag.setField(tag.createField(FieldKey.MUSICBRAINZ_WORK_PART_LEVEL6_ID,"c1f657ba-8177-3cbb-b84a-f62bc684a94l"));
-            tag.setField(tag.createField(FieldKey.MUSICBRAINZ_WORK_COMPOSITION,"MusicBrainzWorkComposition"));
+            tag.setField(tag.createField(FieldKey.MUSICBRAINZ_RECORDING_WORK,"MusicBrainzWorkComposition"));
             tag.setField(tag.createField(FieldKey.MUSICBRAINZ_WORK_PART_LEVEL1,"Level1"));
             tag.setField(tag.createField(FieldKey.MUSICBRAINZ_WORK_PART_LEVEL1_TYPE,"Level1Type"));
             tag.setField(tag.createField(FieldKey.MUSICBRAINZ_WORK_PART_LEVEL2,"Level2"));
@@ -1283,6 +1461,7 @@ public class Issue298Test extends AbstractTestCase
             tag.setField(tag.createField(FieldKey.PART_NUMBER,"PartNumber"));
             tag.setField(tag.createField(FieldKey.ARTISTS_SORT,"ArtistsSort"));
             tag.setField(tag.createField(FieldKey.CONDUCTOR_SORT,"ConductorSort"));
+            tag.setField(tag.createField(FieldKey.COPYRIGHT,"Copyright"));
             tag.setField(tag.createField(FieldKey.ENSEMBLE_SORT,"EnsembleSort"));
             tag.setField(tag.createField(FieldKey.ORCHESTRA_SORT,"OrchestraSort"));
             tag.setField(tag.createField(FieldKey.PERFORMER_NAME_SORT,"Performer"));
@@ -1309,6 +1488,10 @@ public class Issue298Test extends AbstractTestCase
             tag.setField(tag.createField(FieldKey.ALBUM_ARTISTS_SORT,"AlbumArtistsSort"));
             tag.setField(tag.createField(FieldKey.TITLE_MOVEMENT,"TitleMovement"));
             tag.setField(tag.createField(FieldKey.MUSICBRAINZ_WORK,"MusicBrainzWork"));
+            tag.setField(tag.createField(FieldKey.DJMIXER_SORT,"DJMixerSort"));
+            tag.setField(tag.createField(FieldKey.ENGINEER_SORT,"EngineerSort"));
+            tag.setField(tag.createField(FieldKey.MIXER_SORT,"MixerSort"));
+            tag.setField(tag.createField(FieldKey.PRODUCER_SORT,"ProducerSort"));
 
             af.commit();
             af = AudioFileIO.read(testFile);
@@ -1318,6 +1501,17 @@ public class Issue298Test extends AbstractTestCase
             assertEquals("custom4",af.getTag().getFirst(FieldKey.CUSTOM4));
             assertEquals("custom5",af.getTag().getFirst(FieldKey.CUSTOM5));
             assertEquals("155.5",af.getTag().getFirst(FieldKey.FBPM));
+            assertEquals("group",af.getTag().getFirst(FieldKey.GROUP));
+            assertEquals("instrument",af.getTag().getFirst(FieldKey.INSTRUMENT));
+            assertEquals("ipi",af.getTag().getFirst(FieldKey.IPI));
+            assertEquals("isrc",af.getTag().getFirst(FieldKey.ISRC));
+            assertEquals("iswc",af.getTag().getFirst(FieldKey.ISWC));
+            assertEquals("1",af.getTag().getFirst(FieldKey.IS_GREATEST_HITS));
+            assertEquals("1",af.getTag().getFirst(FieldKey.IS_HD));
+            assertEquals("1",af.getTag().getFirst(FieldKey.IS_LIVE));
+
+            assertEquals("lyricist",af.getTag().getFirst(FieldKey.LYRICIST));
+            assertEquals("lyricistsort",af.getTag().getFirst(FieldKey.LYRICIST_SORT));
             assertEquals("c1f657ba-8177-3cbb-b84a-f62bc684a94e",af.getTag().getFirst(FieldKey.MUSICBRAINZ_RELEASE_GROUP_ID));
             assertEquals("c1f657ba-8177-3cbb-b84a-f62bc684a94f", af.getTag().getFirst(FieldKey.MUSICBRAINZ_RELEASE_TRACK_ID));
             assertEquals("0410c22a-0b2b-4793-9f18-5f1fab36338e",af.getTag().getFirst(FieldKey.MUSICBRAINZ_WORK_ID));
@@ -1346,13 +1540,14 @@ public class Issue298Test extends AbstractTestCase
             assertEquals("72",af.getTag().getFirst(FieldKey.TONALITY));
             assertEquals("Am",af.getTag().getFirst(FieldKey.KEY));
             assertEquals("Orchestra",af.getTag().getFirst(FieldKey.ORCHESTRA));
+            tag.setField(tag.createField(FieldKey.OVERALL_WORK,"OverallWork"));
             assertEquals("Part",af.getTag().getFirst(FieldKey.PART));
             assertEquals("Work",af.getTag().getFirst(FieldKey.WORK));
             assertEquals("Nigel Kennedy (violinist)",af.getTag().getFirst(FieldKey.PERFORMER));
             assertEquals("WorkType",af.getTag().getFirst(FieldKey.WORK_TYPE));
             assertEquals("ChoirSort",af.getTag().getFirst(FieldKey.CHOIR_SORT));
-            assertEquals("MusicBrainzWorkComposition",af.getTag().getFirst(FieldKey.MUSICBRAINZ_WORK_COMPOSITION));
-            assertEquals("c1f657ba-8177-3cbb-b84a-f62bc684a94g",af.getTag().getFirst(FieldKey.MUSICBRAINZ_WORK_COMPOSITION_ID));
+            assertEquals("MusicBrainzWorkComposition",af.getTag().getFirst(FieldKey.MUSICBRAINZ_RECORDING_WORK));
+            assertEquals("c1f657ba-8177-3cbb-b84a-f62bc684a94g",af.getTag().getFirst(FieldKey.MUSICBRAINZ_RECORDING_WORK_ID));
             assertEquals("c1f657ba-8177-3cbb-b84a-f62bc684a94g",af.getTag().getFirst(FieldKey.MUSICBRAINZ_WORK_PART_LEVEL1_ID));
             assertEquals("c1f657ba-8177-3cbb-b84a-f62bc684a94h",af.getTag().getFirst(FieldKey.MUSICBRAINZ_WORK_PART_LEVEL2_ID));
             assertEquals("c1f657ba-8177-3cbb-b84a-f62bc684a94i",af.getTag().getFirst(FieldKey.MUSICBRAINZ_WORK_PART_LEVEL3_ID));
@@ -1375,6 +1570,7 @@ public class Issue298Test extends AbstractTestCase
             assertEquals("PartNumber",af.getTag().getFirst(FieldKey.PART_NUMBER));
             assertEquals("ArtistsSort",af.getTag().getFirst(FieldKey.ARTISTS_SORT));
             assertEquals("ConductorSort",af.getTag().getFirst(FieldKey.CONDUCTOR_SORT));
+            assertEquals("Copyright",af.getTag().getFirst(FieldKey.COPYRIGHT));
             assertEquals("EnsembleSort",af.getTag().getFirst(FieldKey.ENSEMBLE_SORT));
             assertEquals("OrchestraSort",af.getTag().getFirst(FieldKey.ORCHESTRA_SORT));
             assertEquals("ArrangerSort",af.getTag().getFirst(FieldKey.ARRANGER_SORT));
@@ -1403,6 +1599,10 @@ public class Issue298Test extends AbstractTestCase
             assertEquals("AlbumArtistsSort", af.getTag().getFirst(FieldKey.ALBUM_ARTISTS_SORT));
             assertEquals("TitleMovement", af.getTag().getFirst(FieldKey.TITLE_MOVEMENT));
             assertEquals("MusicBrainzWork", af.getTag().getFirst(FieldKey.MUSICBRAINZ_WORK));
+            assertEquals("DJMixerSort", af.getTag().getFirst(FieldKey.DJMIXER_SORT));
+            assertEquals("EngineerSort", af.getTag().getFirst(FieldKey.ENGINEER_SORT));
+            assertEquals("MixerSort", af.getTag().getFirst(FieldKey.MIXER_SORT));
+            assertEquals("ProducerSort", af.getTag().getFirst(FieldKey.PRODUCER_SORT));
 
         }
         catch(Exception e)
@@ -1434,8 +1634,17 @@ public class Issue298Test extends AbstractTestCase
             tag.setField(tag.createField(FieldKey.CUSTOM4,"custom4"));
             tag.setField(tag.createField(FieldKey.CUSTOM5,"custom5"));
             tag.setField(tag.createField(FieldKey.FBPM,"155.5"));
+            tag.setField(tag.createField(FieldKey.GROUP,"group"));
+            tag.setField(tag.createField(FieldKey.INSTRUMENT,"instrument"));
+            tag.setField(tag.createField(FieldKey.IPI,"ipi"));
+            tag.setField(tag.createField(FieldKey.ISRC,"isrc"));
+            tag.setField(tag.createField(FieldKey.ISWC,"iswc"));
+            tag.setField(tag.createField(FieldKey.IS_GREATEST_HITS,"1"));
+            tag.setField(tag.createField(FieldKey.IS_HD,"1"));
+            tag.setField(tag.createField(FieldKey.IS_LIVE,"1"));
+            tag.setField(tag.createField(FieldKey.LYRICIST,"lyricist"));
+            tag.setField(tag.createField(FieldKey.LYRICIST_SORT,"lyricistsort"));
             tag.setField(tag.createField(FieldKey.MUSICBRAINZ_RELEASE_GROUP_ID,"c1f657ba-8177-3cbb-b84a-f62bc684a94e"));
-
             tag.setField(tag.createField(FieldKey.MUSICBRAINZ_RELEASE_TRACK_ID,"c1f657ba-8177-3cbb-b84a-f62bc684a94f"));
             tag.setField(tag.createField(FieldKey.MUSICBRAINZ_WORK_ID,"0410c22a-0b2b-4793-9f18-5f1fab36338e"));
             tag.setField(tag.createField(FieldKey.OCCASION,"Occasion"));
@@ -1463,19 +1672,20 @@ public class Issue298Test extends AbstractTestCase
             tag.setField(tag.createField(FieldKey.TONALITY,"72"));
             tag.setField(tag.createField(FieldKey.KEY,"Am"));
             tag.setField(tag.createField(FieldKey.ORCHESTRA,"Orchestra"));
+            tag.setField(tag.createField(FieldKey.OVERALL_WORK,"OverallWork"));
             tag.setField(tag.createField(FieldKey.PART,"Part"));
             tag.setField(tag.createField(FieldKey.WORK,"Work"));
             tag.setField(tag.createField(FieldKey.PERFORMER, PerformerHelper.formatForNonId3("Nigel Kennedy", "violinist")));
             tag.setField(tag.createField(FieldKey.WORK_TYPE,"WorkType"));
             tag.setField(tag.createField(FieldKey.CHOIR_SORT,"ChoirSort"));
-            tag.setField(tag.createField(FieldKey.MUSICBRAINZ_WORK_COMPOSITION_ID,"c1f657ba-8177-3cbb-b84a-f62bc684a94g"));
+            tag.setField(tag.createField(FieldKey.MUSICBRAINZ_RECORDING_WORK_ID,"c1f657ba-8177-3cbb-b84a-f62bc684a94g"));
             tag.setField(tag.createField(FieldKey.MUSICBRAINZ_WORK_PART_LEVEL1_ID,"c1f657ba-8177-3cbb-b84a-f62bc684a94g"));
             tag.setField(tag.createField(FieldKey.MUSICBRAINZ_WORK_PART_LEVEL2_ID,"c1f657ba-8177-3cbb-b84a-f62bc684a94h"));
             tag.setField(tag.createField(FieldKey.MUSICBRAINZ_WORK_PART_LEVEL3_ID,"c1f657ba-8177-3cbb-b84a-f62bc684a94i"));
             tag.setField(tag.createField(FieldKey.MUSICBRAINZ_WORK_PART_LEVEL4_ID,"c1f657ba-8177-3cbb-b84a-f62bc684a94j"));
             tag.setField(tag.createField(FieldKey.MUSICBRAINZ_WORK_PART_LEVEL5_ID,"c1f657ba-8177-3cbb-b84a-f62bc684a94k"));
             tag.setField(tag.createField(FieldKey.MUSICBRAINZ_WORK_PART_LEVEL6_ID,"c1f657ba-8177-3cbb-b84a-f62bc684a94l"));
-            tag.setField(tag.createField(FieldKey.MUSICBRAINZ_WORK_COMPOSITION,"MusicBrainzWorkComposition"));
+            tag.setField(tag.createField(FieldKey.MUSICBRAINZ_RECORDING_WORK,"MusicBrainzWorkComposition"));
             tag.setField(tag.createField(FieldKey.MUSICBRAINZ_WORK_PART_LEVEL1,"Level1"));
             tag.setField(tag.createField(FieldKey.MUSICBRAINZ_WORK_PART_LEVEL1_TYPE,"Level1Type"));
             tag.setField(tag.createField(FieldKey.MUSICBRAINZ_WORK_PART_LEVEL2,"Level2"));
@@ -1491,6 +1701,7 @@ public class Issue298Test extends AbstractTestCase
             tag.setField(tag.createField(FieldKey.PART_NUMBER,"PartNumber"));
             tag.setField(tag.createField(FieldKey.ARTISTS_SORT,"ArtistsSort"));
             tag.setField(tag.createField(FieldKey.CONDUCTOR_SORT,"ConductorSort"));
+            tag.setField(tag.createField(FieldKey.COPYRIGHT,"Copyright"));
             tag.setField(tag.createField(FieldKey.ENSEMBLE_SORT,"EnsembleSort"));
             tag.setField(tag.createField(FieldKey.ORCHESTRA_SORT,"OrchestraSort"));
             tag.setField(tag.createField(FieldKey.PERFORMER_NAME_SORT,"Performer"));
@@ -1520,6 +1731,11 @@ public class Issue298Test extends AbstractTestCase
             tag.setField(tag.createField(FieldKey.ALBUM_ARTISTS_SORT,"AlbumArtistsSort"));
             tag.setField(tag.createField(FieldKey.TITLE_MOVEMENT,"TitleMovement"));
             tag.setField(tag.createField(FieldKey.MUSICBRAINZ_WORK,"MusicBrainzWork"));
+            tag.setField(tag.createField(FieldKey.INVOLVEDPEOPLE,"INVOLVEDPEOPLE"));
+            tag.setField(tag.createField(FieldKey.DJMIXER_SORT,"DJMixerSort"));
+            tag.setField(tag.createField(FieldKey.ENGINEER_SORT,"EngineerSort"));
+            tag.setField(tag.createField(FieldKey.MIXER_SORT,"MixerSort"));
+            tag.setField(tag.createField(FieldKey.PRODUCER_SORT,"ProducerSort"));
 
             af.commit();
             af = AudioFileIO.read(testFile);
@@ -1529,6 +1745,16 @@ public class Issue298Test extends AbstractTestCase
             assertEquals("custom4",af.getTag().getFirst(FieldKey.CUSTOM4));
             assertEquals("custom5",af.getTag().getFirst(FieldKey.CUSTOM5));
             assertEquals("155.5",af.getTag().getFirst(FieldKey.FBPM));
+            assertEquals("group",af.getTag().getFirst(FieldKey.GROUP));
+            assertEquals("instrument",af.getTag().getFirst(FieldKey.INSTRUMENT));
+            assertEquals("ipi",af.getTag().getFirst(FieldKey.IPI));
+            assertEquals("isrc",af.getTag().getFirst(FieldKey.ISRC));
+            assertEquals("iswc",af.getTag().getFirst(FieldKey.ISWC));
+            assertEquals("1",af.getTag().getFirst(FieldKey.IS_GREATEST_HITS));
+            assertEquals("1",af.getTag().getFirst(FieldKey.IS_HD));
+            assertEquals("1",af.getTag().getFirst(FieldKey.IS_LIVE));
+            assertEquals("lyricist",af.getTag().getFirst(FieldKey.LYRICIST));
+            assertEquals("lyricistsort",af.getTag().getFirst(FieldKey.LYRICIST_SORT));
             assertEquals("c1f657ba-8177-3cbb-b84a-f62bc684a94e",af.getTag().getFirst(FieldKey.MUSICBRAINZ_RELEASE_GROUP_ID));
             assertEquals("c1f657ba-8177-3cbb-b84a-f62bc684a94f", af.getTag().getFirst(FieldKey.MUSICBRAINZ_RELEASE_TRACK_ID));
             assertEquals("0410c22a-0b2b-4793-9f18-5f1fab36338e",af.getTag().getFirst(FieldKey.MUSICBRAINZ_WORK_ID));
@@ -1557,14 +1783,15 @@ public class Issue298Test extends AbstractTestCase
             assertEquals("72",af.getTag().getFirst(FieldKey.TONALITY));
             assertEquals("Am",af.getTag().getFirst(FieldKey.KEY));
             assertEquals("Orchestra",af.getTag().getFirst(FieldKey.ORCHESTRA));
+            assertEquals("OverallWork",af.getTag().getFirst(FieldKey.OVERALL_WORK));
             assertEquals("Part",af.getTag().getFirst(FieldKey.PART));
             assertEquals("Work",af.getTag().getFirst(FieldKey.WORK));
             assertEquals("Nigel Kennedy (violinist)",af.getTag().getFirst(FieldKey.PERFORMER));
             assertEquals("WorkType",af.getTag().getFirst(FieldKey.WORK_TYPE));
             assertEquals("ChoirSort",af.getTag().getFirst(FieldKey.CHOIR_SORT));
-            assertEquals("c1f657ba-8177-3cbb-b84a-f62bc684a94g",af.getTag().getFirst(FieldKey.MUSICBRAINZ_WORK_COMPOSITION_ID));
+            assertEquals("c1f657ba-8177-3cbb-b84a-f62bc684a94g",af.getTag().getFirst(FieldKey.MUSICBRAINZ_RECORDING_WORK_ID));
             assertEquals("Composition Type",af.getTag().getFirst(FieldKey.PART_TYPE));
-            assertEquals("MusicBrainzWorkComposition",af.getTag().getFirst(FieldKey.MUSICBRAINZ_WORK_COMPOSITION));
+            assertEquals("MusicBrainzWorkComposition",af.getTag().getFirst(FieldKey.MUSICBRAINZ_RECORDING_WORK));
             assertEquals("c1f657ba-8177-3cbb-b84a-f62bc684a94g",af.getTag().getFirst(FieldKey.MUSICBRAINZ_WORK_PART_LEVEL1_ID));
             assertEquals("c1f657ba-8177-3cbb-b84a-f62bc684a94h",af.getTag().getFirst(FieldKey.MUSICBRAINZ_WORK_PART_LEVEL2_ID));
             assertEquals("c1f657ba-8177-3cbb-b84a-f62bc684a94i",af.getTag().getFirst(FieldKey.MUSICBRAINZ_WORK_PART_LEVEL3_ID));
@@ -1587,6 +1814,7 @@ public class Issue298Test extends AbstractTestCase
             assertEquals("PartNumber",af.getTag().getFirst(FieldKey.PART_NUMBER));
             assertEquals("ArtistsSort",af.getTag().getFirst(FieldKey.ARTISTS_SORT));
             assertEquals("ConductorSort",af.getTag().getFirst(FieldKey.CONDUCTOR_SORT));
+            assertEquals("Copyright",af.getTag().getFirst(FieldKey.COPYRIGHT));
             assertEquals("EnsembleSort",af.getTag().getFirst(FieldKey.ENSEMBLE_SORT));
             assertEquals("OrchestraSort",af.getTag().getFirst(FieldKey.ORCHESTRA_SORT));
             assertEquals("ArrangerSort",af.getTag().getFirst(FieldKey.ARRANGER_SORT));
@@ -1613,6 +1841,11 @@ public class Issue298Test extends AbstractTestCase
             assertEquals("AlbumArtistsSort", af.getTag().getFirst(FieldKey.ALBUM_ARTISTS_SORT));
             assertEquals("TitleMovement", af.getTag().getFirst(FieldKey.TITLE_MOVEMENT));
             assertEquals("MusicBrainzWork", af.getTag().getFirst(FieldKey.MUSICBRAINZ_WORK));
+            assertEquals("INVOLVEDPEOPLE", af.getTag().getFirst(FieldKey.INVOLVEDPEOPLE));
+            assertEquals("DJMixerSort", af.getTag().getFirst(FieldKey.DJMIXER_SORT));
+            assertEquals("EngineerSort", af.getTag().getFirst(FieldKey.ENGINEER_SORT));
+            assertEquals("MixerSort", af.getTag().getFirst(FieldKey.MIXER_SORT));
+            assertEquals("ProducerSort", af.getTag().getFirst(FieldKey.PRODUCER_SORT));
 
         }
         catch(Exception e)

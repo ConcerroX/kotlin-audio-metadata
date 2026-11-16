@@ -16,8 +16,10 @@ public class Issue383Test extends AbstractTestCase
      * This song is incorrectly shown as 6:08 when should be 3:34 but all apps (Media Monkey, iTunes)
      * also report incorrect length, however think problem is audio does continue until 6:08 but is just quiet sound
      *
+     * @throws Exception
      */
-    public void testIssueIncorrectTrackLength() {
+    public void testIssueIncorrectTrackLength() throws Exception
+    {
         Exception caught = null;
         try
         {
@@ -30,7 +32,8 @@ public class Issue383Test extends AbstractTestCase
 
             File testFile = AbstractTestCase.copyAudioToTmp("test106.mp3");
             AudioFile af = AudioFileIO.read(testFile);
-            assertEquals(af.getAudioHeader().getTrackLength(),368);
+            assertEquals(af.getAudioHeader().getPreciseTrackLength(),368.5355102040817);
+            assertEquals(af.getAudioHeader().getTrackLength(),369);
         }
         catch(Exception e)
         {
@@ -43,8 +46,10 @@ public class Issue383Test extends AbstractTestCase
      * This song is incorrectly shown as 01:12:52, but correct length was 2:24. Other applications
      * such as Media Monkey show correct value.
      *
+     * @throws Exception
      */
-    public void testIssue() {
+    public void testIssue() throws Exception
+    {
         Exception caught = null;
         try
         {

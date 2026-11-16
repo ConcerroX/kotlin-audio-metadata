@@ -4,12 +4,10 @@ import org.jaudiotagger.AbstractTestCase;
 import org.jaudiotagger.audio.AudioFile;
 import org.jaudiotagger.audio.AudioFileIO;
 import org.jaudiotagger.audio.exceptions.CannotReadException;
+import org.jaudiotagger.audio.mp4.Mp4AtomTree;
 import org.jaudiotagger.tag.FieldKey;
-import org.jcodec.containers.mp4.MP4Util;
-import org.json.JSONObject;
 
 import java.io.File;
-import java.io.RandomAccessFile;
 
 /**
  * Test Writing to new urls with common interface
@@ -34,8 +32,7 @@ public class Issue255Test extends AbstractTestCase
         {
             testFile = AbstractTestCase.copyAudioToTmp("test35.m4a");
 
-            //Read File
-            AudioFile af = AudioFileIO.read(testFile);
+            AudioFileIO.read(testFile);
 
             //Print Out Tree
 
@@ -51,9 +48,8 @@ public class Issue255Test extends AbstractTestCase
         try
         {
             //Now just createField tree
-            MP4Util.Movie mp4 = MP4Util.parseFullMovie(testFile);
-            String json = new JSONObject(mp4.getMoov().toString()).toString(2);
-            System.out.println(json);
+            Mp4AtomTree atomTree = new Mp4AtomTree(testFile);
+            atomTree.printAtomTree();
         }
         catch(Exception e)
         {
@@ -81,7 +77,7 @@ public class Issue255Test extends AbstractTestCase
         {
             File testFile = AbstractTestCase.copyAudioToTmp("test28.m4p", new File("WriteFileWithInvalidFreeAtom.m4p"));
 
-            AudioFile f = AudioFileIO.read(testFile);
+            AudioFileIO.read(testFile);
         }
         catch (Exception e)
         {

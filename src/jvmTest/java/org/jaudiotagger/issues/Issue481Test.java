@@ -3,11 +3,7 @@ package org.jaudiotagger.issues;
 import org.jaudiotagger.AbstractTestCase;
 import org.jaudiotagger.audio.AudioFile;
 import org.jaudiotagger.audio.AudioFileIO;
-import org.jaudiotagger.audio.mp3.MP3File;
 import org.jaudiotagger.tag.FieldKey;
-import org.jaudiotagger.tag.id3.ID3v23Tag;
-import org.jaudiotagger.tag.id3.ID3v24Tag;
-
 import java.io.File;
 
 /**
@@ -15,7 +11,8 @@ import java.io.File;
  */
 public class Issue481Test extends AbstractTestCase
 {
-    public void testReadYear() {
+    public void testReadYear() throws Exception
+    {
         File orig = new File("testdata", "test139.mp3");
         if (!orig.isFile())
         {

@@ -4,6 +4,7 @@ import org.jaudiotagger.AbstractTestCase;
 import org.jaudiotagger.audio.AudioFile;
 import org.jaudiotagger.audio.AudioFileIO;
 import org.jaudiotagger.tag.images.Artwork;
+import org.jaudiotagger.tag.vorbiscomment.util.Base64Coder;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
@@ -11,7 +12,6 @@ import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.RandomAccessFile;
-import java.util.Base64;
 import java.util.List;
 
 /**
@@ -88,7 +88,8 @@ public class VorbisImageTest extends AbstractTestCase
             RandomAccessFile imageFile = new RandomAccessFile(new File("testdata", "coverart.png"), "r");
             byte[] imagedata = new byte[(int) imageFile.length()];
             imageFile.read(imagedata);
-            String base64image = Base64.getEncoder().encodeToString(imagedata);
+            char[] testdata = Base64Coder.encode(imagedata);
+            String base64image = new String(testdata);
             tag.setField(tag.createField(VorbisCommentFieldKey.COVERART, base64image));
             tag.setField(tag.createField(VorbisCommentFieldKey.COVERARTMIME, "image/png"));
             f.commit();
@@ -100,8 +101,8 @@ public class VorbisImageTest extends AbstractTestCase
             assertEquals(base64image, tag.getFirst(VorbisCommentFieldKey.COVERART));
             assertEquals("image/png", tag.getFirst(VorbisCommentFieldKey.COVERARTMIME));
             BufferedImage bi = ImageIO.read(ImageIO
-                    .createImageInputStream(new ByteArrayInputStream(Base64.getDecoder().
-                    decode(tag.getFirst(VorbisCommentFieldKey.COVERART)))));
+                    .createImageInputStream(new ByteArrayInputStream(Base64Coder.
+                    decode(tag.getFirst(VorbisCommentFieldKey.COVERART).toCharArray()))));
             assertNotNull(bi);
         }
         catch (Exception e)
@@ -113,7 +114,8 @@ public class VorbisImageTest extends AbstractTestCase
     /**
      * Write Image using new method, read using lowlevel
      */
-    public void testWriteImage2()
+    @SuppressWarnings("deprecation")
+	public void testWriteImage2()
     {
         try
         {
@@ -133,12 +135,13 @@ public class VorbisImageTest extends AbstractTestCase
             tag = (VorbisCommentTag) f.getTag();
 
             //VorbisImage base64 image, and reconstruct
-            String base64image = Base64.getEncoder().encodeToString(imagedata);
+            char[] testdata = Base64Coder.encode(imagedata);
+            String base64image = new String(testdata);
             assertEquals(base64image, tag.getFirst(VorbisCommentFieldKey.COVERART));
             assertEquals("image/png", tag.getFirst(VorbisCommentFieldKey.COVERARTMIME));
             BufferedImage bi = ImageIO.read(ImageIO
-                    .createImageInputStream(new ByteArrayInputStream(Base64.getDecoder().
-                    decode(tag.getFirst(VorbisCommentFieldKey.COVERART)))));
+                    .createImageInputStream(new ByteArrayInputStream(Base64Coder.
+                    decode(tag.getFirst(VorbisCommentFieldKey.COVERART).toCharArray()))));
             assertNotNull(bi);
         }
         catch (Exception e)
@@ -162,7 +165,8 @@ public class VorbisImageTest extends AbstractTestCase
             RandomAccessFile imageFile = new RandomAccessFile(new File("testdata", "coverart.png"), "r");
             byte[] imagedata = new byte[(int) imageFile.length()];
             imageFile.read(imagedata);
-            String base64image = Base64.getEncoder().encodeToString(imagedata);
+            char[] testdata = Base64Coder.encode(imagedata);
+            String base64image = new String(testdata);
             tag.setField(tag.createField(VorbisCommentFieldKey.COVERART, base64image));
             tag.setField(tag.createField(VorbisCommentFieldKey.COVERARTMIME, "image/png"));
             f.commit();
@@ -200,7 +204,7 @@ public class VorbisImageTest extends AbstractTestCase
         {
             File testFile = AbstractTestCase.copyAudioToTmp("testnewlineimage.small.ogg");
             AudioFile f = AudioFileIO.read(testFile);
-            List<Artwork> artwork = f.getTag().getArtworkList();
+            List<Artwork> artwork = ((VorbisCommentTag) f.getTag()).getArtworkList();
             assertEquals(1, artwork.size());
             final Artwork next = artwork.iterator().next();
             final FileOutputStream fos = new FileOutputStream(new File("test.jpg"));

@@ -12,7 +12,8 @@ import java.io.File;
  */
 public class Issue484Test extends AbstractTestCase
 {
-    public void testReadUTF16WithMissingBOM() {
+    public void testReadUTF16WithMissingBOM() throws Exception
+    {
         File orig = new File("testdata", "test140.mp3");
         if (!orig.isFile())
         {

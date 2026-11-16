@@ -12,10 +12,10 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.RandomAccessFile;
-import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-//import java.nio.file.attribute.FileTime;  ==Android==
+import java.nio.file.attribute.FileTime;
 import java.util.Arrays;
 
 /**
@@ -31,33 +31,33 @@ public class AudioFileWriterTest extends TestCase {
     protected void setUp() throws IOException {
         final File file = File.createTempFile("AudioFileWriterTest", ".bin");
         try (final FileOutputStream out = new FileOutputStream(file)) {
-            for (int i=0; i<100; i++) out.write("Some random stuff\n".getBytes(Charset.forName("US-ASCII")));
+            for (int i=0; i<100; i++) out.write("Some random stuff\n".getBytes(StandardCharsets.US_ASCII));
         }
         this.audioFile = new AudioFile(file, null, new FlacTag());
         TagOptionSingleton.getInstance().setToDefault();
     }
 
     @Override
-    protected void tearDown() {
+    protected void tearDown() throws Exception {
         if (audioFile.getFile().exists()) {
             audioFile.getFile().delete();
         }
     }
 
-    public void testSizeHasIncreased() throws CannotWriteException {
+    public void testSizeHasIncreased() throws CannotWriteException, IOException, InterruptedException {
         sizeHasChanged(200);
     }
 
-    public void testSizeHasDecreased() throws CannotWriteException {
+    public void testSizeHasDecreased() throws CannotWriteException, IOException, InterruptedException {
         sizeHasChanged(-200);
     }
 
-    public void testSizeHasIncreasedWithFileIdentityPreserved() throws CannotWriteException {
+    public void testSizeHasIncreasedWithFileIdentityPreserved() throws CannotWriteException, IOException, InterruptedException {
         TagOptionSingleton.getInstance().setPreserveFileIdentity(true);
         sizeHasChanged(200);
     }
 
-    public void testSizeHasDecreasedWithFileIdentityPreserved() throws CannotWriteException {
+    public void testSizeHasDecreasedWithFileIdentityPreserved() throws CannotWriteException, IOException, InterruptedException {
         TagOptionSingleton.getInstance().setPreserveFileIdentity(true);
         sizeHasChanged(-200);
     }
@@ -70,22 +70,20 @@ public class AudioFileWriterTest extends TestCase {
         assertEquals("File size is not correct", originalFileSize + fileSizeDelta, fileSize);
     }
 
-    // ==Android==
-//    public void testCreationTime() throws CannotWriteException, IOException, InterruptedException {
-//        if (!System.getProperty("os.name").toLowerCase().startsWith("win")) {
+    public void testCreationTime() throws CannotWriteException, IOException, InterruptedException {
+        if (!System.getProperty("os.name").toLowerCase().startsWith("win")) {
             // known to fail under OS X, because of a JDK bug
             // other Unix file systems don't necessarily support creationTime at all
-//            System.out.println("Skipped testCreationTime(), because we're not on Windows.");
-//            return;
-//        }
-//        creationTime();
-//    }
+            System.out.println("Skipped testCreationTime(), because we're not on Windows.");
+            return;
+        }
+        creationTime();
+    }
 
-// ==Android==
-//    public void testCreationTimeWithFileIdentityPreserved() throws CannotWriteException, IOException, InterruptedException {
-//        TagOptionSingleton.getInstance().setPreserveFileIdentity(true);
-//        creationTime();
-//    }
+    public void testCreationTimeWithFileIdentityPreserved() throws CannotWriteException, IOException, InterruptedException {
+        TagOptionSingleton.getInstance().setPreserveFileIdentity(true);
+        creationTime();
+    }
 
     public void testFileIdentity() throws Exception {
         try
@@ -110,23 +108,22 @@ public class AudioFileWriterTest extends TestCase {
         }
     }
 
-// ==Android==
-//    private void creationTime() throws IOException, InterruptedException, CannotWriteException {
-//        try {
-//            final Path path = audioFile.getFile().toPath();
-//            final FileTime originalCreationTime = (FileTime) Files.getAttribute(path, "creationTime");
+    private void creationTime() throws IOException, InterruptedException, CannotWriteException {
+        try {
+            final Path path = audioFile.getFile().toPath();
+            final FileTime originalCreationTime = (FileTime) Files.getAttribute(path, "creationTime");
             // make sure we don't have the same time, in case resolution is only one second
-//            Thread.sleep(1500);
-//            final AudioFileWriter audioFileWriter = new MockAudioFileWriter();
-//            audioFileWriter.write(this.audioFile);
-//            final FileTime creationTime = (FileTime)Files.getAttribute(path, "creationTime");
-//            System.out.println("Creation Time:"+originalCreationTime+":"+creationTime);
-//            assertTrue("Creation time not within 3000 milliseconds of original time",(creationTime.toMillis() - originalCreationTime.toMillis()) < 3000);
-//        } catch (UnsupportedOperationException e) {
-//            System.out.println("Accessing creationTime is not supported.");
-//            e.printStackTrace(System.out);
-//        }
-//    }
+            Thread.sleep(1500);
+            final AudioFileWriter audioFileWriter = new MockAudioFileWriter();
+            audioFileWriter.write(this.audioFile);
+            final FileTime creationTime = (FileTime)Files.getAttribute(path, "creationTime");
+            System.out.println("Creation Time:"+originalCreationTime+":"+creationTime);
+            assertTrue("Creation time not within 3000 milliseconds of original time",(creationTime.toMillis() - originalCreationTime.toMillis()) < 3000);
+        } catch (UnsupportedOperationException e) {
+            System.out.println("Accessing creationTime is not supported.");
+            e.printStackTrace(System.out);
+        }
+    }
 
     private static class MockAudioFileWriter extends AudioFileWriter {
 
@@ -141,12 +138,12 @@ public class AudioFileWriterTest extends TestCase {
         }
 
         @Override
-        protected void deleteTag(final Tag tag, final RandomAccessFile raf, final RandomAccessFile tempRaf) {
+        protected void deleteTag(final Tag tag, final RandomAccessFile raf, final RandomAccessFile tempRaf) throws CannotReadException, CannotWriteException, IOException {
             // not implemented
         }
 
         @Override
-        protected void writeTag(final AudioFile audioFile, final Tag tag, final RandomAccessFile raf, final RandomAccessFile rafTemp) throws IOException {
+        protected void writeTag(final AudioFile audioFile, final Tag tag, final RandomAccessFile raf, final RandomAccessFile rafTemp) throws CannotReadException, CannotWriteException, IOException {
             // dummy code, just copy from raf to rafTemp
             final long length = raf.length();
             raf.getChannel().transferTo(0, length, rafTemp.getChannel());

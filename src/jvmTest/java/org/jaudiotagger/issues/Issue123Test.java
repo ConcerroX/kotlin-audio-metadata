@@ -18,7 +18,8 @@ import java.io.File;
  */
 public class Issue123Test extends AbstractTestCase
 {
-    public void testWriteJRiverAlbumArtistOgg() {
+    public void testWriteJRiverAlbumArtistOgg() throws Exception
+    {
         File orig = new File("testdata", "test.ogg");
         if (!orig.isFile())
         {
@@ -118,7 +119,8 @@ public class Issue123Test extends AbstractTestCase
         assertNull(ex);
     }
 
-    public void testWriteJRiverAlbumArtistFlac() {
+    public void testWriteJRiverAlbumArtistFlac() throws Exception
+    {
         File orig = new File("testdata", "test.flac");
         if (!orig.isFile())
         {
@@ -217,7 +219,8 @@ public class Issue123Test extends AbstractTestCase
         assertNull(ex);
     }
 
-    public void testReadJRiverAlbumArtistOgg() {
+    public void testReadJRiverAlbumArtistOgg() throws Exception
+    {
         File orig = new File("testdata", "test.ogg");
         if (!orig.isFile())
         {
@@ -301,7 +304,8 @@ public class Issue123Test extends AbstractTestCase
         assertNull(ex);
     }
 
-    public void testReadJRiverAlbumArtistFlac() {
+    public void testReadJRiverAlbumArtistFlac() throws Exception
+    {
         File orig = new File("testdata", "test.flac");
         if (!orig.isFile())
         {

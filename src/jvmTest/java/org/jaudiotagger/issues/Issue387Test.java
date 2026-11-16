@@ -3,18 +3,17 @@ package org.jaudiotagger.issues;
 import org.jaudiotagger.AbstractTestCase;
 import org.jaudiotagger.audio.AudioFile;
 import org.jaudiotagger.audio.AudioFileIO;
-import org.jcodec.containers.mp4.MP4Util;
-import org.json.JSONObject;
+import org.jaudiotagger.audio.mp4.Mp4AtomTree;
 
 import java.io.File;
-import java.io.RandomAccessFile;
 
 /**
  * Test writing mp4
  */
 public class Issue387Test extends AbstractTestCase
 {
-    public void testIssue() {
+    public void testIssue() throws Exception
+    {
         Exception caught = null;
         try
         {
@@ -31,9 +30,8 @@ public class Issue387Test extends AbstractTestCase
             af.getTagOrCreateAndSetDefault();
             af.commit();
 
-            MP4Util.Movie mp4 = MP4Util.parseFullMovie(testFile);
-            String json = new JSONObject(mp4.getMoov().toString()).toString(2);
-            System.out.println(json);
+            Mp4AtomTree atomTree = new Mp4AtomTree(testFile);
+            atomTree.printAtomTree();
 
         }
         catch(Exception e)

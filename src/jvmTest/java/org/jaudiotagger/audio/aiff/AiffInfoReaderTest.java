@@ -6,7 +6,7 @@ import org.jaudiotagger.audio.generic.GenericAudioHeader;
 
 import java.io.*;
 import java.nio.channels.FileChannel;
-import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 
 /**
  * AiffInfoReader Test.
@@ -29,9 +29,9 @@ public class AiffInfoReaderTest extends TestCase {
                 new PseudoChunk("AUTH", author)};
         final File aiff = createAIFF("FORM", "AIFF", pseudoChunks);
 
-        final AiffInfoReader aiffInfoReader = new AiffInfoReader();
-        try(FileChannel fc = new RandomAccessFile(aiff, "rw").getChannel()) {
-            final GenericAudioHeader audioHeader = aiffInfoReader.read(fc, aiff.getAbsolutePath());
+        final AiffInfoReader aiffInfoReader = new AiffInfoReader("test");
+        try(FileChannel fc = FileChannel.open(aiff.toPath())) {
+            final GenericAudioHeader audioHeader = aiffInfoReader.read(aiff.toPath());
             assertTrue(audioHeader instanceof AiffAudioHeader);
             final AiffAudioHeader aiffAudioHeader = (AiffAudioHeader) audioHeader;
             assertEquals(author, aiffAudioHeader.getAuthor());
@@ -48,9 +48,9 @@ public class AiffInfoReaderTest extends TestCase {
         final String author = "AUTH4567";
         final File aiff = createAIFF("FORM", "AIFF", new PseudoChunk("XYZ0", "SOME_STUFF"), new PseudoChunk("AUTH", author));
 
-        final AiffInfoReader aiffInfoReader = new AiffInfoReader();
-        try(FileChannel fc = new RandomAccessFile(aiff, "rw").getChannel()) {
-            final GenericAudioHeader audioHeader = aiffInfoReader.read(fc, aiff.getAbsolutePath());
+        final AiffInfoReader aiffInfoReader = new AiffInfoReader("test");
+        try(FileChannel fc = FileChannel.open(aiff.toPath())) {
+            final GenericAudioHeader audioHeader = aiffInfoReader.read(aiff.toPath());
             assertTrue(audioHeader instanceof AiffAudioHeader);
             final AiffAudioHeader aiffAudioHeader = (AiffAudioHeader) audioHeader;
             assertEquals(author, aiffAudioHeader.getAuthor());
@@ -88,20 +88,20 @@ public class AiffInfoReaderTest extends TestCase {
             final DataOutputStream dataOut = new DataOutputStream(bout);
 
             for (final PseudoChunk chunk : chunks) {
-                dataOut.write(chunk.getChunkType().getBytes(Charset.forName("US-ASCII")));
+                dataOut.write(chunk.getChunkType().getBytes(StandardCharsets.US_ASCII));
                 dataOut.writeInt(chunk.getText().length());
-                dataOut.write(chunk.getText().getBytes(Charset.forName("US-ASCII")));
+                dataOut.write(chunk.getText().getBytes(StandardCharsets.US_ASCII));
             }
             dataOut.flush();
 
             // write header
 
             // write format
-            out.write(form.getBytes(Charset.forName("US-ASCII")));
+            out.write(form.getBytes(StandardCharsets.US_ASCII));
             // write size
             out.writeInt(bout.size() + 4);
             // write format type
-            out.write(formType.getBytes(Charset.forName("US-ASCII")));
+            out.write(formType.getBytes(StandardCharsets.US_ASCII));
             out.write(bout.toByteArray());
         }
         return tempFile;

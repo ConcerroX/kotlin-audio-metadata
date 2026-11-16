@@ -177,13 +177,13 @@ public class ID3v24TagTest extends TestCase
 
         ID3v24Tag v2Tag = new ID3v24Tag(v1Tag);
         assertNotNull(v2Tag);
-        assertEquals(ID3v11TagTest.ARTIST, ((FrameBodyTPE1) ((ID3v24Frame) v2Tag.getFrame(ID3v24Frames.FRAME_ID_ARTIST)).getBody()).getText());
-        assertEquals(ID3v11TagTest.ALBUM, ((FrameBodyTALB) ((ID3v24Frame) v2Tag.getFrame(ID3v24Frames.FRAME_ID_ALBUM)).getBody()).getText());
-        assertEquals(ID3v11TagTest.COMMENT, ((FrameBodyCOMM) ((ID3v24Frame) v2Tag.getFrame(ID3v24Frames.FRAME_ID_COMMENT)).getBody()).getText());
-        assertEquals(ID3v11TagTest.TITLE, ((FrameBodyTIT2) ((ID3v24Frame) v2Tag.getFrame(ID3v24Frames.FRAME_ID_TITLE)).getBody()).getText());
-        assertEquals(ID3v11TagTest.TRACK_VALUE, String.valueOf(((FrameBodyTRCK) ((ID3v24Frame) v2Tag.getFrame(ID3v24Frames.FRAME_ID_TRACK)).getBody()).getTrackNo()));
-        assertTrue(((FrameBodyTCON) ((ID3v24Frame) v2Tag.getFrame(ID3v24Frames.FRAME_ID_GENRE)).getBody()).getText().endsWith(ID3v11TagTest.GENRE_VAL));
-        assertEquals(ID3v11TagTest.YEAR, ((FrameBodyTDRC) ((ID3v24Frame) v2Tag.getFrame(ID3v24Frames.FRAME_ID_YEAR)).getBody()).getText());
+        assertEquals(ID3v11TagTest.ARTIST, ((FrameBodyTPE1) ((ID3v24Frame) v2Tag.getFrame(ID3v24Frames.FRAME_ID_ARTIST).get(0)).getBody()).getText());
+        assertEquals(ID3v11TagTest.ALBUM, ((FrameBodyTALB) ((ID3v24Frame) v2Tag.getFrame(ID3v24Frames.FRAME_ID_ALBUM).get(0)).getBody()).getText());
+        assertEquals(ID3v11TagTest.COMMENT, ((FrameBodyCOMM) ((ID3v24Frame) v2Tag.getFrame(ID3v24Frames.FRAME_ID_COMMENT).get(0)).getBody()).getText());
+        assertEquals(ID3v11TagTest.TITLE, ((FrameBodyTIT2) ((ID3v24Frame) v2Tag.getFrame(ID3v24Frames.FRAME_ID_TITLE).get(0)).getBody()).getText());
+        assertEquals(ID3v11TagTest.TRACK_VALUE, String.valueOf(((FrameBodyTRCK) ((ID3v24Frame) v2Tag.getFrame(ID3v24Frames.FRAME_ID_TRACK).get(0)).getBody()).getTrackNo()));
+        assertTrue(((FrameBodyTCON) ((ID3v24Frame) v2Tag.getFrame(ID3v24Frames.FRAME_ID_GENRE).get(0)).getBody()).getText().endsWith(ID3v11TagTest.GENRE_VAL));
+        assertEquals(ID3v11TagTest.YEAR, ((FrameBodyTDRC) ((ID3v24Frame) v2Tag.getFrame(ID3v24Frames.FRAME_ID_YEAR).get(0)).getBody()).getText());
         assertEquals((byte) 2, v2Tag.getRelease());
         assertEquals((byte) 4, v2Tag.getMajorVersion());
         assertEquals((byte) 0, v2Tag.getRevision());
@@ -238,7 +238,7 @@ public class ID3v24TagTest extends TestCase
         //TODO .. but we need a neater generic method
 
 
-        assertEquals(1, f.getTag().getFieldCount());
+        assertEquals(1,((AbstractID3v2Tag)f.getTag()).getFieldCount());
         tagFields = f.getTag().getFields(FieldKey.ALBUM_ARTIST_SORT);
         assertEquals(1,tagFields.size());
         f.commit();
@@ -248,7 +248,7 @@ public class ID3v24TagTest extends TestCase
         assertEquals("artist2",f.getTag().getValue(FieldKey.ALBUM_ARTIST_SORT,1));
         assertEquals(1,f.getTag().getFieldCount());
         assertEquals(2,f.getTag().getFieldCountIncludingSubValues());
-        assertEquals(1, f.getTag().getFieldCount());
+        assertEquals(1,((AbstractID3v2Tag)f.getTag()).getFieldCount());
         tagFields = f.getTag().getFields(FieldKey.ALBUM_ARTIST_SORT);
         assertEquals(1,tagFields.size());
     }
@@ -318,14 +318,14 @@ public class ID3v24TagTest extends TestCase
         f.getTag().addField(FieldKey.URL_OFFICIAL_RELEASE_SITE,"http://www,test.org");
         assertEquals(1,f.getTag().getFields(FieldKey.URL_OFFICIAL_RELEASE_SITE).size());
         assertEquals(1,f.getTag().getFieldCount());
-        assertEquals(1, f.getTag().getFieldCount());
+        assertEquals(1,((AbstractID3v2Tag)f.getTag()).getFieldCount());
         tagFields = f.getTag().getFields(FieldKey.URL_OFFICIAL_RELEASE_SITE);
         //assertEquals(1,tagFields.size());
         f.commit();
         f = AudioFileIO.read(testFile);
         assertEquals(1,f.getTag().getFields(FieldKey.URL_OFFICIAL_RELEASE_SITE).size());
         assertEquals(1,f.getTag().getFieldCount());
-        assertEquals(1, f.getTag().getFieldCount());
+        assertEquals(1,((AbstractID3v2Tag)f.getTag()).getFieldCount());
         tagFields = f.getTag().getFields(FieldKey.URL_OFFICIAL_RELEASE_SITE);
         assertEquals(1,tagFields.size());
     }

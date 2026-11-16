@@ -16,18 +16,12 @@ kotlin {
     }
 
     sourceSets {
-        jvmMain.dependencies {
-            implementation("com.squareup.okio:okio:1.17.3")
-            compileOnly("com.google.android:android:4.1.1.4")
-        }
-
         commonTest.dependencies {
             implementation(kotlin("test"))
         }
 
         jvmTest.dependencies {
             implementation("junit:junit:4.13.2")
-            implementation("org.json:json:20240303")
         }
     }
 }

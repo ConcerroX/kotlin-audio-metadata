@@ -12,7 +12,8 @@ import java.io.File;
  */
 public class ReadMp4MovementTagsTest extends AbstractTestCase
 {
-    public void testReadMovementFieldsFromITunes() {
+    public void testReadMovementFieldsFromITunes() throws Exception
+    {
         File orig = new File("testdata", "test161.m4a");
         if (!orig.isFile())
         {

@@ -4,13 +4,11 @@ import junit.framework.TestCase;
 import org.jaudiotagger.AbstractTestCase;
 import org.jaudiotagger.audio.AudioFile;
 import org.jaudiotagger.audio.AudioFileIO;
+import org.jaudiotagger.audio.mp4.Mp4AtomTree;
 import org.jaudiotagger.tag.FieldKey;
 import org.jaudiotagger.tag.Tag;
-import org.jcodec.containers.mp4.MP4Util;
-import org.json.JSONObject;
 
 import java.io.File;
-import java.io.RandomAccessFile;
 
 /**
  * Write tags  for a file which contains  MDAT before MOOV, (not normal case)
@@ -29,9 +27,8 @@ public class M4aWriteDataBeforeMoovTagTest extends TestCase
             File testFile = AbstractTestCase.copyAudioToTmp("test15.m4a", new File("testWriteWhenMDatAtStart1.m4a"));
 
             //First lets just createField tree
-            MP4Util.Movie mp4 = MP4Util.parseFullMovie(testFile);
-            String json = new JSONObject(mp4.getMoov().toString()).toString(2);
-            System.out.println(json);
+            Mp4AtomTree atomTree = new Mp4AtomTree(testFile);
+            atomTree.printAtomTree();
 
             //Now we try to make some changes
             AudioFile f = AudioFileIO.read(testFile);
@@ -46,9 +43,8 @@ public class M4aWriteDataBeforeMoovTagTest extends TestCase
             System.out.println(tag);
 
             //See tree again
-            MP4Util.Movie mp42 = MP4Util.parseFullMovie(testFile);
-            String json2 = new JSONObject(mp42.getMoov().toString()).toString(2);
-            System.out.println(json2);
+            atomTree = new Mp4AtomTree(testFile);
+            atomTree.printAtomTree();
 
             //Ease of use methods for common fields
             assertEquals("AUTHOR", tag.getFirst(FieldKey.ARTIST));
@@ -74,9 +70,8 @@ public class M4aWriteDataBeforeMoovTagTest extends TestCase
             File testFile = AbstractTestCase.copyAudioToTmp("test15.m4a", new File("testWriteWhenMDatAtStart2.m4a"));
 
             //First lets just createField tree
-            MP4Util.Movie mp4 = MP4Util.parseFullMovie(testFile);
-            String json = new JSONObject(mp4.getMoov().toString()).toString(2);
-            System.out.println(json);
+            Mp4AtomTree atomTree = new Mp4AtomTree(testFile);
+            atomTree.printAtomTree();
 
             //Now we try to make some changes
             AudioFile f = AudioFileIO.read(testFile);
@@ -94,9 +89,8 @@ public class M4aWriteDataBeforeMoovTagTest extends TestCase
             System.out.println(tag);
 
             //See tree again
-            MP4Util.Movie mp42 = MP4Util.parseFullMovie(testFile);
-            String json2 = new JSONObject(mp42.getMoov().toString()).toString(2);
-            System.out.println(json2);
+            atomTree =  new Mp4AtomTree(testFile);
+            atomTree.printAtomTree();
 
             //Ease of use methods for common fields
             assertEquals("AR", tag.getFirst(FieldKey.ARTIST));
@@ -123,9 +117,8 @@ public class M4aWriteDataBeforeMoovTagTest extends TestCase
             File testFile = AbstractTestCase.copyAudioToTmp("test15.m4a", new File("testWriteWhenMDatAtStart3.m4a"));
 
             //First lets just createField tree
-            MP4Util.Movie mp4 = MP4Util.parseFullMovie(testFile);
-            String json = new JSONObject(mp4.getMoov().toString()).toString(2);
-            System.out.println(json);
+            Mp4AtomTree atomTree =  new Mp4AtomTree(testFile);
+            atomTree.printAtomTree();
 
             //Now we try to make some changes
             AudioFile f = AudioFileIO.read(testFile);
@@ -140,9 +133,8 @@ public class M4aWriteDataBeforeMoovTagTest extends TestCase
             System.out.println(tag);
 
             //See tree again
-            MP4Util.Movie mp42 = MP4Util.parseFullMovie(testFile);
-            String json2 = new JSONObject(mp4.getMoov().toString()).toString(2);
-            System.out.println(json2);
+            atomTree =  new Mp4AtomTree(testFile);
+            atomTree.printAtomTree();
 
             //Ease of use methods for common fields
             assertEquals("AR", tag.getFirst(FieldKey.ARTIST));
@@ -171,9 +163,8 @@ public class M4aWriteDataBeforeMoovTagTest extends TestCase
             AudioFile f = AudioFileIO.read(testFile);
 
             //First lets just createField tree
-            MP4Util.Movie mp4 = MP4Util.parseFullMovie(testFile);
-            String json = new JSONObject(mp4.getMoov().toString()).toString(2);
-            System.out.println(json);
+            Mp4AtomTree atomTree = new Mp4AtomTree(testFile);
+            atomTree.printAtomTree();
 
             Tag tag = f.getTag();
 
@@ -204,9 +195,8 @@ public class M4aWriteDataBeforeMoovTagTest extends TestCase
             //Save changes and reread from disk
             f.commit();
 
-            MP4Util.Movie mp42 = MP4Util.parseFullMovie(testFile);
-            String json2 = new JSONObject(mp42.getMoov().toString()).toString(2);
-            System.out.println(json2);
+            atomTree =  new Mp4AtomTree(testFile);
+            atomTree.printAtomTree();
 
             f = AudioFileIO.read(testFile);
             tag = f.getTag();
@@ -215,7 +205,7 @@ public class M4aWriteDataBeforeMoovTagTest extends TestCase
 
             //AudioInfo
             //Time in seconds
-            assertEquals(30, f.getAudioHeader().getTrackLength());
+            assertEquals(31, f.getAudioHeader().getTrackLength());
             assertEquals(44100, f.getAudioHeader().getSampleRateAsNumber());
 
             //Stereo thing doesnt work
@@ -303,7 +293,7 @@ public class M4aWriteDataBeforeMoovTagTest extends TestCase
 
             //AudioInfo
             //Time in seconds
-            assertEquals(30, f.getAudioHeader().getTrackLength());
+            assertEquals(31, f.getAudioHeader().getTrackLength());
             assertEquals(44100, f.getAudioHeader().getSampleRateAsNumber());
 
             //Stereo thing doesnt work

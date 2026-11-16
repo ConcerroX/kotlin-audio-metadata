@@ -1,13 +1,18 @@
 package org.jaudiotagger.issues;
 
 import org.jaudiotagger.AbstractTestCase;
+import org.jaudiotagger.audio.AudioFile;
+import org.jaudiotagger.audio.AudioFileIO;
 import org.jaudiotagger.tag.FieldKey;
+import org.jaudiotagger.tag.KeyNotFoundException;
+import org.jaudiotagger.tag.Tag;
 import org.jaudiotagger.tag.id3.ID3v22Tag;
 import org.jaudiotagger.tag.id3.ID3v23Tag;
 import org.jaudiotagger.tag.id3.ID3v24Tag;
 import org.jaudiotagger.tag.mp4.Mp4Tag;
 import org.jaudiotagger.tag.vorbiscomment.VorbisCommentTag;
 
+import java.io.File;
 import java.io.FileOutputStream;
 
 /**
@@ -22,7 +27,7 @@ public class Issue221Test extends AbstractTestCase
         try
         {
             Mp4Tag tag = new Mp4Tag();
-            tag.setField(FieldKey.TITLE,null);
+            tag.setField(FieldKey.TITLE, new String[] { null });
         }
         catch (Exception e)
         {
@@ -38,7 +43,7 @@ public class Issue221Test extends AbstractTestCase
         try
         {
             VorbisCommentTag tag = VorbisCommentTag.createNewTag();
-            tag.setField(FieldKey.TITLE,null);
+            tag.setField(FieldKey.TITLE, new String[] { null });
         }
         catch (Exception e)
         {
@@ -55,7 +60,7 @@ public class Issue221Test extends AbstractTestCase
         try
         {
             ID3v23Tag tag = new ID3v23Tag();
-            tag.setField(FieldKey.TITLE,null);
+            tag.setField(FieldKey.TITLE, new String[] { null });
             FileOutputStream os = new FileOutputStream("testdatatmp/issue_221_title_v23.mp3");
             tag.write(os.getChannel(),0);
             os.close();
@@ -74,7 +79,7 @@ public class Issue221Test extends AbstractTestCase
         try
         {
             ID3v23Tag tag = new ID3v23Tag();
-            tag.setField(FieldKey.ALBUM,null);
+            tag.setField(FieldKey.ALBUM, new String[] { null });
             FileOutputStream os = new FileOutputStream("testdatatmp/issue_221_title_v23.mp3");
             tag.write(os.getChannel(),0);
             os.close();
@@ -93,7 +98,7 @@ public class Issue221Test extends AbstractTestCase
         try
         {
             ID3v23Tag tag = new ID3v23Tag();
-            tag.setField(FieldKey.ARTIST,null);
+            tag.setField(FieldKey.ARTIST, new String[] { null });
             FileOutputStream os = new FileOutputStream("testdatatmp/issue_221_title_v23.mp3");
             tag.write(os.getChannel(),0);
             os.close();
@@ -112,7 +117,7 @@ public class Issue221Test extends AbstractTestCase
         try
         {
             ID3v23Tag tag = new ID3v23Tag();
-            tag.setField(FieldKey.COMMENT,null);
+            tag.setField(FieldKey.COMMENT, new String[] { null });
             FileOutputStream os = new FileOutputStream("testdatatmp/issue_221_title_v23.mp3");
             tag.write(os.getChannel(),0);
             os.close();
@@ -131,7 +136,7 @@ public class Issue221Test extends AbstractTestCase
         try
         {
             ID3v23Tag tag = new ID3v23Tag();
-            tag.setField(FieldKey.GENRE,null);
+            tag.setField(FieldKey.GENRE, new String[] { null });
             FileOutputStream os = new FileOutputStream("testdatatmp/issue_221_title_v23.mp3");
             tag.write(os.getChannel(),0);
             os.close();
@@ -150,7 +155,7 @@ public class Issue221Test extends AbstractTestCase
         try
         {
             ID3v23Tag tag = new ID3v23Tag();
-            tag.setField(FieldKey.TRACK,null);
+            tag.setField(FieldKey.TRACK, new String[] { null });
             FileOutputStream os = new FileOutputStream("testdatatmp/issue_221_title_v23.mp3");
             tag.write(os.getChannel(),0);
             os.close();
@@ -170,7 +175,7 @@ public class Issue221Test extends AbstractTestCase
         try
         {
             ID3v24Tag tag = new ID3v24Tag();
-            tag.setField(FieldKey.TITLE,null);
+            tag.setField(FieldKey.TITLE, new String[] { null });
             FileOutputStream os = new FileOutputStream("testdatatmp/issue_221_title_v24.mp3");
             tag.write(os.getChannel(),0);
             os.close();
@@ -190,7 +195,7 @@ public class Issue221Test extends AbstractTestCase
         try
         {
             ID3v22Tag tag = new ID3v22Tag();
-            tag.setField(FieldKey.TITLE,null);
+            tag.setField(FieldKey.TITLE, new String[] { null });
             FileOutputStream os = new FileOutputStream("testdatatmp/issue_221_title_v24.mp3");
             tag.write(os.getChannel(),0);
             os.close();
@@ -202,5 +207,95 @@ public class Issue221Test extends AbstractTestCase
         }
 
         assertTrue(exceptionCaught instanceof IllegalArgumentException);
+    }
+
+    public void testMp4ItunesGroupingKey()
+    {
+        Exception exceptionCaught = null;
+        try
+        {
+            File testFile = AbstractTestCase.copyAudioToTmp("test.m4a");
+            AudioFile f = AudioFileIO.read(testFile);
+            Tag tag = f.getTag();
+            tag.getFields(FieldKey.ITUNES_GROUPING);
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+            exceptionCaught = e;
+        }
+        assertTrue(exceptionCaught instanceof KeyNotFoundException);
+    }
+
+    public void testAsfItunesGroupingKey()
+    {
+        Exception exceptionCaught = null;
+        try
+        {
+            File testFile = AbstractTestCase.copyAudioToTmp("test1.wma");
+            AudioFile f = AudioFileIO.read(testFile);
+            Tag tag = f.getTag();
+            tag.getFields(FieldKey.ITUNES_GROUPING);
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+            exceptionCaught = e;
+        }
+        assertTrue(exceptionCaught instanceof KeyNotFoundException);
+    }
+
+    public void testOggItunesGroupingKey()
+    {
+        Exception exceptionCaught = null;
+        try
+        {
+            File testFile = AbstractTestCase.copyAudioToTmp("test.ogg");
+            AudioFile f = AudioFileIO.read(testFile);
+            Tag tag = f.getTag();
+            tag.getFields(FieldKey.ITUNES_GROUPING);
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+            exceptionCaught = e;
+        }
+        assertTrue(exceptionCaught instanceof KeyNotFoundException);
+    }
+
+    public void testFlacItunesGroupingKey()
+    {
+        Exception exceptionCaught = null;
+        try
+        {
+            File testFile = AbstractTestCase.copyAudioToTmp("test.flac");
+            AudioFile f = AudioFileIO.read(testFile);
+            Tag tag = f.getTag();
+            tag.getFields(FieldKey.ITUNES_GROUPING);
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+            exceptionCaught = e;
+        }
+        assertTrue(exceptionCaught instanceof KeyNotFoundException);
+    }
+
+    public void testMp3ItunesGroupingKey()
+    {
+        Exception exceptionCaught = null;
+        try
+        {
+            File testFile = AbstractTestCase.copyAudioToTmp("test23.mp3");
+            AudioFile f = AudioFileIO.read(testFile);
+            Tag tag = f.getTag();
+            tag.getFields(FieldKey.ITUNES_GROUPING);
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+            exceptionCaught = e;
+        }
+        assertNull(exceptionCaught);
     }
 }

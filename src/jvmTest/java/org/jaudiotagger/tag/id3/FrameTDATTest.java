@@ -19,7 +19,8 @@ import java.io.File;
  */
 public class FrameTDATTest extends AbstractTestCase
 {
-    public void testID3Specific() {
+    public void testID3Specific() throws Exception
+    {
         Exception e=null;
         try
         {
@@ -42,7 +43,8 @@ public class FrameTDATTest extends AbstractTestCase
         assertNull(e);
     }
 
-    public void testID3SpecificWithYearAndTime() {
+    public void testID3SpecificWithYearAndTime() throws Exception
+    {
         Exception e=null;
         try
         {
@@ -95,7 +97,8 @@ public class FrameTDATTest extends AbstractTestCase
         assertNull(e);
     }
 
-    public void testConvertingPartialDate() {
+    public void testConvertingPartialDate() throws Exception
+    {
         Exception e=null;
         try
         {
@@ -114,7 +117,7 @@ public class FrameTDATTest extends AbstractTestCase
             assertEquals("0106",v23tag.getFirst("TDAT"));
 
             tag = new ID3v24Tag(v23tag);
-            //But because is MonthOnly flag set dd gets lost when convert back to v24
+            //But because is MonthOnly flag set dd gets lost when convertMetadata back to v24
             assertEquals("2006-06",tag.getFirst("TDRC"));
 
         }

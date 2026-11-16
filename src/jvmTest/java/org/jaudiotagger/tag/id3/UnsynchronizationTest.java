@@ -7,12 +7,10 @@ import org.jaudiotagger.audio.mp3.MP3File;
 import org.jaudiotagger.logging.Hex;
 import org.jaudiotagger.tag.Tag;
 import org.jaudiotagger.tag.TagOptionSingleton;
-import org.jaudiotagger.tag.id3.framebody.FrameBodyAPIC;
 import org.jaudiotagger.tag.images.Artwork;
 import org.jaudiotagger.tag.images.ArtworkFactory;
 
 import javax.imageio.ImageIO;
-import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 
@@ -21,8 +19,6 @@ import java.io.File;
  */
 public class UnsynchronizationTest extends AbstractTestCase
 {
-    private static final int FRAME_SIZE = 2049;
-
     /**
      * This tests unsynchronizing frame in v24
      *
@@ -37,14 +33,14 @@ public class UnsynchronizationTest extends AbstractTestCase
         ID3v24Tag v24tag = (ID3v24Tag) mp3File.getID3v2Tag();
         assertFalse(v24tag.isUnsynchronization());
 
-        ID3v24Frame v24TitleFrame = (ID3v24Frame) v24tag.getFrame(ID3v24Frames.FRAME_ID_TITLE);
+        ID3v24Frame v24TitleFrame = (ID3v24Frame) v24tag.getFrame(ID3v24Frames.FRAME_ID_TITLE).get(0);
         assertNotNull(v24TitleFrame);
         assertFalse(((ID3v24Frame.EncodingFlags) v24TitleFrame.getEncodingFlags()).isUnsynchronised());
 
-        ID3v24Frame v24Imageframe = (ID3v24Frame) v24tag.getFrame(ID3v24Frames.FRAME_ID_ATTACHED_PICTURE);
+        ID3v24Frame v24Imageframe = (ID3v24Frame) v24tag.getFrame(ID3v24Frames.FRAME_ID_ATTACHED_PICTURE).get(0);
         assertNotNull(v24Imageframe);
         assertTrue(((ID3v24Frame.EncodingFlags) v24Imageframe.getEncodingFlags()).isUnsynchronised());
-        FrameBodyAPIC fb = (FrameBodyAPIC) v24Imageframe.getBody();
+        v24Imageframe.getBody();
 
         //Write mp3 back to file ,
         TagOptionSingleton.getInstance().setUnsyncTags(false);
@@ -55,14 +51,14 @@ public class UnsynchronizationTest extends AbstractTestCase
         assertEquals(AbstractID3v2Tag.getV2TagSizeIfExists(testFile), mp3File.getMP3AudioHeader().getMp3StartByte());
 
 
-        v24TitleFrame = (ID3v24Frame) v24tag.getFrame(ID3v24Frames.FRAME_ID_TITLE);
+        v24TitleFrame = (ID3v24Frame) v24tag.getFrame(ID3v24Frames.FRAME_ID_TITLE).get(0);
         assertNotNull(v24TitleFrame);
         assertFalse(((ID3v24Frame.EncodingFlags) v24TitleFrame.getEncodingFlags()).isUnsynchronised());
 
 
-        v24Imageframe = (ID3v24Frame) v24tag.getFrame(ID3v24Frames.FRAME_ID_ATTACHED_PICTURE);
+        v24Imageframe = (ID3v24Frame) v24tag.getFrame(ID3v24Frames.FRAME_ID_ATTACHED_PICTURE).get(0);
         assertNotNull(v24Imageframe);
-        fb = (FrameBodyAPIC) v24Imageframe.getBody();
+        v24Imageframe.getBody();
         assertFalse(((ID3v24Frame.EncodingFlags) v24Imageframe.getEncodingFlags()).isUnsynchronised());
 
         //Enable unsynchronization and write mp3 back to file , only APIC requires unsynchronization
@@ -74,13 +70,13 @@ public class UnsynchronizationTest extends AbstractTestCase
         assertEquals(AbstractID3v2Tag.getV2TagSizeIfExists(testFile), mp3File.getMP3AudioHeader().getMp3StartByte());
 
         //this does not need unsynchronizing, even though now enabled
-        v24TitleFrame = (ID3v24Frame) v24tag.getFrame(ID3v24Frames.FRAME_ID_TITLE);
+        v24TitleFrame = (ID3v24Frame) v24tag.getFrame(ID3v24Frames.FRAME_ID_TITLE).get(0);
         assertNotNull(v24TitleFrame);
         assertFalse(((ID3v24Frame.EncodingFlags) v24TitleFrame.getEncodingFlags()).isUnsynchronised());
 
-        v24Imageframe = (ID3v24Frame) v24tag.getFrame(ID3v24Frames.FRAME_ID_ATTACHED_PICTURE);
+        v24Imageframe = (ID3v24Frame) v24tag.getFrame(ID3v24Frames.FRAME_ID_ATTACHED_PICTURE).get(0);
         assertNotNull(v24Imageframe);
-        fb = (FrameBodyAPIC) v24Imageframe.getBody();
+        v24Imageframe.getBody();
         assertTrue(((ID3v24Frame.EncodingFlags) v24Imageframe.getEncodingFlags()).isUnsynchronised());
     }
 
@@ -99,7 +95,7 @@ public class UnsynchronizationTest extends AbstractTestCase
         assertFalse(v24tag.isUnsynchronization());
 
         //Convert to v23
-        ID3v23Tag v23tag = new ID3v23Tag(v24tag);
+        ID3v23Tag v23tag = new ID3v23Tag((AbstractTag) v24tag);
         mp3File.setID3v2Tag(v23tag);
 
         //Write mp3 back to file
@@ -136,7 +132,7 @@ public class UnsynchronizationTest extends AbstractTestCase
         assertFalse(v24tag.isUnsynchronization());
 
         //Convert to v22
-        ID3v22Tag v22tag = new ID3v22Tag(v24tag);
+        ID3v22Tag v22tag = new ID3v22Tag((AbstractTag) v24tag);
         mp3File.setID3v2Tag(v22tag);
 
         //Write mp3 back to file
@@ -215,7 +211,6 @@ public class UnsynchronizationTest extends AbstractTestCase
             assertEquals(1,unsyncedTag.getArtworkList().size());
             artworkUnsynced = unsyncedTag.getArtworkList().get(0);
 
-            int count=0;
             assertEquals(114425, artworkUnsynced.getBinaryData().length);
             assertEquals(114425, artworkNotsynced.getBinaryData().length);
 
@@ -231,8 +226,8 @@ public class UnsynchronizationTest extends AbstractTestCase
                 }
             }
             assertTrue(matches);
-            BufferedImage bi = ImageIO.read(new ByteArrayInputStream(artworkNotsynced.getBinaryData()));
-            bi = ImageIO.read(new ByteArrayInputStream(artworkUnsynced.getBinaryData()));
+            ImageIO.read(new ByteArrayInputStream(artworkNotsynced.getBinaryData()));
+            ImageIO.read(new ByteArrayInputStream(artworkUnsynced.getBinaryData()));
         }
         catch (Exception e)
         {

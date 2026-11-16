@@ -145,7 +145,7 @@ public class FrameTSOTTest extends AbstractTestCase
 
         //Reload
         mp3File = new MP3File(testFile);
-        ID3v24Frame frame = (ID3v24Frame) mp3File.getID3v2Tag().getFrame(ID3v24Frames.FRAME_ID_TITLE_SORT_ORDER);
+        ID3v24Frame frame = (ID3v24Frame) mp3File.getID3v2Tag().getFrame(ID3v24Frames.FRAME_ID_TITLE_SORT_ORDER).get(0);
         FrameBodyTSOT body = (FrameBodyTSOT) frame.getBody();
         assertEquals(TextEncoding.ISO_8859_1, body.getTextEncoding());
     }
@@ -166,7 +166,7 @@ public class FrameTSOTTest extends AbstractTestCase
 
         //Reload
         mp3File = new MP3File(testFile);
-        frame = (ID3v24Frame) mp3File.getID3v2Tag().getFrame(ID3v24Frames.FRAME_ID_TITLE_SORT_ORDER);
+        frame = (ID3v24Frame) mp3File.getID3v2Tag().getFrame(ID3v24Frames.FRAME_ID_TITLE_SORT_ORDER).get(0);
         FrameBodyTSOT body = (FrameBodyTSOT) frame.getBody();
         assertEquals(TextEncoding.ISO_8859_1, body.getTextEncoding());
     }
@@ -183,14 +183,14 @@ public class FrameTSOTTest extends AbstractTestCase
         mp3File.setID3v2Tag(tag);
         mp3File.save();
 
-        //Reload and convert to v23 and save
+        //Reload and convertMetadata to v23 and save
         mp3File = new MP3File(testFile);
         mp3File.setID3v2TagOnly(new ID3v23Tag(mp3File.getID3v2TagAsv24()));
         mp3File.save();
 
         //Reload
         mp3File = new MP3File(testFile);
-        ID3v23Frame frame = (ID3v23Frame) mp3File.getID3v2Tag().getFrame(ID3v23Frames.FRAME_ID_V3_TITLE_SORT_ORDER_ITUNES);
+        ID3v23Frame frame = (ID3v23Frame) mp3File.getID3v2Tag().getFrame(ID3v23Frames.FRAME_ID_V3_TITLE_SORT_ORDER_ITUNES).get(0);
         FrameBodyTSOT body = (FrameBodyTSOT) frame.getBody();
         assertEquals(TextEncoding.ISO_8859_1, body.getTextEncoding());
         assertEquals(FrameBodyTSOTTest.TITLE_SORT, body.getText());
@@ -208,14 +208,14 @@ public class FrameTSOTTest extends AbstractTestCase
         mp3File.setID3v2Tag(tag);
         mp3File.save();
 
-        //Reload and convert to v22 and save
+        //Reload and convertMetadata to v22 and save
         mp3File = new MP3File(testFile);
         mp3File.setID3v2TagOnly(new ID3v22Tag(mp3File.getID3v2TagAsv24()));
         mp3File.save();
 
         //Reload
         mp3File = new MP3File(testFile);
-        ID3v22Frame frame = (ID3v22Frame) mp3File.getID3v2Tag().getFrame(ID3v22Frames.FRAME_ID_V2_TITLE_SORT_ORDER_ITUNES);
+        ID3v22Frame frame = (ID3v22Frame) mp3File.getID3v2Tag().getFrame(ID3v22Frames.FRAME_ID_V2_TITLE_SORT_ORDER_ITUNES).get(0);
         FrameBodyTSOT body = (FrameBodyTSOT) frame.getBody();
         assertEquals(TextEncoding.ISO_8859_1, body.getTextEncoding());
         assertEquals(FrameBodyTSOTTest.TITLE_SORT, body.getText());
@@ -230,17 +230,17 @@ public class FrameTSOTTest extends AbstractTestCase
         ID3v23Tag tag = new ID3v23Tag();
         tag.setFrame(FrameTSOTTest.getInitialisedFrame());
 
-        mp3File.setID3v2TagOnly(tag);
+        mp3File.setID3v2TagOnly((ID3v23Tag) tag);
         mp3File.save();
 
-        //Reload and convert from v23 to v22 and save
+        //Reload and convertMetadata from v23 to v22 and save
         mp3File = new MP3File(testFile);
         mp3File.setID3v2TagOnly(new ID3v22Tag(mp3File.getID3v2Tag()));
         mp3File.save();
 
         //Reload
         mp3File = new MP3File(testFile);
-        ID3v22Frame frame = (ID3v22Frame) mp3File.getID3v2Tag().getFrame(ID3v22Frames.FRAME_ID_V2_TITLE_SORT_ORDER_ITUNES);
+        ID3v22Frame frame = (ID3v22Frame) mp3File.getID3v2Tag().getFrame(ID3v22Frames.FRAME_ID_V2_TITLE_SORT_ORDER_ITUNES).get(0);
         FrameBodyTSOT body = (FrameBodyTSOT) frame.getBody();
         assertEquals(TextEncoding.ISO_8859_1, body.getTextEncoding());
         assertEquals(FrameBodyTSOTTest.TITLE_SORT, body.getText());
@@ -255,17 +255,17 @@ public class FrameTSOTTest extends AbstractTestCase
         ID3v23Tag tag = new ID3v23Tag();
         tag.setFrame(FrameTSOTTest.getV23InitialisedFrame());
 
-        mp3File.setID3v2TagOnly(tag);
+        mp3File.setID3v2TagOnly((ID3v23Tag) tag);
         mp3File.save();
 
-        //Reload and convert from v23 to v22 and save
+        //Reload and convertMetadata from v23 to v22 and save
         mp3File = new MP3File(testFile);
         mp3File.setID3v2TagOnly(new ID3v22Tag(mp3File.getID3v2Tag()));
         mp3File.save();
 
         //Reload will be converted to same TST version for v22
         mp3File = new MP3File(testFile);
-        ID3v22Frame frame = (ID3v22Frame) mp3File.getID3v2Tag().getFrame(ID3v22Frames.FRAME_ID_V2_TITLE_SORT_ORDER_ITUNES);
+        ID3v22Frame frame = (ID3v22Frame) mp3File.getID3v2Tag().getFrame(ID3v22Frames.FRAME_ID_V2_TITLE_SORT_ORDER_ITUNES).get(0);
         FrameBodyTSOT body = (FrameBodyTSOT) frame.getBody();
         assertEquals(TextEncoding.ISO_8859_1, body.getTextEncoding());
         assertEquals(FrameBodyTSOTTest.TITLE_SORT, body.getText());
@@ -284,17 +284,17 @@ public class FrameTSOTTest extends AbstractTestCase
         ((FrameBodyTSOT) id3v22frame.getBody()).setText(FrameBodyTSOTTest.TITLE_SORT);
         tag.setFrame(id3v22frame);
 
-        mp3File.setID3v2TagOnly(tag);
+        mp3File.setID3v2TagOnly((ID3v22Tag) tag);
         mp3File.save();
 
-        //Reload and convert from v22 to v24 and save
+        //Reload and convertMetadata from v22 to v24 and save
         mp3File = new MP3File(testFile);
         mp3File.setID3v2TagOnly(new ID3v24Tag(mp3File.getID3v2Tag()));
         mp3File.save();
 
         //Reload
         mp3File = new MP3File(testFile);
-        ID3v24Frame frame = (ID3v24Frame) mp3File.getID3v2Tag().getFrame(ID3v24Frames.FRAME_ID_TITLE_SORT_ORDER);
+        ID3v24Frame frame = (ID3v24Frame) mp3File.getID3v2Tag().getFrame(ID3v24Frames.FRAME_ID_TITLE_SORT_ORDER).get(0);
         FrameBodyTSOT body = (FrameBodyTSOT) frame.getBody();
         assertEquals(TextEncoding.ISO_8859_1, body.getTextEncoding());
         assertEquals(FrameBodyTSOTTest.TITLE_SORT, body.getText());

@@ -5,24 +5,17 @@ import org.jaudiotagger.AbstractTestCase;
 import org.jaudiotagger.FilePermissionsTest;
 import org.jaudiotagger.audio.AudioFile;
 import org.jaudiotagger.audio.AudioFileIO;
-import org.jaudiotagger.audio.exceptions.CannotReadException;
-import org.jaudiotagger.audio.exceptions.CannotWriteException;
-import org.jaudiotagger.audio.exceptions.InvalidAudioFrameException;
-import org.jaudiotagger.audio.exceptions.NoWritePermissionsException;
-import org.jaudiotagger.audio.exceptions.ReadOnlyFileException;
 import org.jaudiotagger.audio.flac.FlacInfoReader;
 import org.jaudiotagger.audio.flac.metadatablock.MetadataBlockDataPicture;
-import org.jaudiotagger.tag.FieldDataInvalidException;
 import org.jaudiotagger.tag.FieldKey;
 import org.jaudiotagger.tag.Tag;
-import org.jaudiotagger.tag.TagException;
 import org.jaudiotagger.tag.TagField;
 import org.jaudiotagger.tag.TagOptionSingleton;
 import org.jaudiotagger.tag.id3.valuepair.ImageFormats;
 import org.jaudiotagger.tag.reference.PictureTypes;
+import org.jaudiotagger.tag.vorbiscomment.VorbisCommentTagField;
 
 import java.io.File;
-import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.util.List;
 
@@ -93,7 +86,7 @@ public class FlacWriteTest extends TestCase
             RandomAccessFile imageFile = new RandomAccessFile(new File("testdata", "coverart.png"), "r");
             byte[] imagedata = new byte[(int) imageFile.length()];
             imageFile.read(imagedata);
-            tag.setField(tag.createArtworkField(imagedata, PictureTypes.DEFAULT_ID, ImageFormats.MIME_TYPE_PNG, "test", 200, 200, 24, 0));
+            tag.setField(tag.createArtworkField(imagedata, PictureTypes.DEFAULT_ID, ImageFormats.MIME_TYPE_PNG, "Édition", 200, 200, 24, 0));
 
             assertEquals("11",tag.getFirst(FieldKey.TRACK_TOTAL));
             assertEquals("3",tag.getFirst(FieldKey.DISC_TOTAL));
@@ -131,7 +124,7 @@ public class FlacWriteTest extends TestCase
             MetadataBlockDataPicture pic = tag.getImages().get(0);
             assertEquals((int) PictureTypes.DEFAULT_ID, pic.getPictureType());
             assertEquals(ImageFormats.MIME_TYPE_PNG, pic.getMimeType());
-            assertEquals("test", pic.getDescription());
+            assertEquals("Édition", pic.getDescription());
             assertEquals(200, pic.getWidth());
             assertEquals(200, pic.getHeight());
             assertEquals(24, pic.getColourDepth());
@@ -149,7 +142,7 @@ public class FlacWriteTest extends TestCase
             assertEquals("Sarah Curtis",tag.getFirst("VIOLINIST"));
 
             System.out.println("NewFileSize:"+f.getFile().length());
-            assertEquals(144202, f.getFile().length());
+            assertEquals(144206, f.getFile().length());
         }
         catch (Exception e)
         {
@@ -157,10 +150,6 @@ public class FlacWriteTest extends TestCase
             exceptionCaught = e;
         }
         assertNull(exceptionCaught);
-
-
-
-
     }
 
     public void testWriteAllFieldsToFileSmallChunkSize()
@@ -553,5 +542,60 @@ public class FlacWriteTest extends TestCase
     	FilePermissionsTest.runWriteReadOnlyFileWithCheckDisabled("test2.flac");
 	}
 
+    /**
+     * Just create fields for all the tag field keys defined, se if we hit any problems
+     */
+    public void testTagFieldKeyWrite()
+    {
+        Exception exceptionCaught = null;
+        try
+        {
+            File testFile = AbstractTestCase.copyAudioToTmp("test.flac", new File("testwrite1.flac"));
 
+            AudioFile f = AudioFileIO.read(testFile);
+            AudioFileIO.delete(f);
+
+            // Tests multiple iterations on same file
+            for (int i = 0; i < 2; i++)
+            {
+                f = AudioFileIO.read(testFile);
+                Tag tag = f.getTag();
+                for (FieldKey key : FieldKey.values())
+                {
+                    if (!(key == FieldKey.COVER_ART) && !(key == FieldKey.ITUNES_GROUPING))
+                    {
+                        System.out.println(key);
+                        tag.setField(tag.createField(key, key.name() + "_value_" + i));
+                    }
+                }
+                f.commit();
+                f = AudioFileIO.read(testFile);
+                tag = f.getTag();
+                for (FieldKey key : FieldKey.values())
+                {
+                    /*
+                     * Test value retrieval, using multiple access methods.
+                     */
+                    if (!(key == FieldKey.COVER_ART) && !(key == FieldKey.ITUNES_GROUPING))
+                    {
+                        String value = key.name() + "_value_" + i;
+                        System.out.println("Value is:" + value);
+
+                        assertEquals(value, tag.getFirst(key));
+                        VorbisCommentTagField atf =  (VorbisCommentTagField)tag.getFields(key).get(0);
+                        assertEquals(value, atf.getContent());
+                        atf = (VorbisCommentTagField) tag.getFields(key).get(0);
+                        assertEquals(value, atf.getContent());
+                    }
+
+                }
+            }
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+            exceptionCaught = e;
+        }
+        assertNull(exceptionCaught);
+    }
 }

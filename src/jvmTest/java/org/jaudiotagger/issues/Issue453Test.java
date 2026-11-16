@@ -13,7 +13,6 @@ public class Issue453Test extends AbstractTestCase
 {
     public void testMpeg3layer3_32bit() throws Exception
     {
-        Exception ex=null;
         File orig = new File("testdata", "test113.mp3");
         if (!orig.isFile())
         {
@@ -28,7 +27,7 @@ public class Issue453Test extends AbstractTestCase
         assertEquals("Layer 3",audio.getMpegLayer());
         assertEquals("MPEG-1",audio.getMpegVersion());
         assertEquals("Joint Stereo",audio.getChannels());
-        assertEquals(1451,audio.getTrackLength());  //This is wrong
+        assertEquals(1452,audio.getTrackLength());  //This is wrong
 
 
     }

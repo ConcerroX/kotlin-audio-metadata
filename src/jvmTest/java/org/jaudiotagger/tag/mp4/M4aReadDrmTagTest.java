@@ -6,9 +6,9 @@ import org.jaudiotagger.audio.AudioFile;
 import org.jaudiotagger.audio.AudioFileIO;
 import org.jaudiotagger.audio.mp4.EncoderType;
 import org.jaudiotagger.audio.mp4.Mp4AudioHeader;
+import org.jaudiotagger.audio.mp4.atom.Mp4EsdsBox;
 import org.jaudiotagger.tag.FieldKey;
 import org.jaudiotagger.tag.Tag;
-import org.jcodec.containers.mp4.boxes.EsdsBox;
 
 import java.io.File;
 import java.util.List;
@@ -49,8 +49,8 @@ public class M4aReadDrmTagTest extends TestCase
 
             //MPEG Specific
             Mp4AudioHeader audioheader = (Mp4AudioHeader) f.getAudioHeader();
-            assertEquals(EsdsBox.Kind.MPEG4_AUDIO, audioheader.getKind());
-            assertEquals(EsdsBox.AudioProfile.LOW_COMPLEXITY, audioheader.getProfile());
+            assertEquals(Mp4EsdsBox.Kind.MPEG4_AUDIO, audioheader.getKind());
+            assertEquals(Mp4EsdsBox.AudioProfile.LOW_COMPLEXITY, audioheader.getProfile());
 
             //Ease of use methods for common fields
             assertEquals("The King Of The Slums", tag.getFirst(FieldKey.ARTIST));
@@ -68,7 +68,7 @@ public class M4aReadDrmTagTest extends TestCase
             assertEquals("The King Of The Slums", mp4tag.getFirst(Mp4FieldKey.ARTIST));
             assertEquals("Barbarous English Fayre", mp4tag.getFirst(Mp4FieldKey.ALBUM));
             assertEquals("Simpering Blonde Bombshell", mp4tag.getFirst(Mp4FieldKey.TITLE));
-            List coverart = mp4tag.get(Mp4FieldKey.ARTWORK);
+            List<?> coverart = mp4tag.get(Mp4FieldKey.ARTWORK);
             //Should be one image
             assertEquals(1, coverart.size());
 

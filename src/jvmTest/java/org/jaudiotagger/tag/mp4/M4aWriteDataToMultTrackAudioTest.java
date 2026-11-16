@@ -4,20 +4,16 @@ import junit.framework.TestCase;
 import org.jaudiotagger.AbstractTestCase;
 import org.jaudiotagger.audio.AudioFile;
 import org.jaudiotagger.audio.AudioFileIO;
+import org.jaudiotagger.audio.mp4.Mp4AtomTree;
 import org.jaudiotagger.tag.FieldKey;
 import org.jaudiotagger.tag.Tag;
-import org.jcodec.containers.mp4.MP4Util;
-import org.json.JSONObject;
-import org.junit.Ignore;
 
 import java.io.File;
-import java.io.RandomAccessFile;
 
 /**
  * Write tags for a file which contains multiple tracks such as winamp encoder.
  */
-@Ignore("Non-standard mp4")
-public class M4aWriteDataToMultTrackAudioTest extends TestCase
+public class M4aWriteDatatoMultTrackAudioTest extends TestCase
 {
     /**
      * Test to write file that has multiple tracks such as winamp encoder.
@@ -30,9 +26,8 @@ public class M4aWriteDataToMultTrackAudioTest extends TestCase
             File testFile = AbstractTestCase.copyAudioToTmp("test16.m4a", new File("testWriteMultiTrack1.m4a"));
 
             //First let's just createField tree
-            MP4Util.Movie mp4 = MP4Util.parseFullMovie(testFile);
-            String json = new JSONObject(mp4.getMoov().toString()).toString(2);
-            System.out.println(json);
+            Mp4AtomTree atomTree =  new Mp4AtomTree(testFile);
+            atomTree.printAtomTree();
 
             //Now we try to make some changes
             AudioFile f = AudioFileIO.read(testFile);
@@ -48,9 +43,8 @@ public class M4aWriteDataToMultTrackAudioTest extends TestCase
             System.out.println(tag);
 
             //See tree again
-            MP4Util.Movie mp42 = MP4Util.parseFullMovie(testFile);
-            String json2 = new JSONObject(mp42.getMoov().toString()).toString(2);
-            System.out.println(json2);
+            atomTree = new Mp4AtomTree(testFile);
+            atomTree.printAtomTree();
 
             //Ease of use methods for common fields
             assertEquals("AUTHOR", tag.getFirst(FieldKey.ARTIST));
@@ -76,9 +70,8 @@ public class M4aWriteDataToMultTrackAudioTest extends TestCase
             File testFile = AbstractTestCase.copyAudioToTmp("test16.m4a", new File("testWriteMultiTrack3.m4a"));
 
             //First lets just createField tree
-            MP4Util.Movie mp4 = MP4Util.parseFullMovie(testFile);
-            String json = new JSONObject(mp4.getMoov().toString()).toString(2);
-            System.out.println(json);
+            Mp4AtomTree atomTree =  new Mp4AtomTree(testFile);
+            atomTree.printAtomTree();
 
             //Now we try to make some changes
             AudioFile f = AudioFileIO.read(testFile);
@@ -94,9 +87,8 @@ public class M4aWriteDataToMultTrackAudioTest extends TestCase
             System.out.println(tag);
 
             //See tree again
-            MP4Util.Movie mp42 = MP4Util.parseFullMovie(testFile);
-            String json2 = new JSONObject(mp42.getMoov().toString()).toString(2);
-            System.out.println(json2);
+            atomTree = new Mp4AtomTree(testFile);
+            atomTree.printAtomTree();
 
             //Ease of use methods for common fields
             assertEquals("A", tag.getFirst(FieldKey.ARTIST));
@@ -122,9 +114,8 @@ public class M4aWriteDataToMultTrackAudioTest extends TestCase
             File testFile = AbstractTestCase.copyAudioToTmp("test16.m4a", new File("testWriteMultiTrack4.m4a"));
 
             //First lets just createField tree
-            MP4Util.Movie mp4 = MP4Util.parseFullMovie(testFile);
-            String json = new JSONObject(mp4.getMoov().toString()).toString(2);
-            System.out.println(json);
+            Mp4AtomTree atomTree = new Mp4AtomTree(testFile);
+            atomTree.printAtomTree();
 
             //Now we try to make some changes
             AudioFile f = AudioFileIO.read(testFile);
@@ -139,9 +130,8 @@ public class M4aWriteDataToMultTrackAudioTest extends TestCase
             System.out.println(tag);
 
             //See tree again
-            MP4Util.Movie mp42 = MP4Util.parseFullMovie(testFile);
-            String json2 = new JSONObject(mp42.getMoov().toString()).toString(2);
-            System.out.println(json2);
+            atomTree =  new Mp4AtomTree(testFile);
+            atomTree.printAtomTree();
 
             //Ease of use methods for common fields
             assertEquals("AR", tag.getFirst(FieldKey.ARTIST));
@@ -161,13 +151,15 @@ public class M4aWriteDataToMultTrackAudioTest extends TestCase
      *
      * TODO:Test incomplete
      */
-    public void testWriteFileOption8CannoutUseTopLevelFree()
+    public void testWriteFileOption72CannoutUseTopLevelFree()
     {
         Exception exceptionCaught = null;
         try
         {
             File testFile = AbstractTestCase.copyAudioToTmp("test16.m4a", new File("testWriteMultiTrack8.m4a"));
             AudioFile f = AudioFileIO.read(testFile);
+            new Mp4AtomTree(testFile).printAtomTree();
+
             Tag tag = f.getTag();
 
             //Change values
@@ -203,7 +195,7 @@ public class M4aWriteDataToMultTrackAudioTest extends TestCase
 
             //AudioInfo
             //Time in seconds
-            assertEquals(30, f.getAudioHeader().getTrackLength());
+            assertEquals(31, f.getAudioHeader().getTrackLength());
             assertEquals(44100, f.getAudioHeader().getSampleRateAsNumber());
 
             //Stereo thing doesnt work
@@ -288,7 +280,7 @@ public class M4aWriteDataToMultTrackAudioTest extends TestCase
 
             //AudioInfo
             //Time in seconds
-            assertEquals(30, f.getAudioHeader().getTrackLength());
+            assertEquals(31, f.getAudioHeader().getTrackLength());
             assertEquals(44100, f.getAudioHeader().getSampleRateAsNumber());
 
             //Stereo thing doesnt work
@@ -384,7 +376,7 @@ public class M4aWriteDataToMultTrackAudioTest extends TestCase
 
             //AudioInfo
             //Time in seconds
-            assertEquals(30, f.getAudioHeader().getTrackLength());
+            assertEquals(31, f.getAudioHeader().getTrackLength());
             assertEquals(44100, f.getAudioHeader().getSampleRateAsNumber());
 
             //Stereo thing doesnt work
@@ -418,9 +410,8 @@ public class M4aWriteDataToMultTrackAudioTest extends TestCase
 
             //Visual check of atom tree
             testFile = new File("testdatatmp", "testWriteMultiTrack7.m4a");
-            MP4Util.Movie mp4 = MP4Util.parseFullMovie(testFile);
-            String json = new JSONObject(mp4.getMoov().toString()).toString(2);
-            System.out.println(json);
+            Mp4AtomTree atomTree = new Mp4AtomTree(testFile);
+            atomTree.printAtomTree();
 
         }
         catch (Exception e)

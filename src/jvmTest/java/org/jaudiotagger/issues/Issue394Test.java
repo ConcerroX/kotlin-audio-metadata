@@ -10,7 +10,8 @@ import org.jaudiotagger.tag.id3.ID3v24Tag;
 
 public class Issue394Test extends AbstractTestCase
 {
-    public void testCreatingID3v1TagfromID3v2tagWithMultipleComments() {
+    public void testCreatingID3v1TagfromID3v2tagWithMultipleComments() throws Exception
+    {
         Exception caught = null;
         try
         {
@@ -18,7 +19,7 @@ public class Issue394Test extends AbstractTestCase
             tag.setField(FieldKey.COMMENT,"COMMENT1");
             tag.addField(FieldKey.COMMENT,"COMMENT2");
 
-            Tag v1Tag = new ID3v1Tag((AbstractTag)tag);
+            new ID3v1Tag((AbstractTag)tag);
         }
         catch(Exception e)
         {

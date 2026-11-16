@@ -91,14 +91,14 @@ public class Unicode24NullTerminatedTagTest extends TestCase
         MP3File mp3File = new MP3File(AbstractTestCase.copyAudioToTmp("testV24-comments-utf8.mp3"));
         AbstractID3v2Tag id3v2Tag = mp3File.getID3v2Tag();
         assertNotNull(id3v2Tag);
-        AbstractID3v2Frame frame = (AbstractID3v2Frame) id3v2Tag.getFrame("COMM");
+        AbstractID3v2Frame frame = (AbstractID3v2Frame) id3v2Tag.getFrame("COMM").get(0);
         assertNotNull(frame);
         AbstractTagFrameBody frameBody = frame.getBody();
         assertTrue(frameBody instanceof FrameBodyCOMM);
         FrameBodyCOMM commFrameBody = (FrameBodyCOMM) frameBody;
 
         //String borodin = "\u0411\u043e\u0440\u043e\u0434\u0438\u043d";
-        byte UTF8_ENCODING = TextEncoding.UTF_8;
+        byte UTF8_ENCODING = (byte) TextEncoding.UTF_8;
         String language = "eng";
         String comment = "some comment here";
         String description = "cc";
@@ -159,7 +159,7 @@ public class Unicode24NullTerminatedTagTest extends TestCase
 
         //Reload, should be written as UTF16 because of the text
         mp3File = new MP3File(testFile);
-        frame = (ID3v24Frame) mp3File.getID3v2Tag().getFrame(ID3v24Frames.FRAME_ID_USER_DEFINED_URL);
+        frame = (ID3v24Frame) mp3File.getID3v2Tag().getFrame(ID3v24Frames.FRAME_ID_USER_DEFINED_URL).get(0);
         FrameBodyWXXX body = (FrameBodyWXXX) frame.getBody();
         assertEquals(ID3v24Frames.FRAME_ID_USER_DEFINED_URL, body.getIdentifier());
         assertEquals(TextEncoding.ISO_8859_1, body.getTextEncoding());
@@ -206,7 +206,7 @@ public class Unicode24NullTerminatedTagTest extends TestCase
 
         //Reload, should be written as UTF16 because of the text
         mp3File = new MP3File(testFile);
-        frame = (ID3v24Frame) mp3File.getID3v2Tag().getFrame(ID3v24Frames.FRAME_ID_USER_DEFINED_URL);
+        frame = (ID3v24Frame) mp3File.getID3v2Tag().getFrame(ID3v24Frames.FRAME_ID_USER_DEFINED_URL).get(0);
         FrameBodyWXXX body = (FrameBodyWXXX) frame.getBody();
         assertEquals(ID3v24Frames.FRAME_ID_USER_DEFINED_URL, body.getIdentifier());
         assertEquals(TextEncoding.UTF_16, body.getTextEncoding());
@@ -255,7 +255,7 @@ public class Unicode24NullTerminatedTagTest extends TestCase
 
         //Reload, should be written as UTF16 because of the text
         mp3File = new MP3File(testFile);
-        frame = (ID3v24Frame) mp3File.getID3v2Tag().getFrame(ID3v24Frames.FRAME_ID_USER_DEFINED_URL);
+        frame = (ID3v24Frame) mp3File.getID3v2Tag().getFrame(ID3v24Frames.FRAME_ID_USER_DEFINED_URL).get(0);
         FrameBodyWXXX body = (FrameBodyWXXX) frame.getBody();
         assertEquals(ID3v24Frames.FRAME_ID_USER_DEFINED_URL, body.getIdentifier());
         assertEquals(TextEncoding.UTF_16, body.getTextEncoding());
@@ -302,7 +302,7 @@ public class Unicode24NullTerminatedTagTest extends TestCase
 
         //Reload, should be written as UTF16 because of the text
         mp3File = new MP3File(testFile);
-        frame = (ID3v24Frame) mp3File.getID3v2Tag().getFrame(ID3v24Frames.FRAME_ID_USER_DEFINED_URL);
+        frame = (ID3v24Frame) mp3File.getID3v2Tag().getFrame(ID3v24Frames.FRAME_ID_USER_DEFINED_URL).get(0);
         FrameBodyWXXX body = (FrameBodyWXXX) frame.getBody();
         assertEquals(ID3v24Frames.FRAME_ID_USER_DEFINED_URL, body.getIdentifier());
         assertEquals(TextEncoding.UTF_16, body.getTextEncoding());
@@ -349,7 +349,7 @@ public class Unicode24NullTerminatedTagTest extends TestCase
 
         //Reload, should be written as UTF16BE
         mp3File = new MP3File(testFile);
-        frame = (ID3v24Frame) mp3File.getID3v2Tag().getFrame(ID3v24Frames.FRAME_ID_USER_DEFINED_URL);
+        frame = (ID3v24Frame) mp3File.getID3v2Tag().getFrame(ID3v24Frames.FRAME_ID_USER_DEFINED_URL).get(0);
         FrameBodyWXXX body = (FrameBodyWXXX) frame.getBody();
         assertEquals(ID3v24Frames.FRAME_ID_USER_DEFINED_URL, body.getIdentifier());
         assertEquals(TextEncoding.UTF_16BE, body.getTextEncoding());
@@ -396,7 +396,7 @@ public class Unicode24NullTerminatedTagTest extends TestCase
 
         //Reload, should be written as UTF8
         mp3File = new MP3File(testFile);
-        frame = (ID3v24Frame) mp3File.getID3v2Tag().getFrame(ID3v24Frames.FRAME_ID_USER_DEFINED_URL);
+        frame = (ID3v24Frame) mp3File.getID3v2Tag().getFrame(ID3v24Frames.FRAME_ID_USER_DEFINED_URL).get(0);
         FrameBodyWXXX body = (FrameBodyWXXX) frame.getBody();
         assertEquals(ID3v24Frames.FRAME_ID_USER_DEFINED_URL, body.getIdentifier());
         assertEquals(TextEncoding.UTF_8, body.getTextEncoding());

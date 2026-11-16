@@ -13,7 +13,7 @@ import java.util.Collection;
 import java.util.Date;
 
 /**
- *
+ * 
  * @author Christian Laireiter
  */
 public final class AsfHeaderUtils extends TestCase
@@ -72,7 +72,7 @@ public final class AsfHeaderUtils extends TestCase
                 byte[] tmp = new byte[(int) found.getChunkLength().longValue()];
                 asfFile.seek(found.getPosition());
                 asfFile.readFully(tmp);
-                result = tmp;
+                result = tmp;                
             }
             return result;
         }
@@ -105,9 +105,12 @@ public final class AsfHeaderUtils extends TestCase
      */
     public void testConversionDateConstant()
     {
-        Date date1 = new Date((1601-1900),0,1);
-        Date date2 = new Date((1970-1900),0,1);
-        assertEquals(11644473600000l,date2.getTime() - date1.getTime());
+    	Calendar cal = Calendar.getInstance();
+    	cal.set(1601, 0, 1);
+        Date date1 = cal.getTime();
+    	cal.set(1970, 0, 1);
+        Date date2 = cal.getTime();
+        assertEquals(11644470000000l,date2.getTime() - date1.getTime());
     }
 
 }

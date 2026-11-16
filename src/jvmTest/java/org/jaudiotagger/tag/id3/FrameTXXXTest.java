@@ -114,7 +114,7 @@ public class FrameTXXXTest extends AbstractTestCase
 
         //Reload
         mp3File = new MP3File(testFile);
-        ID3v24Frame frame = (ID3v24Frame) mp3File.getID3v2Tag().getFrame(ID3v24Frames.FRAME_ID_USER_DEFINED_INFO);
+        ID3v24Frame frame = (ID3v24Frame) mp3File.getID3v2Tag().getFrame(ID3v24Frames.FRAME_ID_USER_DEFINED_INFO).get(0);
         FrameBodyTXXX body = (FrameBodyTXXX) frame.getBody();
         assertEquals(TextEncoding.ISO_8859_1, body.getTextEncoding());
     }
@@ -133,14 +133,14 @@ public class FrameTXXXTest extends AbstractTestCase
         mp3File.setID3v2Tag(tag);
         mp3File.save();
 
-        //Reload and convert to v23 and save
+        //Reload and convertMetadata to v23 and save
         mp3File = new MP3File(testFile);
         mp3File.setID3v2TagOnly(new ID3v23Tag(mp3File.getID3v2TagAsv24()));
         mp3File.save();
 
         //Reload
         mp3File = new MP3File(testFile);
-        ID3v23Frame frame = (ID3v23Frame) mp3File.getID3v2Tag().getFrame(ID3v23Frames.FRAME_ID_V3_USER_DEFINED_INFO);
+        ID3v23Frame frame = (ID3v23Frame) mp3File.getID3v2Tag().getFrame(ID3v23Frames.FRAME_ID_V3_USER_DEFINED_INFO).get(0);
         FrameBodyTXXX body = (FrameBodyTXXX) frame.getBody();
         assertEquals(TextEncoding.ISO_8859_1, body.getTextEncoding());
         assertEquals(FrameBodyTXXXTest.TXXX_TEST_DESC, body.getText());
@@ -158,14 +158,14 @@ public class FrameTXXXTest extends AbstractTestCase
         mp3File.setID3v2Tag(tag);
         mp3File.save();
 
-        //Reload and convert to v22 and save
+        //Reload and convertMetadata to v22 and save
         mp3File = new MP3File(testFile);
         mp3File.setID3v2TagOnly(new ID3v22Tag(mp3File.getID3v2TagAsv24()));
         mp3File.save();
 
         //Reload
         mp3File = new MP3File(testFile);
-        ID3v22Frame frame = (ID3v22Frame) mp3File.getID3v2Tag().getFrame(ID3v22Frames.FRAME_ID_V2_USER_DEFINED_INFO);
+        ID3v22Frame frame = (ID3v22Frame) mp3File.getID3v2Tag().getFrame(ID3v22Frames.FRAME_ID_V2_USER_DEFINED_INFO).get(0);
         FrameBodyTXXX body = (FrameBodyTXXX) frame.getBody();
         assertEquals(TextEncoding.ISO_8859_1, body.getTextEncoding());
           assertEquals(FrameBodyTXXXTest.TXXX_TEST_DESC, body.getText());
@@ -180,17 +180,17 @@ public class FrameTXXXTest extends AbstractTestCase
         ID3v23Tag tag = new ID3v23Tag();
         tag.setFrame(FrameTXXXTest.getV23InitialisedFrame());
 
-        mp3File.setID3v2TagOnly(tag);
+        mp3File.setID3v2TagOnly((ID3v23Tag) tag);
         mp3File.save();
 
-        //Reload and convert from v23 to v22 and save
+        //Reload and convertMetadata from v23 to v22 and save
         mp3File = new MP3File(testFile);
         mp3File.setID3v2TagOnly(new ID3v22Tag(mp3File.getID3v2Tag()));
         mp3File.save();
 
         //Reload
         mp3File = new MP3File(testFile);
-        ID3v22Frame frame = (ID3v22Frame) mp3File.getID3v2Tag().getFrame(ID3v22Frames.FRAME_ID_V2_USER_DEFINED_INFO);
+        ID3v22Frame frame = (ID3v22Frame) mp3File.getID3v2Tag().getFrame(ID3v22Frames.FRAME_ID_V2_USER_DEFINED_INFO).get(0);
         FrameBodyTXXX body = (FrameBodyTXXX) frame.getBody();
         assertEquals(TextEncoding.ISO_8859_1, body.getTextEncoding());
         assertEquals(FrameBodyTXXXTest.TXXX_TEST_DESC, body.getText());
@@ -210,17 +210,17 @@ public class FrameTXXXTest extends AbstractTestCase
         ((FrameBodyTXXX) id3v22frame.getBody()).setText(FrameBodyTXXXTest.TXXX_TEST_STRING);
         tag.setFrame(id3v22frame);
 
-        mp3File.setID3v2TagOnly(tag);
+        mp3File.setID3v2TagOnly((ID3v22Tag) tag);
         mp3File.save();
 
-        //Reload and convert from v22 to v24 and save
+        //Reload and convertMetadata from v22 to v24 and save
         mp3File = new MP3File(testFile);
         mp3File.setID3v2TagOnly(new ID3v24Tag(mp3File.getID3v2Tag()));
         mp3File.save();
 
         //Reload
         mp3File = new MP3File(testFile);
-        ID3v24Frame frame = (ID3v24Frame) mp3File.getID3v2Tag().getFrame(ID3v24Frames.FRAME_ID_USER_DEFINED_INFO);
+        ID3v24Frame frame = (ID3v24Frame) mp3File.getID3v2Tag().getFrame(ID3v24Frames.FRAME_ID_USER_DEFINED_INFO).get(0);
         FrameBodyTXXX body = (FrameBodyTXXX) frame.getBody();
         assertEquals(TextEncoding.ISO_8859_1, body.getTextEncoding());
         assertEquals(FrameBodyTXXXTest.TXXX_TEST_STRING, body.getText());

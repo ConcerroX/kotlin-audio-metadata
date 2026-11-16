@@ -12,7 +12,8 @@ import org.jaudiotagger.tag.id3.ID3v1Tag;
  */
 public class Issue403Test extends AbstractTestCase
 {
-    public void testSetInvalidField() {
+    public void testSetInvalidField() throws Exception
+    {
         Exception caught = null;
         try
         {
@@ -27,7 +28,8 @@ public class Issue403Test extends AbstractTestCase
         assertTrue(caught instanceof KeyNotFoundException);
     }
 
-    public void testAddInvalidField() {
+    public void testAddInvalidField() throws Exception
+    {
         Exception caught = null;
         try
         {
@@ -42,7 +44,8 @@ public class Issue403Test extends AbstractTestCase
         assertTrue(caught instanceof KeyNotFoundException);
     }
 
-    public void testCreateInvalidField() {
+    public void testCreateInvalidField() throws Exception
+    {
         Exception caught = null;
         try
         {
@@ -57,7 +60,8 @@ public class Issue403Test extends AbstractTestCase
         assertTrue(caught instanceof KeyNotFoundException);
     }
 
-    public void testDeleteInvalidField() {
+    public void testDeleteInvalidField() throws Exception
+    {
         Exception caught = null;
         try
         {
@@ -73,7 +77,8 @@ public class Issue403Test extends AbstractTestCase
         assertNull(caught);
     }
 
-    public void testSetInvalidFieldV11() {
+    public void testSetInvalidFieldV11() throws Exception
+    {
         Exception caught = null;
         try
         {
@@ -88,7 +93,8 @@ public class Issue403Test extends AbstractTestCase
         assertTrue(caught instanceof KeyNotFoundException);
     }
 
-    public void testAddInvalidFieldV11() {
+    public void testAddInvalidFieldV11() throws Exception
+    {
         Exception caught = null;
         try
         {
@@ -103,7 +109,8 @@ public class Issue403Test extends AbstractTestCase
         assertTrue(caught instanceof KeyNotFoundException);
     }
 
-    public void testCreateInvalidFieldV11() {
+    public void testCreateInvalidFieldV11() throws Exception
+    {
         Exception caught = null;
         try
         {
@@ -118,7 +125,8 @@ public class Issue403Test extends AbstractTestCase
         assertTrue(caught instanceof KeyNotFoundException);
     }
 
-    public void testDeleteInvalidFieldV11() {
+    public void testDeleteInvalidFieldV11() throws Exception
+    {
         Exception caught = null;
         try
         {

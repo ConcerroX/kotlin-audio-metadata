@@ -10,11 +10,6 @@ import org.jaudiotagger.audio.wav.WavSaveOptions;
 import org.jaudiotagger.tag.FieldKey;
 import org.jaudiotagger.tag.Tag;
 import org.jaudiotagger.tag.TagOptionSingleton;
-import org.jaudiotagger.tag.id3.AbstractID3v2Tag;
-import org.jaudiotagger.tag.id3.ID3v23Tag;
-import org.jaudiotagger.tag.wav.WavInfoTag;
-import org.jaudiotagger.tag.wav.WavTag;
-
 import java.io.File;
 
 /**
@@ -37,9 +32,13 @@ public class Issue119Test extends AbstractTestCase
         File testFile = AbstractTestCase.copyAudioToTmp("test151.aif", new File("test151MissingByte.aiff"));
         try
         {
+            System.out.println("1");
             AudioFile f = AudioFileIO.read(testFile);
+            System.out.println("2");
             AudioHeader ah = f.getAudioHeader();
+            System.out.println("3");
             assertTrue(ah instanceof AiffAudioHeader);
+            System.out.println("4");
             Tag tag = f.getTag();
             System.out.println(tag);
             f.getTag().setField(FieldKey.ARTIST,"fred");

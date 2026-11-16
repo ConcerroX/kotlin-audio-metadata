@@ -9,7 +9,8 @@ import org.jaudiotagger.tag.id3.valuepair.TextEncoding;
  */
 public class FrameTDTGTest extends AbstractTestCase
 {
-    public void testID3Specific() {
+    public void testID3Specific() throws Exception
+    {
         Exception e=null;
         try
         {
@@ -22,7 +23,7 @@ public class FrameTDTGTest extends AbstractTestCase
             ID3v23Tag v23tag = new ID3v23Tag(tag);
             assertEquals(1,v23tag.getFieldCount());
             assertNotNull(v23tag.getFirst("TDTG"));
-            assertTrue((((AbstractID3v2Frame)v23tag.getFrame("TDTG")).getBody()) instanceof FrameBodyUnsupported);
+            assertTrue((((AbstractID3v2Frame)v23tag.getFrame("TDTG").get(0)).getBody()) instanceof FrameBodyUnsupported);
         }
         catch(Exception ex)
         {

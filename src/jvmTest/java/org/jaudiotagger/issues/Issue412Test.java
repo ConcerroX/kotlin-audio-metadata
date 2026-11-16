@@ -17,7 +17,8 @@ import java.io.File;
  */
 public class Issue412Test extends AbstractTestCase
 {
-    public void testTXXXSameDescription() {
+    public void testTXXXSameDescription() throws Exception
+    {
         Exception caught = null;
         try
         {
@@ -58,7 +59,8 @@ public class Issue412Test extends AbstractTestCase
         assertNull(caught);
     }
 
-    public void testTXXXDifferentDescription() {
+    public void testTXXXDifferentDescription() throws Exception
+    {
         Exception caught = null;
         try
         {
@@ -105,7 +107,8 @@ public class Issue412Test extends AbstractTestCase
         assertNull(caught);
     }
 
-    public void testWXXXSameDescription() {
+    public void testWXXXSameDescription() throws Exception
+    {
         Exception caught = null;
         try
         {
@@ -146,7 +149,8 @@ public class Issue412Test extends AbstractTestCase
         assertNull(caught);
     }
 
-    public void testTXXXSameDescriptionMultiples() {
+    public void testTXXXSameDescriptionMultiples() throws Exception
+    {
         Exception caught = null;
         try
         {
@@ -189,7 +193,8 @@ public class Issue412Test extends AbstractTestCase
         assertNull(caught);
     }
 
-    public void testWXXXSameDescriptionMultiples() {
+    public void testWXXXSameDescriptionMultiples() throws Exception
+    {
         Exception caught = null;
         try
         {
@@ -233,7 +238,8 @@ public class Issue412Test extends AbstractTestCase
     }
 
 
-    public void testTCOMMultiples() {
+    public void testTCOMMultiples() throws Exception
+    {
         Exception caught = null;
         try
         {
@@ -418,7 +424,7 @@ public class Issue412Test extends AbstractTestCase
             af = AudioFileIO.read(testFile);
             tag = af.getTag();
             ID3v23Tag v23tag = (ID3v23Tag)tag;
-            AbstractID3v2Frame frame = (AbstractID3v2Frame)v23tag.getFrame("TPOS");
+            AbstractID3v2Frame frame = (AbstractID3v2Frame)v23tag.getFrame("TPOS").get(0);
             FrameBodyTPOS fbBody = (FrameBodyTPOS)frame.getBody();
             assertEquals(1,fbBody.getDiscNo().intValue());
             assertEquals(11,fbBody.getDiscTotal().intValue());
@@ -465,7 +471,7 @@ public class Issue412Test extends AbstractTestCase
             af = AudioFileIO.read(testFile);
             tag = af.getTag();
              v23tag = (ID3v23Tag)tag;
-            AbstractID3v2Frame frame = (AbstractID3v2Frame)v23tag.getFrame("TPOS");
+            AbstractID3v2Frame frame = (AbstractID3v2Frame)v23tag.getFrame("TPOS").get(0);
             FrameBodyTPOS fbBody = (FrameBodyTPOS)frame.getBody();
             assertEquals(1,fbBody.getDiscNo().intValue());
             assertEquals(11,fbBody.getDiscTotal().intValue());

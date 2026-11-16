@@ -16,7 +16,8 @@ import java.io.File;
  */
 public class Issue411Test extends AbstractTestCase
 {
-    public void testIssue() {
+    public void testIssue() throws Exception
+    {
         TagOptionSingleton.getInstance().setWriteMp3GenresAsText(false);
         Exception caught = null;
         try
@@ -58,7 +59,8 @@ public class Issue411Test extends AbstractTestCase
         assertNull(caught);
     }
 
-    public void testIssue2() {
+    public void testIssue2() throws Exception
+    {
         TagOptionSingleton.getInstance().setWriteMp3GenresAsText(false);
 
         Exception caught = null;
@@ -92,7 +94,8 @@ public class Issue411Test extends AbstractTestCase
         assertNull(caught);
     }
 
-    public void testIssue3() {
+    public void testIssue3() throws Exception
+    {
         TagOptionSingleton.getInstance().setWriteMp3GenresAsText(false);
 
         Exception caught = null;
@@ -126,7 +129,8 @@ public class Issue411Test extends AbstractTestCase
         assertNull(caught);
     }
 
-    public void testIssue4() {
+    public void testIssue4() throws Exception
+    {
         TagOptionSingleton.getInstance().setWriteMp3GenresAsText(false);
 
         Exception caught = null;
@@ -141,17 +145,17 @@ public class Issue411Test extends AbstractTestCase
 
             File testFile = AbstractTestCase.copyAudioToTmp("01.mp3");
             AudioFile af = AudioFileIO.read(testFile);
-            af.getTagOrCreateAndSetDefault().setField(FieldKey.ENGINEER, "fred");
+            af.getTagOrCreateAndSetDefault().setField(FieldKey.INVOLVEDPEOPLE, "engineer\0fred");
             assertTrue(af.getTag() instanceof ID3v23Tag);
             af.commit();
             af = AudioFileIO.read(testFile);
-            assertEquals("fred", af.getTag().getFirst(FieldKey.ENGINEER));
-            af.getTag().addField(FieldKey.ENGINEER, "john");
+            assertEquals("engineer\0fred", af.getTag().getFirst(FieldKey.INVOLVEDPEOPLE));
+            af.getTag().addField(FieldKey.INVOLVEDPEOPLE, "guitar\0john");
             af.commit();
             af = AudioFileIO.read(testFile);
-            assertEquals("fred", af.getTag().getFirst(FieldKey.ENGINEER));
-            assertEquals("john",af.getTag().getValue(FieldKey.ENGINEER, 1));
-            assertEquals(2, af.getTag().getFields(FieldKey.ENGINEER).size());
+            assertEquals("engineer\0fred", af.getTag().getFirst(FieldKey.INVOLVEDPEOPLE));
+            assertEquals("guitar\0john",af.getTag().getValue(FieldKey.INVOLVEDPEOPLE, 1));
+            assertEquals(1, af.getTag().getFields(FieldKey.INVOLVEDPEOPLE).size());
         }
         catch(Exception e)
         {
@@ -161,7 +165,8 @@ public class Issue411Test extends AbstractTestCase
         assertNull(caught);
     }
 
-    public void testIssue5() {
+    public void testIssue5() throws Exception
+    {
         TagOptionSingleton.getInstance().setWriteMp3GenresAsText(false);
 
         Exception caught = null;
@@ -204,7 +209,8 @@ public class Issue411Test extends AbstractTestCase
         assertNull(caught);
     }
 
-    public void testDeletions() {
+    public void testDeletions() throws Exception
+    {
         TagOptionSingleton.getInstance().setWriteMp3GenresAsText(false);
 
         Exception caught = null;

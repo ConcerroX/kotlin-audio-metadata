@@ -57,7 +57,7 @@ public class MP3AudioHeaderTest extends TestCase
         assertFalse(mp3AudioHeader.isPrivate());
         assertFalse(mp3AudioHeader.isProtected());
         assertEquals("~127", mp3AudioHeader.getBitRate());
-        assertEquals("mp3", mp3AudioHeader.getEncodingType());
+        assertEquals("Mp3", mp3AudioHeader.getFormat());
         assertEquals("LAME3.96r", mp3AudioHeader.getEncoder());
     }
 
@@ -87,7 +87,7 @@ public class MP3AudioHeaderTest extends TestCase
         assertFalse(mp3AudioHeader.isPrivate());
         assertFalse(mp3AudioHeader.isProtected());
         assertEquals("~127", mp3AudioHeader.getBitRate());
-        assertEquals("mp3", mp3AudioHeader.getEncodingType());
+        assertEquals("Mp3", mp3AudioHeader.getFormat());
         assertEquals("LAME3.96r", mp3AudioHeader.getEncoder());
     }
 
@@ -117,7 +117,7 @@ public class MP3AudioHeaderTest extends TestCase
         assertFalse(mp3AudioHeader.isPrivate());
         assertFalse(mp3AudioHeader.isProtected());
         assertEquals("128", mp3AudioHeader.getBitRate());
-        assertEquals("mp3", mp3AudioHeader.getEncodingType());
+        assertEquals("Mp3", mp3AudioHeader.getFormat());
         assertEquals("LAME3.96r", mp3AudioHeader.getEncoder());
     }
 
@@ -147,7 +147,7 @@ public class MP3AudioHeaderTest extends TestCase
         assertFalse(mp3AudioHeader.isPrivate());
         assertFalse(mp3AudioHeader.isProtected());
         assertEquals("192", mp3AudioHeader.getBitRate());
-        assertEquals("mp3", mp3AudioHeader.getEncodingType());
+        assertEquals("Mp3", mp3AudioHeader.getFormat());
         assertEquals("LAME3.96r", mp3AudioHeader.getEncoder());
     }
 
@@ -178,7 +178,7 @@ public class MP3AudioHeaderTest extends TestCase
         assertFalse(mp3AudioHeader.isPrivate());
         assertFalse(mp3AudioHeader.isProtected());
         assertEquals("~127", mp3AudioHeader.getBitRate());
-        assertEquals("mp3", mp3AudioHeader.getEncodingType());
+        assertEquals("Mp3", mp3AudioHeader.getFormat());
         assertEquals("LAME3.96r", mp3AudioHeader.getEncoder());
     }
 
@@ -208,7 +208,7 @@ public class MP3AudioHeaderTest extends TestCase
         assertFalse(mp3AudioHeader.isPrivate());
         assertFalse(mp3AudioHeader.isProtected());
         assertEquals("~127", mp3AudioHeader.getBitRate());
-        assertEquals("mp3", mp3AudioHeader.getEncodingType());
+        assertEquals("Mp3", mp3AudioHeader.getFormat());
         assertEquals("LAME3.96r", mp3AudioHeader.getEncoder());
     }
 
@@ -238,7 +238,7 @@ public class MP3AudioHeaderTest extends TestCase
         assertFalse(mp3AudioHeader.isPrivate());
         assertFalse(mp3AudioHeader.isProtected());
         assertEquals("192", mp3AudioHeader.getBitRate());
-        assertEquals("mp3", mp3AudioHeader.getEncodingType());
+        assertEquals("Mp3", mp3AudioHeader.getFormat());
         assertEquals("", mp3AudioHeader.getEncoder());
     }
 
@@ -258,7 +258,7 @@ public class MP3AudioHeaderTest extends TestCase
         }
         assertNull(exceptionCaught);
         assertEquals("44100", mp3AudioHeader.getSampleRate());
-        assertEquals("00:13", mp3AudioHeader.getTrackLengthAsString());
+        assertEquals("00:14", mp3AudioHeader.getTrackLengthAsString());
         assertFalse(mp3AudioHeader.isVariableBitRate());
         assertEquals(MPEGFrameHeader.mpegVersionMap.get(new Integer(MPEGFrameHeader.VERSION_1)), mp3AudioHeader.getMpegVersion());
         assertEquals(MPEGFrameHeader.mpegLayerMap.get(new Integer(MPEGFrameHeader.LAYER_II)), mp3AudioHeader.getMpegLayer());
@@ -268,7 +268,7 @@ public class MP3AudioHeaderTest extends TestCase
         assertFalse(mp3AudioHeader.isPrivate());
         assertFalse(mp3AudioHeader.isProtected());
         assertEquals("192", mp3AudioHeader.getBitRate());
-        assertEquals("mp3", mp3AudioHeader.getEncodingType());
+        assertEquals("Mp3", mp3AudioHeader.getFormat());
         assertEquals("", mp3AudioHeader.getEncoder());
     }
 
@@ -298,7 +298,7 @@ public class MP3AudioHeaderTest extends TestCase
         assertFalse(mp3AudioHeader.isPrivate());
         assertFalse(mp3AudioHeader.isProtected());
         assertEquals("~128", mp3AudioHeader.getBitRate());
-        assertEquals("mp3", mp3AudioHeader.getEncodingType());
+        assertEquals("Mp3", mp3AudioHeader.getFormat());
         assertEquals("LAME3.96r", mp3AudioHeader.getEncoder());
     }
 
@@ -328,7 +328,7 @@ public class MP3AudioHeaderTest extends TestCase
         assertFalse(mp3AudioHeader.isPrivate());
         assertFalse(mp3AudioHeader.isProtected());
         assertEquals("16", mp3AudioHeader.getBitRate());
-        assertEquals("mp3", mp3AudioHeader.getEncodingType());
+        assertEquals("Mp3", mp3AudioHeader.getFormat());
         assertEquals("", mp3AudioHeader.getEncoder());   //No Lame header so blank
     }
 
@@ -358,7 +358,7 @@ public class MP3AudioHeaderTest extends TestCase
         assertFalse(mp3AudioHeader.isPrivate());
         assertFalse(mp3AudioHeader.isProtected());
         assertEquals("~128", mp3AudioHeader.getBitRate());
-        assertEquals("mp3", mp3AudioHeader.getEncodingType());
+        assertEquals("Mp3", mp3AudioHeader.getFormat());
         assertEquals("LAME3.96r", mp3AudioHeader.getEncoder());
     }
 
@@ -389,7 +389,7 @@ public class MP3AudioHeaderTest extends TestCase
         assertFalse(mp3AudioHeader.isPrivate());
         assertTrue(mp3AudioHeader.isProtected());
         assertEquals("16", mp3AudioHeader.getBitRate());
-        assertEquals("mp3", mp3AudioHeader.getEncodingType());
+        assertEquals("Mp3", mp3AudioHeader.getFormat());
         assertEquals("", mp3AudioHeader.getEncoder());   //No Lame header so blank
     }
 
@@ -401,6 +401,7 @@ public class MP3AudioHeaderTest extends TestCase
         try
         {
             mp3AudioHeader = new MP3File(testFile).getMP3AudioHeader();
+            System.out.println(mp3AudioHeader);
 
         }
         catch (Exception e)
@@ -420,7 +421,8 @@ public class MP3AudioHeaderTest extends TestCase
         assertFalse(mp3AudioHeader.isPrivate());
         assertFalse(mp3AudioHeader.isProtected());
         assertEquals("64", mp3AudioHeader.getBitRate());
-        assertEquals("mp3", mp3AudioHeader.getEncodingType());
+        assertEquals("Mp3", mp3AudioHeader.getFormat());
+        assertEquals("MPEG-2 Layer 3", mp3AudioHeader.getEncodingType());
         assertEquals("LAME3.97 ", mp3AudioHeader.getEncoder());   //TODO should we be removing trailing space
     }
 
@@ -432,10 +434,9 @@ public class MP3AudioHeaderTest extends TestCase
     {
         Exception exceptionCaught = null;
         File testFile = AbstractTestCase.copyAudioToTmp("Issue79.mp3");
-        MP3AudioHeader mp3AudioHeader = null;
         try
         {
-            mp3AudioHeader = new MP3File(testFile).getMP3AudioHeader();
+            new MP3File(testFile).getMP3AudioHeader();
 
         }
         catch (Exception e)
@@ -454,10 +455,9 @@ public class MP3AudioHeaderTest extends TestCase
     {
         Exception exceptionCaught = null;
         File testFile = AbstractTestCase.copyAudioToTmp("Issue81.mp3");
-        MP3AudioHeader mp3AudioHeader = null;
         try
         {
-            mp3AudioHeader = new MP3File(testFile).getMP3AudioHeader();
+            new MP3File(testFile).getMP3AudioHeader();
 
         }
         catch (Exception e)
@@ -474,10 +474,9 @@ public class MP3AudioHeaderTest extends TestCase
     {
         Exception exceptionCaught = null;
         File testFile = AbstractTestCase.copyAudioToTmp("testV2L2.mp3");
-        MP3AudioHeader mp3AudioHeader = null;
         try
         {
-            mp3AudioHeader = new MP3File(testFile).getMP3AudioHeader();
+            new MP3File(testFile).getMP3AudioHeader();
 
         }
         catch (Exception e)
@@ -496,7 +495,6 @@ public class MP3AudioHeaderTest extends TestCase
     {
         Exception exceptionCaught = null;
 
-        int NO_SECONDS_IN_HOUR = 3600;
         SimpleDateFormat timeInFormat = new SimpleDateFormat("ss");
         SimpleDateFormat timeOutFormat = new SimpleDateFormat("mm:ss");
         SimpleDateFormat timeOutOverAnHourFormat = new SimpleDateFormat("kk:mm:ss");
@@ -607,7 +605,7 @@ public class MP3AudioHeaderTest extends TestCase
             //make change to file
             mp3file.getID3v2Tag().setField(FieldKey.TITLE,"FREDDY");
             mp3file.getID3v2Tag().deleteField(FieldKey.COVER_ART);
-            mp3file.getID3v2Tag().removeFrame("PRIV");
+            ((ID3v24Tag) mp3file.getID3v2Tag()).removeFrame("PRIV");
             final TagOptionSingleton tagOptions = TagOptionSingleton.getInstance();
             tagOptions.setToDefault();
 

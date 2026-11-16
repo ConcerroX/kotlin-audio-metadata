@@ -43,7 +43,8 @@ public class FrameWOARTest extends AbstractTestCase
         return frame;
     }
 
-    public static ID3v24Frame getRawUnicodeFrame() {
+    public static ID3v24Frame getRawUnicodeFrame() throws Exception
+    {
         ID3v24Frame frame = new ID3v24Frame(ID3v24Frames.FRAME_ID_URL_ARTIST_WEB);
         FrameBodyWOAR fb = new FrameBodyWOAR();
         fb.setUrlLink(UNICODE_LINK);
@@ -86,7 +87,7 @@ public class FrameWOARTest extends AbstractTestCase
 
         //Reload
         mp3File = new MP3File(testFile);
-        ID3v24Frame frame = (ID3v24Frame) mp3File.getID3v2Tag().getFrame(ID3v24Frames.FRAME_ID_URL_ARTIST_WEB);
+        ID3v24Frame frame = (ID3v24Frame) mp3File.getID3v2Tag().getFrame(ID3v24Frames.FRAME_ID_URL_ARTIST_WEB).get(0);
         assertTrue(frame.getBody() instanceof FrameBodyWOAR);
         assertEquals(ID3v24Frames.FRAME_ID_URL_ARTIST_WEB, frame.getIdentifier());
         assertEquals(TextEncoding.ISO_8859_1, frame.getBody().getTextEncoding());
@@ -130,7 +131,7 @@ public class FrameWOARTest extends AbstractTestCase
 
         //Reload
         mp3File = new MP3File(testFile);
-        ID3v24Frame frame = (ID3v24Frame) mp3File.getID3v2Tag().getFrame(ID3v24Frames.FRAME_ID_URL_ARTIST_WEB);
+        ID3v24Frame frame = (ID3v24Frame) mp3File.getID3v2Tag().getFrame(ID3v24Frames.FRAME_ID_URL_ARTIST_WEB).get(0);
         assertTrue(frame.getBody() instanceof FrameBodyWOAR);
         assertEquals(ID3v24Frames.FRAME_ID_URL_ARTIST_WEB, frame.getIdentifier());
         assertEquals(TextEncoding.ISO_8859_1, frame.getBody().getTextEncoding());
@@ -153,7 +154,7 @@ public class FrameWOARTest extends AbstractTestCase
 
         //Reload
         mp3File = new MP3File(testFile);
-        ID3v24Frame frame = (ID3v24Frame) mp3File.getID3v2Tag().getFrame(ID3v24Frames.FRAME_ID_URL_ARTIST_WEB);
+        ID3v24Frame frame = (ID3v24Frame) mp3File.getID3v2Tag().getFrame(ID3v24Frames.FRAME_ID_URL_ARTIST_WEB).get(0);
         assertTrue(frame.getBody() instanceof FrameBodyWOAR);
         assertEquals(ID3v24Frames.FRAME_ID_URL_ARTIST_WEB, frame.getIdentifier());
         assertEquals(TextEncoding.ISO_8859_1, frame.getBody().getTextEncoding());

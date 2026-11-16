@@ -9,7 +9,8 @@ import org.jaudiotagger.tag.id3.*;
  */
 public class Issue036Test extends AbstractTestCase
 {
-    public void testIDv24Frame() {
+    public void testIDv24Frame() throws Exception
+    {
         ID3v24Frame frame1 = new ID3v24Frame();
         ID3v24Frame frame2 = new ID3v24Frame();
         ID3v24Frame frame3 = new ID3v24Frame("TPE1");
@@ -26,7 +27,8 @@ public class Issue036Test extends AbstractTestCase
         assertFalse(frame3.equals(frame5));
     }
 
-    public void testAllID3v24Frames() {
+    public void testAllID3v24Frames() throws Exception
+    {
         for(String frameId : ID3v24Frames.getInstanceOf().getSupportedFrames())
         {
             //System.out.println("Testing:"+frameId);
@@ -58,7 +60,8 @@ public class Issue036Test extends AbstractTestCase
     }
 
 
-    public void testIDv23Frame() {
+    public void testIDv23Frame() throws Exception
+    {
         ID3v23Frame frame1 = new ID3v23Frame();
         ID3v23Frame frame2 = new ID3v23Frame();
         ID3v23Frame frame3 = new ID3v23Frame("TPE1");
@@ -75,7 +78,8 @@ public class Issue036Test extends AbstractTestCase
         assertFalse(frame3.equals(frame5));
     }
 
-    public void testAllID3v23Frames() {
+    public void testAllID3v23Frames() throws Exception
+    {
         for(String frameId : ID3v23Frames.getInstanceOf().getSupportedFrames())
         {
             //System.out.println("Testing:"+frameId);
@@ -106,7 +110,8 @@ public class Issue036Test extends AbstractTestCase
         assertFalse(tag3.equals(tag5));
     }
 
-    public void testIDv22Frame() {
+    public void testIDv22Frame() throws Exception
+    {
         ID3v22Frame frame1 = new ID3v22Frame();
         ID3v22Frame frame2 = new ID3v22Frame();
         ID3v22Frame frame3 = new ID3v22Frame("TP1");
@@ -123,7 +128,8 @@ public class Issue036Test extends AbstractTestCase
         assertFalse(frame3.equals(frame5));
     }
 
-    public void testAllID3v22Frames() {
+    public void testAllID3v22Frames() throws Exception
+    {
         for(String frameId : ID3v22Frames.getInstanceOf().getSupportedFrames())
         {
             ID3v22Frame frame1 = new ID3v22Frame(frameId);

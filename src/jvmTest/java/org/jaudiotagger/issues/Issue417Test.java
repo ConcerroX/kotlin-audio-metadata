@@ -16,8 +16,10 @@ public class Issue417Test extends AbstractTestCase
     /**
      * Multiple WOAR frames ARE allowed
      *
+     * @throws Exception
      */
-    public void testWOARMultiples() {
+    public void testWOARMultiples() throws Exception
+    {
         Exception caught = null;
         try
         {

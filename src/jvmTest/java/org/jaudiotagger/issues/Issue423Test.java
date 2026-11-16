@@ -25,6 +25,7 @@ public class Issue423Test extends AbstractTestCase
         assertEquals("title", tag.getFirst(FieldKey.TITLE));
         assertEquals(1, tag.getAll(FieldKey.TITLE).size());
         assertEquals("title",tag.getAll(FieldKey.TITLE).get(0));
+        ;
     }
 
     public void testGetAllMp3() throws Exception
@@ -41,6 +42,7 @@ public class Issue423Test extends AbstractTestCase
         assertEquals("title",tag.getFirst(FieldKey.TITLE));
         assertEquals(1,tag.getAll(FieldKey.TITLE).size());
         assertEquals("title",tag.getAll(FieldKey.TITLE).get(0));
+        ;
     }
 
     public void testGetAllOgg() throws Exception
@@ -57,6 +59,7 @@ public class Issue423Test extends AbstractTestCase
         assertEquals("title",tag.getFirst(FieldKey.TITLE));
         assertEquals(1,tag.getAll(FieldKey.TITLE).size());
         assertEquals("title",tag.getAll(FieldKey.TITLE).get(0));
+        ;
     }
 
     public void testGetAllFlac() throws Exception
@@ -73,6 +76,7 @@ public class Issue423Test extends AbstractTestCase
         assertEquals("title",tag.getFirst(FieldKey.TITLE));
         assertEquals(1,tag.getAll(FieldKey.TITLE).size());
         assertEquals("title",tag.getAll(FieldKey.TITLE).get(0));
+        ;
     }
 
     public void testGetAllWma() throws Exception
@@ -89,5 +93,6 @@ public class Issue423Test extends AbstractTestCase
         assertEquals("title",tag.getFirst(FieldKey.TITLE));
         assertEquals(1,tag.getAll(FieldKey.TITLE).size());
         assertEquals("title",tag.getAll(FieldKey.TITLE).get(0));
+        ;
     }
 }

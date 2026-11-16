@@ -1,15 +1,9 @@
 package org.jaudiotagger.audio;
 
 import org.jaudiotagger.AbstractTestCase;
-import org.jaudiotagger.audio.exceptions.CannotReadException;
 import org.jaudiotagger.audio.exceptions.CannotWriteException;
-import org.jaudiotagger.audio.exceptions.InvalidAudioFrameException;
-import org.jaudiotagger.audio.exceptions.ReadOnlyFileException;
 import org.jaudiotagger.tag.FieldKey;
-import org.jaudiotagger.tag.TagException;
-
 import java.io.File;
-import java.io.IOException;
 
 /**
  * Able to write language ensures writes it as iso code for mp3s
@@ -47,7 +41,8 @@ public class AudioFileWriteAsTest extends AbstractTestCase {
         assertEquals(LANGUAGE, af.getTag().getFirst(FieldKey.LANGUAGE));
     }
 
-    public void testWriteAsWithNull() {
+    public void testWriteAsWithNull() throws Exception
+    {
         try {
             AudioFileIO.writeAs(af, null);
         } catch (CannotWriteException e) {

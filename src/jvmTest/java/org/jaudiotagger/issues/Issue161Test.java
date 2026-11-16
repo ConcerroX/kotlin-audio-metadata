@@ -3,8 +3,6 @@ package org.jaudiotagger.issues;
 import org.jaudiotagger.AbstractTestCase;
 import org.jaudiotagger.audio.AudioFile;
 import org.jaudiotagger.audio.AudioFileIO;
-import org.jaudiotagger.tag.FieldKey;
-
 import java.io.File;
 
 /**
@@ -12,7 +10,8 @@ import java.io.File;
  */
 public class Issue161Test extends AbstractTestCase
 {
-    public void testReadID3() {
+    public void testReadID3() throws Exception
+    {
         File orig = new File("testdata", "test159.mp3");
         if (!orig.isFile())
         {

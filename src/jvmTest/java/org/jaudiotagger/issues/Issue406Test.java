@@ -13,7 +13,8 @@ import java.io.File;
  */
 public class Issue406Test extends AbstractTestCase
 {
-    public void testIssue() {
+    public void testIssue() throws Exception
+    {
         Exception caught = null;
         try
         {
