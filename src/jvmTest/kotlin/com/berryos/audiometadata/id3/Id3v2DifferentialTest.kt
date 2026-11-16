@@ -3,7 +3,6 @@ package com.berryos.audiometadata.id3
 import com.berryos.audiometadata.io.FileChannelSource
 import com.berryos.audiometadata.io.use
 import com.berryos.audiometadata.mp3.Mp3MetadataReader
-import org.jaudiotagger.tag.FieldKey
 import org.junit.Assume.assumeTrue
 import java.io.File
 import java.nio.file.Files
@@ -31,18 +30,18 @@ class Id3v2DifferentialTest {
             val upstream = assertNotNull(Mp3MetadataReader.read(source)?.tag, "upstream did not parse $name")
 
             assertEquals(upstream.version, ours.version)
-            assertEquals(upstream.title.ifEmpty { null }, ours.title)
-            assertEquals(upstream.values(FieldKey.ARTIST), ours.artists)
-            assertEquals(upstream.album.ifEmpty { null }, ours.album)
-            assertEquals(upstream.albumArtist.ifEmpty { null }, ours.albumArtist)
-            assertEquals(upstream.trackNumber.toIntOrNull(), ours.trackNumber)
-            assertEquals(upstream.trackTotal.toIntOrNull(), ours.trackTotal)
-            assertEquals(upstream.discNumber.toIntOrNull(), ours.discNumber)
-            assertEquals(upstream.discTotal.toIntOrNull(), ours.discTotal)
-            assertEquals(upstream.year.ifEmpty { null }, ours.year)
-            assertEquals(upstream.genres(), ours.genres)
-            assertEquals(upstream.values(FieldKey.COMPOSER), ours.composers)
-            assertEquals(upstream.values(FieldKey.COMMENT), ours.comments)
+            assertEquals(upstream.title, ours.title)
+            assertEquals(upstream.artists, ours.artists)
+            assertEquals(upstream.album, ours.album)
+            assertEquals(upstream.albumArtist, ours.albumArtist)
+            assertEquals(upstream.trackNumber, ours.trackNumber)
+            assertEquals(upstream.trackTotal, ours.trackTotal)
+            assertEquals(upstream.discNumber, ours.discNumber)
+            assertEquals(upstream.discTotal, ours.discTotal)
+            assertEquals(upstream.year, ours.year)
+            assertEquals(upstream.genres, ours.genres)
+            assertEquals(upstream.composers, ours.composers)
+            assertEquals(upstream.comments, ours.comments)
             assertEquals(upstream.replayGain?.trackGain, ours.replayGain?.trackGain)
             assertEquals(upstream.replayGain?.trackPeak, ours.replayGain?.trackPeak)
             assertEquals(upstream.replayGain?.albumGain, ours.replayGain?.albumGain)

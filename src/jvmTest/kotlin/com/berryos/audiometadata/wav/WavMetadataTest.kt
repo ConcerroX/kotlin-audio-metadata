@@ -13,7 +13,7 @@ import kotlin.test.Test
 import kotlin.test.assertContentEquals
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
-import kotlin.test.assertTrue
+import kotlin.test.assertNull
 
 class WavMetadataTest {
     @Test
@@ -49,7 +49,7 @@ class WavMetadataTest {
     fun insertsTagChunkWhenMissing() {
         val source = sourceWith(wavFile(tag = null))
         val metadata = assertNotNull(WavMetadataReader.read(source))
-        assertTrue(metadata.tag.title.isEmpty())
+        assertNull(metadata.tag.title)
 
         metadata.tag.title = "Added"
         WavMetadataWriter.write(source, metadata)

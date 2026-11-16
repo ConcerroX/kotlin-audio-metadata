@@ -4,7 +4,7 @@ import com.berryos.audiometadata.Artwork
 import com.berryos.audiometadata.AudioFormat
 import com.berryos.audiometadata.AudioInfo
 import com.berryos.audiometadata.AudioMetadata
-import com.berryos.audiometadata.id3.Id3Tag
+import com.berryos.audiometadata.id3.JaudiotaggerId3Tag
 import com.berryos.audiometadata.id3.parseId3v2Tag
 import com.berryos.audiometadata.io.RandomAccessSource
 import com.berryos.audiometadata.io.WritableRandomAccessSource
@@ -16,7 +16,7 @@ import kotlin.math.roundToInt
 
 /** Parsed AIFF metadata: the embedded ID3 tag and the `COMM` properties. */
 internal class AiffMetadata(
-    val tag: Id3Tag,
+    val tag: JaudiotaggerId3Tag,
     val audioInfo: AudioInfo?,
     internal val chunks: List<AiffChunk>,
     internal val id3Chunk: AiffChunk?,
@@ -69,7 +69,7 @@ internal object AiffMetadataReader {
             val bytes = ByteArray(chunk.size.toInt())
             source.readFully(chunk.payloadOffset, bytes, bytes.size)
             parseId3v2Tag(bytes)
-        } ?: Id3Tag.create()
+        } ?: JaudiotaggerId3Tag.create()
         return AiffMetadata(tag, audioInfo, chunks, id3)
     }
 

@@ -1,7 +1,7 @@
 package com.berryos.audiometadata.mp3
 
 import com.berryos.audiometadata.Id3Version
-import com.berryos.audiometadata.id3.Id3Tag
+import com.berryos.audiometadata.id3.JaudiotaggerId3Tag
 import com.berryos.audiometadata.id3.parseId3v2Tag
 import com.berryos.audiometadata.io.RandomAccessSource
 
@@ -71,7 +71,7 @@ internal object Mp3MetadataReader {
     }
 }
 
-private class ParsedId3v2(val tag: Id3Tag, val audioStartOffset: Long)
+private class ParsedId3v2(val tag: JaudiotaggerId3Tag, val audioStartOffset: Long)
 
 private fun decodeSyncSafe(bytes: ByteArray, offset: Int): Int {
     var value = 0

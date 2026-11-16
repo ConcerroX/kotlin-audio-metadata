@@ -11,7 +11,7 @@ import kotlin.test.Test
 import kotlin.test.assertContentEquals
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
-import kotlin.test.assertTrue
+import kotlin.test.assertNull
 
 class AiffMetadataTest {
     @Test
@@ -47,7 +47,7 @@ class AiffMetadataTest {
     fun insertsTagChunkWhenMissing() {
         val source = sourceWith(aiffFile(tag = null))
         val metadata = assertNotNull(AiffMetadataReader.read(source))
-        assertTrue(metadata.tag.title.isEmpty())
+        assertNull(metadata.tag.title)
 
         metadata.tag.title = "Added"
         AiffMetadataWriter.write(source, metadata)

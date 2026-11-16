@@ -162,7 +162,7 @@ class Mp3MetadataTest {
         val metadata = assertNotNull(Mp3MetadataReader.read(source))
         assertEquals(Id3Version.V24, metadata.tag?.version)
 
-        metadata.tag!!.artist = "Artist"
+        metadata.tag!!.artists = listOf("Artist")
         Mp3MetadataWriter.write(source, metadata)
 
         val reread = assertNotNull(Mp3MetadataReader.read(source))

@@ -3,11 +3,11 @@ package com.berryos.audiometadata.mp3
 import com.berryos.audiometadata.AudioFormat
 import com.berryos.audiometadata.AudioInfo
 import com.berryos.audiometadata.AudioMetadata
-import com.berryos.audiometadata.id3.Id3Tag
+import com.berryos.audiometadata.id3.JaudiotaggerId3Tag
 
 /** Result of reading an MP3 file: the ID3v2 tag (if any), the audio offset and the ID3v1 tag. */
 internal class Mp3Metadata(
-    val tag: Id3Tag?,
+    val tag: JaudiotaggerId3Tag?,
     internal val audioStartOffset: Long,
     val id3v1: Id3v1Metadata?,
     val audioInfo: AudioInfo? = null,

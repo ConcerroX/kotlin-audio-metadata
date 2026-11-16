@@ -1,6 +1,9 @@
 package com.berryos.audiometadata.id3
 
 import com.berryos.audiometadata.Artwork
+import com.berryos.audiometadata.AudioFormat
+import com.berryos.audiometadata.AudioInfo
+import com.berryos.audiometadata.AudioMetadata
 import com.berryos.audiometadata.Id3Version
 import com.berryos.audiometadata.ReplayGain
 import com.berryos.audiometadata.io.RandomAccessSource
@@ -22,6 +25,8 @@ class Id3v2Frame internal constructor(
     val compressed: Boolean,
     val encrypted: Boolean,
     val content: ByteArray,
+    /** Original header and stored content of frames that cannot be decoded safely. */
+    internal val rawHeader: ByteArray? = null,
 )
 
 /**
@@ -31,59 +36,81 @@ class Id3v2Frame internal constructor(
  * properties resolve the common frames listed in the ID3v2.3/2.4 specifications.
  */
 class Id3v2Tag internal constructor(
-    val version: Id3Version,
+    override val version: Id3Version,
     val revision: Int,
-    val frames: List<Id3v2Frame>,
+    frames: List<Id3v2Frame>,
     val declaredSize: Int,
     val paddingSize: Int,
     val unsynchronised: Boolean,
     val extendedHeaderSize: Int,
     val hasFooter: Boolean,
-) {
-    fun framesOf(id: String): List<Id3v2Frame> = frames.filter { frame -> frame.id == id }
+) : Id3Tag {
+    private val frameList = frames.toMutableList()
+
+    val frames: List<Id3v2Frame>
+        get() = frameList
+
+    fun framesOf(id: String): List<Id3v2Frame> = frameList.filter { frame -> frame.id == id }
 
     /** Decoded values of the text frame [id]; repeated frames contribute all their values. */
     fun textValues(id: String): List<String> = framesOf(id).flatMap(::frameTextValues)
 
     fun firstText(id: String): String? = textValues(id).firstOrNull()
 
-    val title: String?
+    override var title: String?
         get() = firstText(FRAME_TITLE)?.takeIf(String::isNotEmpty)
+        set(value) = setTextFrame(FRAME_TITLE, listOfNotNull(value?.takeIf(String::isNotEmpty)))
 
-    val artists: List<String>
+    override var artists: List<String>
         get() = textValues(FRAME_ARTIST)
+        set(value) = setTextFrame(FRAME_ARTIST, value)
 
-    val album: String?
+    override var album: String?
         get() = firstText(FRAME_ALBUM)?.takeIf(String::isNotEmpty)
+        set(value) = setTextFrame(FRAME_ALBUM, listOfNotNull(value?.takeIf(String::isNotEmpty)))
 
-    val albumArtist: String?
+    override var albumArtist: String?
         get() = firstText(FRAME_ALBUM_ARTIST)?.takeIf(String::isNotEmpty)
+        set(value) = setTextFrame(FRAME_ALBUM_ARTIST, listOfNotNull(value?.takeIf(String::isNotEmpty)))
 
-    val composers: List<String>
+    override var composers: List<String>
         get() = textValues(FRAME_COMPOSER)
+        set(value) = setTextFrame(FRAME_COMPOSER, value)
 
-    val trackNumber: Int?
+    override var trackNumber: Int?
         get() = numberPair(FRAME_TRACK).first
+        set(value) = setNumber(FRAME_TRACK, value, trackTotal)
 
-    val trackTotal: Int?
+    override var trackTotal: Int?
         get() = numberPair(FRAME_TRACK).second
+        set(value) = setNumber(FRAME_TRACK, trackNumber, value)
 
-    val discNumber: Int?
+    override var discNumber: Int?
         get() = numberPair(FRAME_DISC).first
+        set(value) = setNumber(FRAME_DISC, value, discTotal)
 
-    val discTotal: Int?
+    override var discTotal: Int?
         get() = numberPair(FRAME_DISC).second
+        set(value) = setNumber(FRAME_DISC, discNumber, value)
 
-    val year: String?
+    override var year: String?
         get() = firstText(yearFrameId)?.takeIf(String::isNotEmpty)
+        set(value) = setTextFrame(yearFrameId, listOfNotNull(value?.takeIf(String::isNotEmpty)))
 
-    val genres: List<String>
+    override var genres: List<String>
         get() = Id3Genres.resolveAll(textValues(FRAME_GENRE))
+        set(value) = setTextFrame(FRAME_GENRE, value)
 
-    val comments: List<String>
+    override var comments: List<String>
         get() = framesOf(FRAME_COMMENT).mapNotNull(::parseComment)
+        set(value) {
+            frameList.removeAll { frame -> frame.id == FRAME_COMMENT }
+            value.forEach { comment ->
+                frameList += defaultFrame(FRAME_COMMENT, Id3v2Encoding.commentContent(version, comment))
+            }
+        }
 
-    val replayGain: ReplayGain?
+    override var replayGain: ReplayGain?
         get() {
             val values = framesOf(FRAME_USER_TEXT)
                 .mapNotNull(::parseUserText)
@@ -97,12 +124,77 @@ class Id3v2Tag internal constructor(
                 albumPeak = values["REPLAYGAIN_ALBUM_PEAK"],
             )
         }
+        set(value) {
+            frameList.removeAll { frame ->
+                val description = parseUserText(frame)?.first
+                frame.id == FRAME_USER_TEXT && description != null && description.startsWith(REPLAYGAIN_PREFIX)
+            }
+            if (value == null) return
+            val entries = mapOf(
+                "REPLAYGAIN_TRACK_GAIN" to value.trackGain,
+                "REPLAYGAIN_TRACK_PEAK" to value.trackPeak,
+                "REPLAYGAIN_ALBUM_GAIN" to value.albumGain,
+                "REPLAYGAIN_ALBUM_PEAK" to value.albumPeak,
+            )
+            entries.forEach { (description, text) ->
+                if (text != null) {
+                    frameList += defaultFrame(
+                        FRAME_USER_TEXT,
+                        Id3v2Encoding.userTextContent(version, description, text),
+                    )
+                }
+            }
+        }
 
-    val artworks: List<Artwork>
+    override val artworks: List<Artwork>
         get() = framesOf(FRAME_PICTURE).mapNotNull(::parseArtwork)
+
+    override fun setArtworks(artworks: List<Artwork>) {
+        frameList.removeAll { frame -> frame.id == FRAME_PICTURE }
+        artworks.forEach { artwork ->
+            frameList += defaultFrame(FRAME_PICTURE, Id3v2Encoding.pictureContent(version, artwork))
+        }
+    }
+
+    override fun toAudioMetadata(format: AudioFormat, audioInfo: AudioInfo?): AudioMetadata = AudioMetadata(
+        format = format,
+        id3Version = version,
+        title = title,
+        artists = artists,
+        album = album,
+        albumArtist = albumArtist,
+        trackNumber = trackNumber,
+        trackTotal = trackTotal,
+        discNumber = discNumber,
+        discTotal = discTotal,
+        year = year,
+        genres = genres,
+        composers = composers,
+        comments = comments,
+        replayGain = replayGain,
+        audioInfo = audioInfo,
+    )
 
     private val yearFrameId: String
         get() = if (version == Id3Version.V24) FRAME_RECORDING_TIME else FRAME_YEAR
+
+    private fun setTextFrame(id: String, values: List<String>) {
+        frameList.removeAll { frame -> frame.id == id }
+        if (values.isNotEmpty()) frameList += defaultFrame(id, Id3v2Encoding.textContent(version, values))
+    }
+
+    private fun setNumber(id: String, number: Int?, total: Int?) {
+        val text = when {
+            number == null && total == null -> null
+            number != null && total != null -> "$number/$total"
+            number != null -> number.toString()
+            else -> "0/$total"
+        }
+        setTextFrame(id, listOfNotNull(text))
+    }
+
+    private fun defaultFrame(id: String, content: ByteArray): Id3v2Frame =
+        Id3v2Frame(id, 0, 0, null, null, false, false, content)
 
     private fun frameTextValues(frame: Id3v2Frame): List<String> {
         if (!frame.isDecodable()) return emptyList()
@@ -168,9 +260,31 @@ class Id3v2Tag internal constructor(
             description = description.ifEmpty { null },
         )
     }
+
+    companion object {
+        /** Creates an empty tag, used when a container has no ID3v2 chunk yet. */
+        fun create(version: Id3Version = Id3Version.V23): Id3v2Tag = Id3v2Tag(
+            version = version,
+            revision = 0,
+            frames = emptyList(),
+            declaredSize = 0,
+            paddingSize = 0,
+            unsynchronised = false,
+            extendedHeaderSize = 0,
+            hasFooter = false,
+        )
+    }
 }
 
-private fun Id3v2Frame.isDecodable(): Boolean = !compressed && !encrypted
+private fun Id3v2Frame.isDecodable(): Boolean = !compressed && !encrypted && rawHeader == null
+
+/** Frames with reserved flag bits are copied byte-for-byte instead of being reserialized. */
+private fun hasUnsupportedFlags(version: Id3Version, statusFlags: Int, formatFlags: Int): Boolean =
+    if (version == Id3Version.V24) {
+        statusFlags and V24_RESERVED_STATUS != 0 || formatFlags and V24_RESERVED_FORMAT != 0
+    } else {
+        statusFlags and V23_RESERVED_STATUS != 0 || formatFlags and V23_RESERVED_FORMAT != 0
+    }
 
 /** Reads ID3v2 tags from the start of an audio file or an embedded chunk. */
 object Id3v2Reader {
@@ -263,6 +377,30 @@ object Id3v2Reader {
         if (contentEnd > body.size) return null
         val statusFlags = body[position + FLAG_OFFSET_STATUS].toInt() and 0xFF
         val formatFlags = body[position + FLAG_OFFSET_FORMAT].toInt() and 0xFF
+        val compressed = if (version == Id3Version.V23) {
+            formatFlags and V23_FLAG_COMPRESSION != 0
+        } else {
+            formatFlags and V24_FLAG_COMPRESSION != 0
+        }
+        val encrypted = if (version == Id3Version.V23) {
+            formatFlags and V23_FLAG_ENCRYPTION != 0
+        } else {
+            formatFlags and V24_FLAG_ENCRYPTION != 0
+        }
+        if (hasUnsupportedFlags(version, statusFlags, formatFlags) || compressed || encrypted) {
+            val frame = Id3v2Frame(
+                id = id,
+                statusFlags = statusFlags,
+                formatFlags = formatFlags,
+                groupId = null,
+                dataLengthIndicator = null,
+                compressed = compressed,
+                encrypted = encrypted,
+                content = body.copyOfRange(contentStart, contentEnd),
+                rawHeader = body.copyOfRange(position, contentStart),
+            )
+            return ParsedFrame(frame, V23_FRAME_HEADER_SIZE + storedSize)
+        }
         val prefix = readFramePrefix(version, body, contentStart, contentEnd, formatFlags, tagUnsynchronised)
             ?: return null
 
@@ -310,45 +448,29 @@ object Id3v2Reader {
         var cursor = contentStart
         var groupId: Int? = null
         var dataLength: Int? = null
-        val compressed: Boolean
-        val encrypted: Boolean
-        val unsynchronised: Boolean
+        var unsynchronised = false
 
         if (version == Id3Version.V23) {
-            compressed = formatFlags and V23_FLAG_COMPRESSION != 0
-            encrypted = formatFlags and V23_FLAG_ENCRYPTION != 0
-            unsynchronised = false
-            if (compressed) {
-                if (cursor + 4 > contentEnd) return null
-                dataLength = bigEndianInt(body, cursor)
-                cursor += 4
-            }
-            if (encrypted) {
-                if (cursor + 1 > contentEnd) return null
-                cursor += 1
-            }
             if (formatFlags and V23_FLAG_GROUPING != 0) {
                 if (cursor + 1 > contentEnd) return null
                 groupId = body[cursor].toInt() and 0xFF
                 cursor += 1
             }
         } else {
-            compressed = formatFlags and V24_FLAG_COMPRESSION != 0
-            encrypted = formatFlags and V24_FLAG_ENCRYPTION != 0
             unsynchronised = formatFlags and V24_FLAG_UNSYNCHRONISATION != 0 || tagUnsynchronised
             if (formatFlags and V24_FLAG_GROUPING != 0) {
                 if (cursor + 1 > contentEnd) return null
                 groupId = body[cursor].toInt() and 0xFF
                 cursor += 1
             }
-            if (compressed || encrypted || formatFlags and V24_FLAG_DATA_LENGTH != 0) {
+            if (formatFlags and V24_FLAG_DATA_LENGTH != 0) {
                 if (cursor + 4 > contentEnd) return null
                 dataLength = synchsafeInt(body, cursor)
                 cursor += 4
             }
         }
         if (cursor > contentEnd) return null
-        return FramePrefix(groupId, dataLength, compressed, encrypted, unsynchronised, cursor)
+        return FramePrefix(groupId, dataLength, compressed = false, encrypted = false, unsynchronised, cursor)
     }
 
     private class FramePrefix(
@@ -452,11 +574,15 @@ private const val FLAG_FOOTER = 0x10
 private const val V23_FLAG_COMPRESSION = 0x80
 private const val V23_FLAG_ENCRYPTION = 0x40
 private const val V23_FLAG_GROUPING = 0x20
+private const val V23_RESERVED_STATUS = 0x1F
+private const val V23_RESERVED_FORMAT = 0x1F
 private const val V24_FLAG_GROUPING = 0x40
 private const val V24_FLAG_COMPRESSION = 0x08
 private const val V24_FLAG_ENCRYPTION = 0x04
 private const val V24_FLAG_UNSYNCHRONISATION = 0x02
 private const val V24_FLAG_DATA_LENGTH = 0x01
+private const val V24_RESERVED_STATUS = 0x8F
+private const val V24_RESERVED_FORMAT = 0xB0
 private const val V23_EXTENDED_MIN_SIZE = 6
 private const val V24_EXTENDED_MIN_SIZE = 6
 private const val COMMENT_HEADER_SIZE = 4

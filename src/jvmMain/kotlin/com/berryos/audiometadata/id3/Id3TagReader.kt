@@ -8,7 +8,7 @@ import org.jaudiotagger.tag.id3.ID3v24Tag
 import java.nio.ByteBuffer
 
 /** Parses a complete ID3v2 tag (header included) as stored at the start of a file or chunk. */
-internal fun parseId3v2Tag(bytes: ByteArray): Id3Tag? {
+internal fun parseId3v2Tag(bytes: ByteArray): JaudiotaggerId3Tag? {
     if (bytes.size < ID3_HEADER_SIZE) return null
     if (bytes[0] != 'I'.code.toByte() || bytes[1] != 'D'.code.toByte() || bytes[2] != '3'.code.toByte()) return null
     val version = when (bytes[3].toInt()) {
@@ -27,7 +27,7 @@ internal fun parseId3v2Tag(bytes: ByteArray): Id3Tag? {
     } catch (ignored: TagException) {
         return null
     }
-    return Id3Tag(version, tag, bytes.size)
+    return JaudiotaggerId3Tag(version, tag, bytes.size)
 }
 
 private const val ID3_HEADER_SIZE = 10

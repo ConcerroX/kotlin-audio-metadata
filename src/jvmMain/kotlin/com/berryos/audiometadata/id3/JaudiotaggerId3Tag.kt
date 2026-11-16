@@ -23,65 +23,65 @@ import org.jaudiotagger.tag.id3.framebody.FrameBodyTXXX
 import org.jaudiotagger.tag.reference.GenreTypes
 
 /**
- * Mutable view of an ID3v2 tag, shared by MP3 and containers that embed ID3 (WAV, AIFF).
+ * Temporary [Id3Tag] implementation backed by jaudiotagger.
  *
- * Only the edited fields are re-encoded; every other frame stays in the tag and is written back
- * by jaudiotagger unchanged.
+ * Used by the JVM containers until the spec-driven implementation takes over; the raw tag is kept
+ * accessible for their writers.
  */
-class Id3Tag internal constructor(
-    val version: Id3Version,
+internal class JaudiotaggerId3Tag internal constructor(
+    override val version: Id3Version,
     internal val tag: AbstractID3v2Tag,
     internal val originalTagSize: Int,
-) {
-    var title: String
-        get() = text(FieldKey.TITLE)
-        set(value) = setText(FieldKey.TITLE, value)
+) : Id3Tag {
+    override var title: String?
+        get() = text(FieldKey.TITLE).ifEmpty { null }
+        set(value) = setText(FieldKey.TITLE, value.orEmpty())
 
-    var artist: String
-        get() = text(FieldKey.ARTIST)
-        set(value) = setText(FieldKey.ARTIST, value)
+    override var artists: List<String>
+        get() = values(FieldKey.ARTIST)
+        set(value) = setValues(FieldKey.ARTIST, value)
 
-    var album: String
-        get() = text(FieldKey.ALBUM)
-        set(value) = setText(FieldKey.ALBUM, value)
+    override var album: String?
+        get() = text(FieldKey.ALBUM).ifEmpty { null }
+        set(value) = setText(FieldKey.ALBUM, value.orEmpty())
 
-    var albumArtist: String
-        get() = text(FieldKey.ALBUM_ARTIST)
-        set(value) = setText(FieldKey.ALBUM_ARTIST, value)
+    override var albumArtist: String?
+        get() = text(FieldKey.ALBUM_ARTIST).ifEmpty { null }
+        set(value) = setText(FieldKey.ALBUM_ARTIST, value.orEmpty())
 
-    var trackNumber: String
-        get() = text(FieldKey.TRACK)
-        set(value) = setText(FieldKey.TRACK, value)
+    override var trackNumber: Int?
+        get() = text(FieldKey.TRACK).toIntOrNull()
+        set(value) = setText(FieldKey.TRACK, value?.toString().orEmpty())
 
-    var trackTotal: String
-        get() = text(FieldKey.TRACK_TOTAL)
-        set(value) = setText(FieldKey.TRACK_TOTAL, value)
+    override var trackTotal: Int?
+        get() = text(FieldKey.TRACK_TOTAL).toIntOrNull()
+        set(value) = setText(FieldKey.TRACK_TOTAL, value?.toString().orEmpty())
 
-    var discNumber: String
-        get() = text(FieldKey.DISC_NO)
-        set(value) = setText(FieldKey.DISC_NO, value)
+    override var discNumber: Int?
+        get() = text(FieldKey.DISC_NO).toIntOrNull()
+        set(value) = setText(FieldKey.DISC_NO, value?.toString().orEmpty())
 
-    var discTotal: String
-        get() = text(FieldKey.DISC_TOTAL)
-        set(value) = setText(FieldKey.DISC_TOTAL, value)
+    override var discTotal: Int?
+        get() = text(FieldKey.DISC_TOTAL).toIntOrNull()
+        set(value) = setText(FieldKey.DISC_TOTAL, value?.toString().orEmpty())
 
-    var year: String
-        get() = text(FieldKey.YEAR)
-        set(value) = setText(FieldKey.YEAR, value)
+    override var year: String?
+        get() = text(FieldKey.YEAR).ifEmpty { null }
+        set(value) = setText(FieldKey.YEAR, value.orEmpty())
 
-    var genre: String
-        get() = text(FieldKey.GENRE)
-        set(value) = setText(FieldKey.GENRE, value)
+    override var genres: List<String>
+        get() = genres()
+        set(value) = setValues(FieldKey.GENRE, value)
 
-    var composer: String
-        get() = text(FieldKey.COMPOSER)
-        set(value) = setText(FieldKey.COMPOSER, value)
+    override var composers: List<String>
+        get() = values(FieldKey.COMPOSER)
+        set(value) = setValues(FieldKey.COMPOSER, value)
 
-    var comment: String
-        get() = text(FieldKey.COMMENT)
-        set(value) = setText(FieldKey.COMMENT, value)
+    override var comments: List<String>
+        get() = values(FieldKey.COMMENT)
+        set(value) = setValues(FieldKey.COMMENT, value)
 
-    var replayGain: ReplayGain?
+    override var replayGain: ReplayGain?
         get() {
             val values = mutableMapOf<String, String>()
             val frames = tag.fields
@@ -119,7 +119,7 @@ class Id3Tag internal constructor(
             }
         }
 
-    val artworks: List<Artwork>
+    override val artworks: List<Artwork>
         get() {
             val result = ArrayList<Artwork>()
             val frames = tag.fields
@@ -140,8 +140,7 @@ class Id3Tag internal constructor(
             return result
         }
 
-    /** Replaces the embedded pictures. ID3v2.2 files keep their existing pictures. */
-    fun setArtworks(artworks: List<Artwork>) {
+    override fun setArtworks(artworks: List<Artwork>) {
         tag.deleteArtworkField()
         if (version == Id3Version.V22) return
         artworks.forEach { artwork ->
@@ -159,25 +158,24 @@ class Id3Tag internal constructor(
         }
     }
 
-    fun toAudioMetadata(format: AudioFormat = AudioFormat.Mp3, audioInfo: AudioInfo? = null): AudioMetadata =
-        AudioMetadata(
-            format = format,
-            id3Version = version,
-            title = text(FieldKey.TITLE).ifEmpty { null },
-            artists = values(FieldKey.ARTIST),
-            album = text(FieldKey.ALBUM).ifEmpty { null },
-            albumArtist = text(FieldKey.ALBUM_ARTIST).ifEmpty { null },
-            trackNumber = text(FieldKey.TRACK).toIntOrNull(),
-            trackTotal = text(FieldKey.TRACK_TOTAL).toIntOrNull(),
-            discNumber = text(FieldKey.DISC_NO).toIntOrNull(),
-            discTotal = text(FieldKey.DISC_TOTAL).toIntOrNull(),
-            year = text(FieldKey.YEAR).ifEmpty { null },
-            genres = genres(),
-            composers = values(FieldKey.COMPOSER),
-            comments = values(FieldKey.COMMENT),
-            replayGain = replayGain,
-            audioInfo = audioInfo,
-        )
+    override fun toAudioMetadata(format: AudioFormat, audioInfo: AudioInfo?): AudioMetadata = AudioMetadata(
+        format = format,
+        id3Version = version,
+        title = title,
+        artists = artists,
+        album = album,
+        albumArtist = albumArtist,
+        trackNumber = trackNumber,
+        trackTotal = trackTotal,
+        discNumber = discNumber,
+        discTotal = discTotal,
+        year = year,
+        genres = genres,
+        composers = composers,
+        comments = comments,
+        replayGain = replayGain,
+        audioInfo = audioInfo,
+    )
 
     private fun text(key: FieldKey): String = tag.getFirst(key).orEmpty()
 
@@ -189,11 +187,11 @@ class Id3Tag internal constructor(
         }
     }
 
-    internal fun values(key: FieldKey): List<String> = tag.getFields(key)
+    private fun values(key: FieldKey): List<String> = tag.getFields(key)
         .flatMap(::fieldValues)
         .filter(String::isNotEmpty)
 
-    internal fun setValues(key: FieldKey, values: List<String>) {
+    private fun setValues(key: FieldKey, values: List<String>) {
         tag.deleteField(key)
         // Repeated single-value adds are appended as null-separated values, which works for both
         // ID3v2.3 and ID3v2.4; the vararg overload keeps only the first value on v2.3.
@@ -201,7 +199,7 @@ class Id3Tag internal constructor(
     }
 
     // TCON may reference ID3v1 genres by number, e.g. "(17)" for Rock; resolve them for display.
-    internal fun genres(): List<String> = values(FieldKey.GENRE).flatMap(::resolveGenreReferences)
+    private fun genres(): List<String> = values(FieldKey.GENRE).flatMap(::resolveGenreReferences)
 
     private fun createTxxxFrame(description: String, text: String): AbstractID3v2Frame? {
         val frame = when (version) {
@@ -235,13 +233,13 @@ class Id3Tag internal constructor(
 
     companion object {
         /** Creates an empty tag of [version], used when a container has no ID3 chunk yet. */
-        fun create(version: Id3Version = Id3Version.V23): Id3Tag {
+        fun create(version: Id3Version = Id3Version.V23): JaudiotaggerId3Tag {
             val tag = when (version) {
                 Id3Version.V22 -> ID3v22Tag()
                 Id3Version.V23 -> ID3v23Tag()
                 Id3Version.V24 -> ID3v24Tag()
             }
-            return Id3Tag(version, tag, 0)
+            return JaudiotaggerId3Tag(version, tag, 0)
         }
     }
 }
