@@ -111,6 +111,23 @@ class Mp3MetadataTest {
     }
 
     @Test
+    fun readsApicArtwork() {
+        val image = byteArrayOf(1, 2, 3, 4)
+        val apic = byteArrayOf(0) +
+            "image/png".encodeToByteArray() +
+            byteArrayOf(0, 3, 0) +
+            image
+        val rawTag = buildTag(textFrame("TIT2", "Song"), frame("APIC", apic))
+        val metadata = assertNotNull(Mp3MetadataReader.read(sourceWith(rawTag, AUDIO)))
+
+        val artworks = metadata.tag!!.artworks
+        assertEquals(1, artworks.size)
+        assertContentEquals(image, artworks.first().data)
+        assertEquals("image/png", artworks.first().mimeType)
+        assertEquals(3, artworks.first().pictureType)
+    }
+
+    @Test
     fun returnsNullWithoutTags() {
         assertNull(Mp3MetadataReader.read(sourceWith(ByteArray(0), AUDIO)))
     }

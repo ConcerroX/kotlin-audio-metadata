@@ -3,6 +3,7 @@ package com.berryos.audiometadata.flac
 import com.berryos.audiometadata.AudioFormat
 import com.berryos.audiometadata.AudioInfo
 import com.berryos.audiometadata.AudioMetadata
+import com.berryos.audiometadata.Artwork
 import com.berryos.audiometadata.io.RandomAccessSource
 import com.berryos.audiometadata.io.WritableRandomAccessSource
 import com.berryos.audiometadata.io.moveTail
@@ -38,6 +39,7 @@ data class FlacStreamInfo(
 class FlacMetadata internal constructor(
     val tag: VorbisCommentTag,
     val streamInfo: FlacStreamInfo?,
+    val artworks: List<Artwork>,
     internal val blocks: List<FlacBlock>,
     internal val audioStartOffset: Long,
 ) {
@@ -58,6 +60,7 @@ object FlacMetadataReader {
         var last = false
         var streamInfo: FlacStreamInfo? = null
         var tag = VorbisCommentTag.create()
+        val artworks = ArrayList<Artwork>()
         val blocks = ArrayList<FlacBlock>()
         val header = ByteArray(BLOCK_HEADER_SIZE)
         while (!last) {
@@ -82,10 +85,16 @@ object FlacMetadataReader {
                     source.readFully(dataOffset, data, data.size)
                     VorbisCommentTag.decode(data)?.let { tag = it }
                 }
+
+                TYPE_PICTURE -> {
+                    val data = ByteArray(length)
+                    source.readFully(dataOffset, data, data.size)
+                    parseFlacPicture(data)?.let { artworks += it }
+                }
             }
             position = dataOffset + length
         }
-        return FlacMetadata(tag, streamInfo, blocks, position)
+        return FlacMetadata(tag, streamInfo, artworks, blocks, position)
     }
 }
 
@@ -178,5 +187,6 @@ private const val BLOCK_TYPE_MASK = 0x7F
 private const val TYPE_STREAMINFO = 0
 private const val TYPE_PADDING = 1
 private const val TYPE_VORBIS_COMMENT = 4
+private const val TYPE_PICTURE = 6
 private const val STREAMINFO_SIZE = 34
 private const val ZERO_CHUNK_SIZE = 8192

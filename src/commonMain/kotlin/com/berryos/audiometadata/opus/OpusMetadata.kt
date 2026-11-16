@@ -3,6 +3,7 @@ package com.berryos.audiometadata.opus
 import com.berryos.audiometadata.AudioFormat
 import com.berryos.audiometadata.AudioInfo
 import com.berryos.audiometadata.AudioMetadata
+import com.berryos.audiometadata.Artwork
 import com.berryos.audiometadata.io.RandomAccessSource
 import com.berryos.audiometadata.io.WritableRandomAccessSource
 import com.berryos.audiometadata.ogg.OggPages
@@ -12,12 +13,16 @@ import com.berryos.audiometadata.ogg.readLittleEndianShort
 import com.berryos.audiometadata.ogg.replaceOggPacket
 import com.berryos.audiometadata.ogg.walkOggPages
 import com.berryos.audiometadata.vorbis.VorbisCommentTag
+import com.berryos.audiometadata.vorbis.artworks
 
 /** Parsed Opus tags and stream info; the OpusTags comment block is exposed as [tag]. */
 class OpusMetadata internal constructor(
     val tag: VorbisCommentTag,
     val audioInfo: AudioInfo?,
 ) {
+    val artworks: List<Artwork>
+        get() = tag.artworks()
+
     fun toAudioMetadata(): AudioMetadata = tag.toAudioMetadata(AudioFormat.Opus, audioInfo)
 }
 

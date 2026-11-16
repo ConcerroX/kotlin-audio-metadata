@@ -3,6 +3,7 @@ package com.berryos.audiometadata.vorbis
 import com.berryos.audiometadata.AudioFormat
 import com.berryos.audiometadata.AudioInfo
 import com.berryos.audiometadata.AudioMetadata
+import com.berryos.audiometadata.Artwork
 import com.berryos.audiometadata.io.RandomAccessSource
 import com.berryos.audiometadata.io.WritableRandomAccessSource
 import com.berryos.audiometadata.ogg.OggPages
@@ -17,6 +18,9 @@ class OggVorbisMetadata internal constructor(
     val tag: VorbisCommentTag,
     val audioInfo: AudioInfo?,
 ) {
+    val artworks: List<Artwork>
+        get() = tag.artworks()
+
     fun toAudioMetadata(): AudioMetadata = tag.toAudioMetadata(AudioFormat.Ogg, audioInfo)
 }
 

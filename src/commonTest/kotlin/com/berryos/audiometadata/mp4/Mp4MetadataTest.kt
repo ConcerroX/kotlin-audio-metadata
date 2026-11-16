@@ -3,6 +3,7 @@ package com.berryos.audiometadata.mp4
 import com.berryos.audiometadata.AudioFormat
 import com.berryos.audiometadata.io.ByteArraySource
 import kotlin.test.Test
+import kotlin.test.assertContentEquals
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 import kotlin.test.assertNull
@@ -32,6 +33,16 @@ class Mp4MetadataTest {
     }
 
     @Test
+    fun readsEmbeddedArtwork() {
+        val image = "JPEG-DATA".encodeToByteArray()
+        val metadata = assertNotNull(Mp4MetadataReader.read(sourceWith(mp4File(artwork = image))))
+
+        assertEquals(1, metadata.artworks.size)
+        assertContentEquals(image, metadata.artworks.first().data)
+        assertEquals("image/jpeg", metadata.artworks.first().mimeType)
+    }
+
+    @Test
     fun keepsMultipleValues() {
         val file = mp4File(artists = listOf("First", "Second"))
         val metadata = assertNotNull(Mp4MetadataReader.read(sourceWith(file)))
@@ -48,7 +59,7 @@ class Mp4MetadataTest {
         ByteArraySource().also { it.writeAt(0, bytes) }
 }
 
-internal fun mp4File(artists: List<String> = listOf("Artist")): ByteArray {
+internal fun mp4File(artists: List<String> = listOf("Artist"), artwork: ByteArray? = null): ByteArray {
     val ftyp = atom(
         "ftyp",
         "M4A ".encodeToByteArray() + bigEndianInt(0) + "M4A ".encodeToByteArray() + "mp42".encodeToByteArray(),
@@ -89,7 +100,8 @@ internal fun mp4File(artists: List<String> = listOf("Artist")): ByteArray {
             textItem("©day", "1999") +
             textItem("©gen", "Rock") +
             textItem("©wrt", "Composer") +
-            textItem("©cmt", "Comment"),
+            textItem("©cmt", "Comment") +
+            (artwork?.let { coverItem(it) } ?: ByteArray(0)),
     )
     val moov = atom(
         "moov",
@@ -126,6 +138,11 @@ private fun numberItem(field: String, number: Int, total: Int): ByteArray = atom
     ),
 )
 
+private fun coverItem(image: ByteArray): ByteArray = atom(
+    "covr",
+    atom("data", bigEndianInt(DATA_TYPE_JPEG) + bigEndianInt(0) + image),
+)
+
 private fun bigEndianInt(value: Int): ByteArray = ByteArray(4).also { writeBigEndianInt(it, 0, value) }
 
 private fun bigEndianShort(value: Int): ByteArray = ByteArray(2).also { writeBigEndianShort(it, 0, value) }
@@ -143,3 +160,4 @@ private fun writeBigEndianShort(bytes: ByteArray, offset: Int, value: Int) {
 }
 
 private const val DATA_TYPE_UTF8 = 1
+private const val DATA_TYPE_JPEG = 13

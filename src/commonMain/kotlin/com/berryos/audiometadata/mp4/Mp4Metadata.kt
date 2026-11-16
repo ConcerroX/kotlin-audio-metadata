@@ -3,6 +3,7 @@ package com.berryos.audiometadata.mp4
 import com.berryos.audiometadata.AudioFormat
 import com.berryos.audiometadata.AudioInfo
 import com.berryos.audiometadata.AudioMetadata
+import com.berryos.audiometadata.Artwork
 import com.berryos.audiometadata.io.RandomAccessSource
 import com.berryos.audiometadata.io.readFully
 
@@ -11,6 +12,9 @@ class Mp4Metadata internal constructor(
     val tags: Mp4Tags,
     val audioInfo: AudioInfo?,
 ) {
+    val artworks: List<Artwork>
+        get() = tags.artworks
+
     fun toAudioMetadata(): AudioMetadata = tags.toAudioMetadata(audioInfo)
 }
 
@@ -28,6 +32,7 @@ data class Mp4Tags(
     val genres: List<String> = emptyList(),
     val composers: List<String> = emptyList(),
     val comments: List<String> = emptyList(),
+    val artworks: List<Artwork> = emptyList(),
 ) {
     fun toAudioMetadata(audioInfo: AudioInfo? = null): AudioMetadata = AudioMetadata(
         format = AudioFormat.Mp4,
@@ -87,7 +92,30 @@ object Mp4MetadataReader {
             genres = texts(FIELD_GENRE),
             composers = texts(FIELD_COMPOSER),
             comments = texts(FIELD_COMMENT),
+            artworks = readArtworks(source, items["covr"].orEmpty()),
         )
+    }
+
+    private fun readArtworks(source: RandomAccessSource, items: List<Mp4Atom>): List<Artwork> {
+        val artworks = ArrayList<Artwork>()
+        items.forEach { item ->
+            atomsIn(source, item).filter { it.type == "data" }.forEach { data ->
+                if (data.payloadSize <= DATA_HEADER_SIZE) return@forEach
+                val bytes = readBytes(source, data.payloadStart, data.payloadSize.toInt())
+                // data atom: version byte followed by a three-byte type code.
+                val dataType = ((bytes[1].toInt() and 0xFF) shl 16) or
+                    ((bytes[2].toInt() and 0xFF) shl 8) or
+                    (bytes[3].toInt() and 0xFF)
+                val mimeType = when (dataType) {
+                    DATA_TYPE_JPEG -> "image/jpeg"
+                    DATA_TYPE_PNG -> "image/png"
+                    else -> null
+                }
+                val image = bytes.copyOfRange(DATA_HEADER_SIZE, bytes.size)
+                if (image.isNotEmpty()) artworks += Artwork(image, mimeType)
+            }
+        }
+        return artworks
     }
 
     private fun readAudioInfo(source: RandomAccessSource, moovChildren: List<Mp4Atom>): AudioInfo? {
@@ -196,7 +224,7 @@ object Mp4MetadataReader {
         if (item == null) return null to null
         val data = atomsIn(source, item).firstOrNull { it.type == "data" } ?: return null to null
         if (data.payloadSize < DATA_HEADER_SIZE + 6) return null to null
-        val bytes = readBytes(source, data.payloadStart, (DATA_HEADER_SIZE + 6).toInt())
+        val bytes = readBytes(source, data.payloadStart, DATA_HEADER_SIZE + 6)
         return bytes.readBigEndianShort(DATA_HEADER_SIZE + 2) to bytes.readBigEndianShort(DATA_HEADER_SIZE + 4)
     }
 
@@ -293,3 +321,5 @@ private const val FIELD_YEAR = "©day"
 private const val FIELD_GENRE = "©gen"
 private const val FIELD_COMPOSER = "©wrt"
 private const val FIELD_COMMENT = "©cmt"
+private const val DATA_TYPE_JPEG = 13
+private const val DATA_TYPE_PNG = 14

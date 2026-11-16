@@ -1,6 +1,8 @@
 package com.berryos.audiometadata.vorbis
 
 import com.berryos.audiometadata.AudioFormat
+import com.berryos.audiometadata.encodeBase64
+import com.berryos.audiometadata.flacPicture
 import com.berryos.audiometadata.io.ByteArraySource
 import com.berryos.audiometadata.ogg.OggPage
 import com.berryos.audiometadata.ogg.OggPages
@@ -44,6 +46,22 @@ class OggVorbisMetadataTest {
         assertEquals(44_100L, walk(source).lastOrNull { it.granulePosition > 0 }?.granulePosition)
     }
 
+    @Test
+    fun readsEmbeddedPicture() {
+        val image = "PNG-DATA".encodeToByteArray()
+        val tag = VorbisCommentTag.create().apply {
+            title = "Song"
+            set("METADATA_BLOCK_PICTURE", encodeBase64(flacPicture(image)))
+        }
+        val metadata = assertNotNull(OggVorbisMetadataReader.read(sourceWith(vorbisFile(tag))))
+
+        assertEquals(1, metadata.artworks.size)
+        val artwork = metadata.artworks.first()
+        kotlin.test.assertContentEquals(image, artwork.data)
+        assertEquals("image/png", artwork.mimeType)
+        assertEquals(3, artwork.pictureType)
+    }
+
     private fun sourceWith(bytes: ByteArray): ByteArraySource =
         ByteArraySource().also { it.writeAt(0, bytes) }
 
@@ -59,11 +77,14 @@ class OggVorbisMetadataTest {
     }
 }
 
-internal fun vorbisFile(title: String, artist: String): ByteArray {
-    val tag = VorbisCommentTag.create().apply {
+internal fun vorbisFile(title: String, artist: String): ByteArray = vorbisFile(
+    VorbisCommentTag.create().apply {
         this.title = title
         this.artist = artist
-    }
+    },
+)
+
+internal fun vorbisFile(tag: VorbisCommentTag): ByteArray {
     val head = ByteArray(30)
     head[0] = 1
     "vorbis".encodeToByteArray().copyInto(head, 1)

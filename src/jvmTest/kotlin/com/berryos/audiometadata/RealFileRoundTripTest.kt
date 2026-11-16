@@ -20,6 +20,7 @@ import kotlin.test.Test
 import kotlin.test.assertContentEquals
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
+import kotlin.test.assertTrue
 
 /**
  * Round-trips real files from the upstream testdata directory. They are not redistributed, so these
@@ -55,6 +56,35 @@ class RealFileRoundTripTest {
 
     @Test
     fun mp4_issue198() = mp4ReadOnly("issue-198.m4a")
+
+    @Test
+    fun artworkFromMp4() = withReadOnly("test.m4a") { source ->
+        assertEquals(1, AudioArtworkReader.read(source).size)
+    }
+
+    @Test
+    fun artworkFromMultiPictureMp4() = withReadOnly("test2.m4a") { source ->
+        assertEquals(3, AudioArtworkReader.read(source).size)
+    }
+
+    @Test
+    fun artworkFromFlac() = withReadOnly("test.flac") { source ->
+        assertTrue(AudioArtworkReader.read(source).isNotEmpty())
+    }
+
+    @Test
+    fun artworkFromOggVorbis() = withReadOnly("test3.ogg") { source ->
+        assertTrue(AudioArtworkReader.read(source).isNotEmpty())
+    }
+
+    private fun withReadOnly(name: String, block: (RandomAccessSource) -> Unit) = withFixture(name) { copy ->
+        val source = FileChannelSource(copy, writable = false)
+        try {
+            block(source)
+        } finally {
+            source.close()
+        }
+    }
 
     private fun mp4ReadOnly(name: String) = withFixture(name) { copy ->
         val source = FileChannelSource(copy, writable = false)

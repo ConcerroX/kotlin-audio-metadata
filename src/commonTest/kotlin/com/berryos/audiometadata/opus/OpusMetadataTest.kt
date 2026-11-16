@@ -1,6 +1,8 @@
 package com.berryos.audiometadata.opus
 
 import com.berryos.audiometadata.AudioFormat
+import com.berryos.audiometadata.encodeBase64
+import com.berryos.audiometadata.flacPicture
 import com.berryos.audiometadata.io.ByteArraySource
 import com.berryos.audiometadata.ogg.OggPage
 import com.berryos.audiometadata.ogg.OggPages
@@ -58,6 +60,21 @@ class OpusMetadataTest {
         assertTrue(source.toByteArray().containsAscii(AUDIO_MARKER))
     }
 
+    @Test
+    fun readsEmbeddedPicture() {
+        val image = "PNG-DATA".encodeToByteArray()
+        val tag = VorbisCommentTag.create().apply {
+            title = "Song"
+            set("METADATA_BLOCK_PICTURE", encodeBase64(flacPicture(image)))
+        }
+        val metadata = assertNotNull(OpusMetadataReader.read(sourceWith(opusFile(tag))))
+
+        assertEquals(1, metadata.artworks.size)
+        val artwork = metadata.artworks.first()
+        kotlin.test.assertContentEquals(image, artwork.data)
+        assertEquals("image/png", artwork.mimeType)
+    }
+
     private fun sourceWith(bytes: ByteArray): ByteArraySource =
         ByteArraySource().also { it.writeAt(0, bytes) }
 
@@ -78,7 +95,14 @@ class OpusMetadataTest {
     }
 }
 
-private fun opusFile(title: String, artist: String): ByteArray {
+private fun opusFile(title: String, artist: String): ByteArray = opusFile(
+    VorbisCommentTag.create().apply {
+        this.title = title
+        this.artist = artist
+    },
+)
+
+private fun opusFile(tag: VorbisCommentTag): ByteArray {
     val head = ByteArray(19)
     "OpusHead".encodeToByteArray().copyInto(head)
     head[8] = 1
@@ -88,10 +112,6 @@ private fun opusFile(title: String, artist: String): ByteArray {
     writeLeShort(head, 16, 0)
     head[18] = 0
 
-    val tag = VorbisCommentTag.create().apply {
-        this.title = title
-        this.artist = artist
-    }
     val tags = "OpusTags".encodeToByteArray() + tag.encode()
 
     return oggPage(head, sequence = 0, flags = BOS_FLAG, granule = 0) +

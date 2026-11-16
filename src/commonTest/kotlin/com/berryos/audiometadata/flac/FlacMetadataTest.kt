@@ -1,6 +1,7 @@
 package com.berryos.audiometadata.flac
 
 import com.berryos.audiometadata.AudioFormat
+import com.berryos.audiometadata.flacPicture
 import com.berryos.audiometadata.io.ByteArraySource
 import com.berryos.audiometadata.vorbis.VorbisCommentTag
 import kotlin.test.Test
@@ -94,6 +95,25 @@ class FlacMetadataTest {
     @Test
     fun returnsNullForNonFlacData() {
         assertNull(FlacMetadataReader.read(sourceWith(ByteArray(64), AUDIO)))
+    }
+
+    @Test
+    fun readsEmbeddedPicture() {
+        val image = "PNG-DATA".encodeToByteArray()
+        val tag = VorbisCommentTag.create().apply { title = "Song" }
+        val picture = flacPicture(image)
+        val metadata = assertNotNull(
+            FlacMetadataReader.read(sourceWith(buildFlac(tag, extra = listOf(TYPE_PICTURE to picture)), AUDIO)),
+        )
+
+        assertEquals(1, metadata.artworks.size)
+        val artwork = metadata.artworks.first()
+        assertContentEquals(image, artwork.data)
+        assertEquals("image/png", artwork.mimeType)
+        assertEquals(3, artwork.pictureType)
+        assertEquals(100, artwork.width)
+        assertEquals(100, artwork.height)
+        assertEquals(24, artwork.colorDepth)
     }
 
     @Test

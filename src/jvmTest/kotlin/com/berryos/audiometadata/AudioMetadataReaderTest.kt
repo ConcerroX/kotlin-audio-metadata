@@ -1,12 +1,25 @@
 package com.berryos.audiometadata
 
 import com.berryos.audiometadata.io.ByteArraySource
+import com.berryos.audiometadata.mp4.mp4File
 import com.berryos.audiometadata.vorbis.vorbisFile
 import kotlin.test.Test
+import kotlin.test.assertContentEquals
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 
 class AudioMetadataReaderTest {
+    @Test
+    fun readsArtworkThroughUnifiedReader() {
+        val image = byteArrayOf(9, 8, 7, 6)
+        val source = ByteArraySource().also { it.writeAt(0, mp4File(artwork = image)) }
+
+        val artworks = AudioArtworkReader.read(source)
+
+        assertEquals(1, artworks.size)
+        assertContentEquals(image, artworks.first().data)
+    }
+
     @Test
     fun readsOggVorbisThroughUnifiedReader() {
         val source = ByteArraySource().also { it.writeAt(0, vorbisFile("Title", "Artist")) }

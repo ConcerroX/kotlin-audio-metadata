@@ -1,5 +1,6 @@
 package com.berryos.audiometadata.mp3
 
+import com.berryos.audiometadata.Artwork
 import com.berryos.audiometadata.AudioFormat
 import com.berryos.audiometadata.AudioInfo
 import com.berryos.audiometadata.AudioMetadata
@@ -10,6 +11,7 @@ import org.jaudiotagger.tag.TagField
 import org.jaudiotagger.tag.id3.AbstractID3v2Frame
 import org.jaudiotagger.tag.id3.AbstractID3v2Tag
 import org.jaudiotagger.tag.id3.framebody.AbstractFrameBodyTextInfo
+import org.jaudiotagger.tag.id3.framebody.FrameBodyAPIC
 import org.jaudiotagger.tag.id3.framebody.FrameBodyTXXX
 import org.jaudiotagger.tag.reference.GenreTypes
 
@@ -89,6 +91,27 @@ class Mp3Tag internal constructor(
                 albumGain = values["REPLAYGAIN_ALBUM_GAIN"],
                 albumPeak = values["REPLAYGAIN_ALBUM_PEAK"],
             )
+        }
+
+    val artworks: List<Artwork>
+        get() {
+            val result = ArrayList<Artwork>()
+            val frames = tag.fields
+            while (frames.hasNext()) {
+                val body = (frames.next() as? AbstractID3v2Frame)?.body
+                if (body is FrameBodyAPIC && !body.isImageUrl) {
+                    val data = body.imageData
+                    if (data != null && data.isNotEmpty()) {
+                        result += Artwork(
+                            data = data,
+                            mimeType = body.mimeType?.ifEmpty { null },
+                            pictureType = body.pictureType,
+                            description = body.description?.ifEmpty { null },
+                        )
+                    }
+                }
+            }
+            return result
         }
 
     fun toAudioMetadata(audioInfo: AudioInfo? = null): AudioMetadata {
