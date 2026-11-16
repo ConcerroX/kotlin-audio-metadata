@@ -7,6 +7,7 @@ import com.berryos.audiometadata.io.RandomAccessSource
 import com.berryos.audiometadata.io.WritableRandomAccessSource
 import com.berryos.audiometadata.mp3.Mp3MetadataReader
 import com.berryos.audiometadata.mp3.Mp3MetadataWriter
+import com.berryos.audiometadata.mp4.Mp4MetadataReader
 import com.berryos.audiometadata.ogg.OggPages
 import com.berryos.audiometadata.ogg.findOggPackets
 import com.berryos.audiometadata.ogg.walkOggPages
@@ -45,6 +46,27 @@ class RealFileRoundTripTest {
 
     @Test
     fun ogg_vorbis_test3() = vorbisRoundTrip("test3.ogg")
+
+    @Test
+    fun mp4_test() = mp4ReadOnly("test.m4a")
+
+    @Test
+    fun mp4_test2() = mp4ReadOnly("test2.m4a")
+
+    @Test
+    fun mp4_issue198() = mp4ReadOnly("issue-198.m4a")
+
+    private fun mp4ReadOnly(name: String) = withFixture(name) { copy ->
+        val source = FileChannelSource(copy, writable = false)
+        try {
+            val metadata = assertNotNull(Mp4MetadataReader.read(source))
+            assertNotNull(metadata.audioInfo)
+            assertEquals(AudioFormat.Mp4, metadata.toAudioMetadata().format)
+            assertEquals(AudioFormat.Mp4, assertNotNull(AudioMetadataReader.read(source)).format)
+        } finally {
+            source.close()
+        }
+    }
 
     private fun mp3RoundTrip(name: String) = withFixture(name) { copy ->
         val source = FileChannelSource(copy)
