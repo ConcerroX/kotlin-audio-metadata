@@ -10,6 +10,9 @@ third_party/
 testdata/
 testtagdata/
 
+# Third-party format specifications downloaded for reference (not redistributed)
+specs/
+
 # Test artifacts written into the project directory
 testdatatmp/
 testV1.mp3
