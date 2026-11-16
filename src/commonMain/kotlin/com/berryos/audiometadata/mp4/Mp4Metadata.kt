@@ -4,10 +4,13 @@ import com.berryos.audiometadata.AudioFormat
 import com.berryos.audiometadata.AudioInfo
 import com.berryos.audiometadata.AudioMetadata
 import com.berryos.audiometadata.Artwork
+import com.berryos.audiometadata.guessArtworkMimeType
 import com.berryos.audiometadata.io.RandomAccessSource
+import com.berryos.audiometadata.io.WritableRandomAccessSource
+import com.berryos.audiometadata.io.moveTail
 import com.berryos.audiometadata.io.readFully
 
-/** Parsed MP4/M4A metadata. Writing is not supported yet. */
+/** Parsed MP4/M4A metadata. */
 class Mp4Metadata internal constructor(
     val tags: Mp4Tags,
     val audioInfo: AudioInfo?,
@@ -227,49 +230,49 @@ object Mp4MetadataReader {
         val bytes = readBytes(source, data.payloadStart, DATA_HEADER_SIZE + 6)
         return bytes.readBigEndianShort(DATA_HEADER_SIZE + 2) to bytes.readBigEndianShort(DATA_HEADER_SIZE + 4)
     }
+}
 
-    private fun topLevelAtoms(source: RandomAccessSource): List<Mp4Atom>? {
-        val atoms = ArrayList<Mp4Atom>()
-        var offset = 0L
-        while (offset + ATOM_HEADER_SIZE <= source.size) {
-            val atom = readAtom(source, offset, source.size) ?: return atoms.ifEmpty { null }
-            atoms += atom
-            offset += atom.size
-        }
-        return atoms.ifEmpty { null }
+private fun topLevelAtoms(source: RandomAccessSource): List<Mp4Atom>? {
+    val atoms = ArrayList<Mp4Atom>()
+    var offset = 0L
+    while (offset + ATOM_HEADER_SIZE <= source.size) {
+        val atom = readAtom(source, offset, source.size) ?: return atoms.ifEmpty { null }
+        atoms += atom
+        offset += atom.size
     }
+    return atoms.ifEmpty { null }
+}
 
-    private fun atomsIn(source: RandomAccessSource, parent: Mp4Atom, skip: Int = 0): List<Mp4Atom> {
-        val atoms = ArrayList<Mp4Atom>()
-        var offset = parent.payloadStart + skip
-        val end = parent.payloadStart + parent.payloadSize
-        while (offset + ATOM_HEADER_SIZE <= end) {
-            val atom = readAtom(source, offset, end) ?: break
-            atoms += atom
-            offset += atom.size
-        }
-        return atoms
+private fun atomsIn(source: RandomAccessSource, parent: Mp4Atom, skip: Int = 0): List<Mp4Atom> {
+    val atoms = ArrayList<Mp4Atom>()
+    var offset = parent.payloadStart + skip
+    val end = parent.payloadStart + parent.payloadSize
+    while (offset + ATOM_HEADER_SIZE <= end) {
+        val atom = readAtom(source, offset, end) ?: break
+        atoms += atom
+        offset += atom.size
     }
+    return atoms
+}
 
-    private fun readAtom(source: RandomAccessSource, offset: Long, limit: Long): Mp4Atom? {
-        if (offset + ATOM_HEADER_SIZE > limit) return null
-        val header = ByteArray(8)
-        source.readAt(offset, header)
-        var size = header.readBigEndianInt(0).toLong() and 0xFFFFFFFFL
-        val type = fourCc(header, 4)
-        var headerSize = ATOM_HEADER_SIZE
-        if (size == 1L) {
-            if (offset + 16 > limit) return null
-            val large = ByteArray(8)
-            source.readAt(offset + 8, large)
-            size = large.readBigEndianLong(0)
-            headerSize = 16
-        } else if (size == 0L) {
-            size = limit - offset
-        }
-        if (size < headerSize || offset + size > limit) return null
-        return Mp4Atom(type, offset, offset + headerSize.toLong(), size - headerSize)
+private fun readAtom(source: RandomAccessSource, offset: Long, limit: Long): Mp4Atom? {
+    if (offset + ATOM_HEADER_SIZE > limit) return null
+    val header = ByteArray(8)
+    source.readAt(offset, header)
+    var size = header.readBigEndianInt(0).toLong() and 0xFFFFFFFFL
+    val type = fourCc(header, 4)
+    var headerSize = ATOM_HEADER_SIZE
+    if (size == 1L) {
+        if (offset + 16 > limit) return null
+        val large = ByteArray(8)
+        source.readAt(offset + 8, large)
+        size = large.readBigEndianLong(0)
+        headerSize = 16
+    } else if (size == 0L) {
+        size = limit - offset
     }
+    if (size < headerSize || offset + size > limit) return null
+    return Mp4Atom(type, offset, offset + headerSize.toLong(), size - headerSize)
 }
 
 private class Mp4Atom(
@@ -323,3 +326,263 @@ private const val FIELD_COMPOSER = "©wrt"
 private const val FIELD_COMMENT = "©cmt"
 private const val DATA_TYPE_JPEG = 13
 private const val DATA_TYPE_PNG = 14
+private const val DATA_TYPE_IMPLICIT = 0
+private const val DATA_TYPE_UTF8 = 1
+
+/** Rebuilds `moov` with the supplied tags and keeps sample offsets valid. */
+object Mp4MetadataWriter {
+    fun write(source: WritableRandomAccessSource, metadata: Mp4Metadata, tags: Mp4Tags = metadata.tags) {
+        val topLevel = topLevelAtoms(source) ?: return
+        val moov = topLevel.firstOrNull { it.type == "moov" } ?: return
+        val oldMoovEnd = moov.offset + moov.size
+        val newMoov = rebuildMoov(source, moov, tags)
+        val delta = newMoov.size.toLong() - moov.size
+        if (delta != 0L) {
+            source.moveTail(oldMoovEnd, moov.offset + newMoov.size)
+            patchChunkOffsets(newMoov, oldMoovEnd, delta)
+        }
+        source.writeAt(moov.offset, newMoov)
+        source.flush()
+    }
+
+    private fun rebuildMoov(source: RandomAccessSource, moov: Mp4Atom, tags: Mp4Tags): ByteArray {
+        val moovChildren = atomsIn(source, moov)
+        val udta = moovChildren.firstOrNull { it.type == "udta" }
+        val udtaChildren = udta?.let { atomsIn(source, it) }
+        val metaInUdta = udtaChildren?.firstOrNull { it.type == "meta" }
+        val metaInMoov = moovChildren.firstOrNull { it.type == "meta" }
+        val meta = metaInUdta ?: metaInMoov
+        val ilst = meta?.let { atomsIn(source, it, skip = FULL_BOX_HEADER).firstOrNull { child -> child.type == "ilst" } }
+        val newIlst = buildIlst(source, ilst, tags)
+        val newMeta = buildMeta(source, meta, newIlst)
+
+        val newMoovChildren = ArrayList<ByteArray>()
+        when {
+            metaInUdta != null && udta != null && udtaChildren != null -> {
+                val newUdta = buildAtom(
+                    "udta",
+                    concat(udtaChildren.filter { it.type != "meta" }.map { raw(source, it) } + newMeta),
+                )
+                moovChildren.forEach { child ->
+                    newMoovChildren += if (child.type == "udta") newUdta else raw(source, child)
+                }
+            }
+
+            metaInMoov != null -> {
+                moovChildren.forEach { child ->
+                    newMoovChildren += if (child.type == "meta") newMeta else raw(source, child)
+                }
+            }
+
+            udta != null && udtaChildren != null -> {
+                val newUdta = buildAtom("udta", concat(udtaChildren.map { raw(source, it) } + newMeta))
+                moovChildren.forEach { child ->
+                    newMoovChildren += if (child.type == "udta") newUdta else raw(source, child)
+                }
+            }
+
+            else -> {
+                moovChildren.forEach { child -> newMoovChildren += raw(source, child) }
+                newMoovChildren += buildAtom("udta", newMeta)
+            }
+        }
+        return buildAtom("moov", concat(newMoovChildren))
+    }
+
+    private fun buildMeta(source: RandomAccessSource, meta: Mp4Atom?, newIlst: ByteArray): ByteArray {
+        val children = if (meta != null) atomsIn(source, meta, skip = FULL_BOX_HEADER) else emptyList()
+        val kept = children.filter { it.type != "ilst" }.map { raw(source, it) }
+        val prefix = if (meta != null) readBytes(source, meta.payloadStart, FULL_BOX_HEADER) else ByteArray(FULL_BOX_HEADER)
+        return buildAtom("meta", prefix + concat(kept + listOf(newIlst)))
+    }
+
+    private fun buildIlst(source: RandomAccessSource, ilst: Mp4Atom?, tags: Mp4Tags): ByteArray {
+        val kept = if (ilst != null) {
+            atomsIn(source, ilst)
+                .filter { it.type !in REPLACED_ITEMS }
+                .map { raw(source, it) }
+        } else {
+            emptyList()
+        }
+        return buildAtom("ilst", concat(kept + buildItems(tags)))
+    }
+
+    private fun buildItems(tags: Mp4Tags): List<ByteArray> {
+        val items = ArrayList<ByteArray>()
+        tags.title?.takeIf(String::isNotEmpty)?.let { items += textItem(FIELD_TITLE, it) }
+        if (tags.artists.isNotEmpty()) items += multiTextItem(FIELD_ARTIST, tags.artists)
+        tags.album?.takeIf(String::isNotEmpty)?.let { items += textItem(FIELD_ALBUM, it) }
+        tags.albumArtist?.takeIf(String::isNotEmpty)?.let { items += textItem(FIELD_ALBUM_ARTIST, it) }
+        if (tags.trackNumber != null || tags.trackTotal != null) {
+            items += numberItem(ITEM_TRACK, tags.trackNumber ?: 0, tags.trackTotal ?: 0)
+        }
+        if (tags.discNumber != null || tags.discTotal != null) {
+            items += numberItem(ITEM_DISC, tags.discNumber ?: 0, tags.discTotal ?: 0)
+        }
+        tags.year?.takeIf(String::isNotEmpty)?.let { items += textItem(FIELD_YEAR, it) }
+        if (tags.genres.isNotEmpty()) items += multiTextItem(FIELD_GENRE, tags.genres)
+        if (tags.composers.isNotEmpty()) items += multiTextItem(FIELD_COMPOSER, tags.composers)
+        if (tags.comments.isNotEmpty()) items += multiTextItem(FIELD_COMMENT, tags.comments)
+        if (tags.artworks.isNotEmpty()) items += coverItem(tags.artworks)
+        return items
+    }
+
+    private fun raw(source: RandomAccessSource, atom: Mp4Atom): ByteArray =
+        readBytes(source, atom.offset, atom.size.toInt())
+
+    private fun textItem(type: String, value: String): ByteArray =
+        buildAtom(type, dataAtom(DATA_TYPE_UTF8, value.encodeToByteArray()))
+
+    private fun multiTextItem(type: String, values: List<String>): ByteArray =
+        buildAtom(type, concat(values.map { dataAtom(DATA_TYPE_UTF8, it.encodeToByteArray()) }))
+
+    private fun numberItem(type: String, number: Int, total: Int): ByteArray = buildAtom(
+        type,
+        dataAtom(
+            DATA_TYPE_IMPLICIT,
+            byteArrayOf(0, 0) +
+                bigEndianShort(number) +
+                bigEndianShort(total) +
+                byteArrayOf(0, 0),
+        ),
+    )
+
+    private fun coverItem(artworks: List<Artwork>): ByteArray = buildAtom(
+        "covr",
+        concat(artworks.map { artwork -> dataAtom(coverType(artwork), artwork.data) }),
+    )
+
+    private fun coverType(artwork: Artwork): Int {
+        val mime = artwork.mimeType ?: guessArtworkMimeType(artwork.data)
+        return if (mime == "image/png") DATA_TYPE_PNG else DATA_TYPE_JPEG
+    }
+
+    private fun dataAtom(dataType: Int, value: ByteArray): ByteArray =
+        buildAtom("data", bigEndianInt(dataType) + bigEndianInt(0) + value)
+
+    private fun patchChunkOffsets(moovBytes: ByteArray, threshold: Long, delta: Long) {
+        patchChunkOffsetsIn(moovBytes, 0, moovBytes.size, threshold, delta)
+    }
+
+    private fun patchChunkOffsetsIn(bytes: ByteArray, start: Int, end: Int, threshold: Long, delta: Long) {
+        var position = start
+        while (position + ATOM_HEADER_SIZE <= end) {
+            val size = bytes.readBigEndianInt(position)
+            if (size < ATOM_HEADER_SIZE || position + size > end) return
+            when (val type = fourCc(bytes, position + 4)) {
+                "stco" -> {
+                    val count = bytes.readBigEndianInt(position + 12)
+                    var entry = position + 16
+                    repeat(count) {
+                        if (entry + 4 > position + size) return
+                        val offset = bytes.readBigEndianInt(entry).toLong() and 0xFFFFFFFFL
+                        if (offset >= threshold) bytes.writeBigEndianInt(entry, (offset + delta).toInt())
+                        entry += 4
+                    }
+                }
+
+                "co64" -> {
+                    val count = bytes.readBigEndianInt(position + 12)
+                    var entry = position + 16
+                    repeat(count) {
+                        if (entry + 8 > position + size) return
+                        val offset = bytes.readBigEndianLong(entry)
+                        if (offset >= threshold) bytes.writeBigEndianLong(entry, offset + delta)
+                        entry += 8
+                    }
+                }
+
+                in CONTAINER_TYPES -> patchChunkOffsetsIn(bytes, position + ATOM_HEADER_SIZE, position + size, threshold, delta)
+            }
+            position += size
+        }
+    }
+}
+
+/** Sample offsets referenced by stco/co64; used to validate writes. */
+internal fun readChunkOffsets(source: RandomAccessSource): List<Long> {
+    val moov = topLevelAtoms(source)?.firstOrNull { it.type == "moov" } ?: return emptyList()
+    val offsets = ArrayList<Long>()
+    collectChunkOffsets(source, moov, offsets)
+    return offsets
+}
+
+private fun collectChunkOffsets(source: RandomAccessSource, parent: Mp4Atom, offsets: MutableList<Long>) {
+    atomsIn(source, parent).forEach { child ->
+        when (child.type) {
+            "stco" -> {
+                val data = readBytes(source, child.payloadStart, child.payloadSize.toInt())
+                if (data.size >= 8) {
+                    var position = 8
+                    repeat(data.readBigEndianInt(4)) {
+                        if (position + 4 <= data.size) {
+                            offsets += data.readBigEndianInt(position).toLong() and 0xFFFFFFFFL
+                            position += 4
+                        }
+                    }
+                }
+            }
+
+            "co64" -> {
+                val data = readBytes(source, child.payloadStart, child.payloadSize.toInt())
+                if (data.size >= 8) {
+                    var position = 8
+                    repeat(data.readBigEndianInt(4)) {
+                        if (position + 8 <= data.size) {
+                            offsets += data.readBigEndianLong(position)
+                            position += 8
+                        }
+                    }
+                }
+            }
+
+            in CONTAINER_TYPES -> collectChunkOffsets(source, child, offsets)
+        }
+    }
+}
+
+private fun buildAtom(type: String, payload: ByteArray): ByteArray {
+    val atom = ByteArray(ATOM_HEADER_SIZE + payload.size)
+    atom.writeBigEndianInt(0, atom.size)
+    type.toByteArray(Charsets.ISO_8859_1).copyInto(atom, 4)
+    payload.copyInto(atom, ATOM_HEADER_SIZE)
+    return atom
+}
+
+private fun concat(chunks: List<ByteArray>): ByteArray {
+    val total = chunks.sumOf { it.size }
+    val result = ByteArray(total)
+    var position = 0
+    chunks.forEach { chunk ->
+        chunk.copyInto(result, position)
+        position += chunk.size
+    }
+    return result
+}
+
+private fun bigEndianInt(value: Int): ByteArray = ByteArray(4).also { it.writeBigEndianInt(0, value) }
+
+private fun bigEndianShort(value: Int): ByteArray = byteArrayOf((value ushr 8).toByte(), value.toByte())
+
+private fun ByteArray.writeBigEndianInt(offset: Int, value: Int) {
+    this[offset] = (value ushr 24).toByte()
+    this[offset + 1] = (value ushr 16).toByte()
+    this[offset + 2] = (value ushr 8).toByte()
+    this[offset + 3] = value.toByte()
+}
+
+private fun ByteArray.writeBigEndianLong(offset: Int, value: Long) {
+    for (index in 0 until 8) {
+        this[offset + index] = (value ushr (56 - index * 8)).toByte()
+    }
+}
+
+private val REPLACED_ITEMS = setOf(
+    FIELD_TITLE, FIELD_ARTIST, FIELD_ALBUM, FIELD_ALBUM_ARTIST, FIELD_YEAR,
+    FIELD_GENRE, FIELD_COMPOSER, FIELD_COMMENT, ITEM_TRACK, ITEM_DISC, "covr",
+)
+
+private val CONTAINER_TYPES = setOf("moov", "trak", "mdia", "minf", "stbl")
+
+private const val ITEM_TRACK = "trkn"
+private const val ITEM_DISC = "disk"

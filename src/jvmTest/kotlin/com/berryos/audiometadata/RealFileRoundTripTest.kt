@@ -11,6 +11,8 @@ import com.berryos.audiometadata.io.WritableRandomAccessSource
 import com.berryos.audiometadata.mp3.Mp3MetadataReader
 import com.berryos.audiometadata.mp3.Mp3MetadataWriter
 import com.berryos.audiometadata.mp4.Mp4MetadataReader
+import com.berryos.audiometadata.mp4.Mp4MetadataWriter
+import com.berryos.audiometadata.mp4.readChunkOffsets
 import com.berryos.audiometadata.ogg.OggPages
 import com.berryos.audiometadata.ogg.findOggPackets
 import com.berryos.audiometadata.ogg.walkOggPages
@@ -63,6 +65,54 @@ class RealFileRoundTripTest {
 
     @Test
     fun mp4_issue198() = mp4ReadOnly("issue-198.m4a")
+
+    @Test
+    fun writesMp4Tags() = withFixture("test.m4a") { copy -> mp4RoundTrip(copy) }
+
+    @Test
+    fun writesMp4TagsTest2() = withFixture("test2.m4a") { copy -> mp4RoundTrip(copy) }
+
+    private fun mp4RoundTrip(copy: File) {
+        val source = FileChannelSource(copy)
+        try {
+            val before = assertNotNull(Mp4MetadataReader.read(source))
+            val offsetsBefore = readChunkOffsets(source)
+            val samples = offsetsBefore.take(20).map { offset -> readBytesAt(source, offset, 32) }
+
+            val image = "MP4-ARTWORK".encodeToByteArray()
+            val updated = before.tags.copy(
+                title = MARKER,
+                artists = listOf(MARKER),
+                artworks = listOf(Artwork(image, "image/png", 3)),
+            )
+            Mp4MetadataWriter.write(source, before, updated)
+
+            val after = assertNotNull(Mp4MetadataReader.read(source))
+            assertEquals(MARKER, after.tags.title)
+            assertEquals(listOf(MARKER), after.tags.artists)
+            assertEquals(1, after.artworks.size)
+            assertContentEquals(image, after.artworks.first().data)
+            val offsetsAfter = readChunkOffsets(source)
+            assertEquals(offsetsBefore.size, offsetsAfter.size)
+            samples.forEachIndexed { index, bytes ->
+                assertContentEquals(bytes, readBytesAt(source, offsetsAfter[index], bytes.size))
+            }
+        } finally {
+            source.close()
+        }
+    }
+
+    private fun readBytesAt(source: RandomAccessSource, offset: Long, count: Int): ByteArray {
+        val length = minOf(count.toLong(), source.size - offset).toInt()
+        val bytes = ByteArray(length)
+        var read = 0
+        while (read < length) {
+            val chunk = source.readAt(offset + read, bytes, read, length - read)
+            if (chunk <= 0) break
+            read += chunk
+        }
+        return bytes
+    }
 
     @Test
     fun wav_test() = wavRoundTrip("test.wav")

@@ -1,5 +1,6 @@
 package com.berryos.audiometadata.mp4
 
+import com.berryos.audiometadata.Artwork
 import com.berryos.audiometadata.AudioFormat
 import com.berryos.audiometadata.io.ByteArraySource
 import kotlin.test.Test
@@ -55,8 +56,44 @@ class Mp4MetadataTest {
         assertNull(Mp4MetadataReader.read(sourceWith(ByteArray(64))))
     }
 
+    @Test
+    fun writesTagsAndAdjustsChunkOffsets() {
+        val source = sourceWith(mp4File())
+        val before = assertNotNull(Mp4MetadataReader.read(source))
+        val offsetsBefore = readChunkOffsets(source)
+        assertEquals(1, offsetsBefore.size)
+        val sampleBefore = readAt(source, offsetsBefore.first(), SAMPLE.size)
+
+        val image = "PNG-DATA".encodeToByteArray()
+        val updated = before.tags.copy(
+            title = "A much longer title than before",
+            artists = listOf("New Artist"),
+            artworks = listOf(Artwork(image, "image/png", 3)),
+        )
+        Mp4MetadataWriter.write(source, before, updated)
+
+        val after = assertNotNull(Mp4MetadataReader.read(source))
+        assertEquals("A much longer title than before", after.tags.title)
+        assertEquals(listOf("New Artist"), after.tags.artists)
+        assertEquals(1, after.artworks.size)
+        assertContentEquals(image, after.artworks.first().data)
+
+        val offsetsAfter = readChunkOffsets(source)
+        assertEquals(1, offsetsAfter.size)
+        assertContentEquals(sampleBefore, readAt(source, offsetsAfter.first(), SAMPLE.size))
+    }
+
     private fun sourceWith(bytes: ByteArray): ByteArraySource =
         ByteArraySource().also { it.writeAt(0, bytes) }
+
+    private fun readAt(source: ByteArraySource, offset: Long, count: Int): ByteArray {
+        val bytes = ByteArray(count)
+        var read = 0
+        while (read < count) {
+            read += source.readAt(offset + read, bytes, read, count - read)
+        }
+        return bytes
+    }
 }
 
 internal fun mp4File(artists: List<String> = listOf("Artist"), artwork: ByteArray? = null): ByteArray {
@@ -86,7 +123,8 @@ internal fun mp4File(artists: List<String> = listOf("Artist"), artwork: ByteArra
         writeBigEndianInt(data, 24, 44_100 shl 16)
     }
     val stsd = fullBox("stsd", payload = bigEndianInt(1) + atom("mp4a", sampleEntry))
-    val minf = atom("minf", atom("stbl", stsd))
+    val stco = fullBox("stco", payload = bigEndianInt(1) + bigEndianInt(0))
+    val minf = atom("minf", atom("stbl", stsd + stco))
     val trak = atom("trak", atom("mdia", mdhd + hdlr + minf))
 
     val ilst = atom(
@@ -107,8 +145,32 @@ internal fun mp4File(artists: List<String> = listOf("Artist"), artwork: ByteArra
         "moov",
         mvhd + trak + atom("udta", atom("meta", bigEndianInt(0) + ilst)),
     )
-    val mdat = atom("mdat", ByteArray(512) { it.toByte() })
-    return ftyp + moov + mdat
+    val mdat = atom("mdat", SAMPLE)
+    val file = ftyp + moov + mdat
+    return patchFirstStco(file, ftyp.size + moov.size + 8)
+}
+
+private fun patchFirstStco(bytes: ByteArray, sampleOffset: Int): ByteArray {
+    val marker = "stco".encodeToByteArray()
+    val index = bytes.indexOfSequence(marker)
+    check(index >= 4) { "stco atom not found" }
+    writeBigEndianInt(bytes, index - 4 + 16, sampleOffset)
+    return bytes
+}
+
+private fun ByteArray.indexOfSequence(needle: ByteArray): Int {
+    if (needle.isEmpty() || needle.size > size) return -1
+    for (index in 0..size - needle.size) {
+        var matches = true
+        for (offset in needle.indices) {
+            if (this[index + offset] != needle[offset]) {
+                matches = false
+                break
+            }
+        }
+        if (matches) return index
+    }
+    return -1
 }
 
 private fun atom(type: String, payload: ByteArray): ByteArray {
@@ -161,3 +223,4 @@ private fun writeBigEndianShort(bytes: ByteArray, offset: Int, value: Int) {
 
 private const val DATA_TYPE_UTF8 = 1
 private const val DATA_TYPE_JPEG = 13
+private val SAMPLE = ByteArray(64) { (it * 11 % 251).toByte() }
