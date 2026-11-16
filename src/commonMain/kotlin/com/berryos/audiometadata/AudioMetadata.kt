@@ -5,6 +5,7 @@ enum class AudioFormat {
     Mp3,
     Flac,
     Ogg,
+    Opus,
     Mp4,
     Wav,
     Aiff,
