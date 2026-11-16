@@ -134,8 +134,52 @@ internal class Id3ExtensionFields(private val tag: Id3v2Tag) : ExtensionFields {
         get() = if (supported) tag.frameText("TSRC") else null
         set(value) = setText("TSRC", value)
 
+    override val musicBrainz: MusicBrainzFields = Id3MusicBrainzFields(tag)
+
     private fun setText(id: String, value: String?) {
         if (supported) tag.setFrameText(id, value)
+    }
+}
+
+/** MusicBrainz storage for ID3: UFID for the recording ID, TXXX for the rest. */
+internal class Id3MusicBrainzFields(private val tag: Id3v2Tag) : MusicBrainzFields {
+    private val supported = tag.version != Id3Version.V22
+    private val owner = "http://musicbrainz.org"
+
+    override var recordingId: String?
+        get() = if (supported) tag.ufid(owner) else null
+        set(value) {
+            if (supported) tag.setUfid(owner, value)
+        }
+
+    override var releaseTrackId: String?
+        get() = text("MusicBrainz Release Track Id")
+        set(value) = setText("MusicBrainz Release Track Id", value)
+
+    override var albumId: String?
+        get() = text("MusicBrainz Album Id")
+        set(value) = setText("MusicBrainz Album Id", value)
+
+    override var artistId: String?
+        get() = text("MusicBrainz Artist Id")
+        set(value) = setText("MusicBrainz Artist Id", value)
+
+    override var albumArtistId: String?
+        get() = text("MusicBrainz Album Artist Id")
+        set(value) = setText("MusicBrainz Album Artist Id", value)
+
+    override var releaseGroupId: String?
+        get() = text("MusicBrainz Release Group Id")
+        set(value) = setText("MusicBrainz Release Group Id", value)
+
+    override var workId: String?
+        get() = text("MusicBrainz Work Id")
+        set(value) = setText("MusicBrainz Work Id", value)
+
+    private fun text(description: String): String? = if (supported) tag.userText(description) else null
+
+    private fun setText(description: String, value: String?) {
+        if (supported) tag.setUserText(description, value)
     }
 }
 

@@ -60,6 +60,30 @@ class AudioExtensionsFlacTest {
         assertNull(reread.extensions.compilation)
     }
 
+    @Test
+    fun readsAndWritesMusicBrainzIds() {
+        val source = sourceWith(buildFlac(VorbisCommentTag.create().apply { title = "Song" }))
+        val file = assertNotNull(AudioFile.read(source))
+
+        file.extensions.musicBrainz.recordingId = TRACK_ID
+        file.extensions.musicBrainz.releaseTrackId = RELEASE_TRACK_ID
+        file.extensions.musicBrainz.albumId = ALBUM_ID
+        file.extensions.musicBrainz.artistId = ARTIST_ID
+        file.extensions.musicBrainz.albumArtistId = ALBUM_ARTIST_ID
+        file.extensions.musicBrainz.releaseGroupId = RELEASE_GROUP_ID
+        file.extensions.musicBrainz.workId = WORK_ID
+        file.save(source)
+
+        val musicBrainz = assertNotNull(AudioFile.read(source)).extensions.musicBrainz
+        assertEquals(TRACK_ID, musicBrainz.recordingId)
+        assertEquals(RELEASE_TRACK_ID, musicBrainz.releaseTrackId)
+        assertEquals(ALBUM_ID, musicBrainz.albumId)
+        assertEquals(ARTIST_ID, musicBrainz.artistId)
+        assertEquals(ALBUM_ARTIST_ID, musicBrainz.albumArtistId)
+        assertEquals(RELEASE_GROUP_ID, musicBrainz.releaseGroupId)
+        assertEquals(WORK_ID, musicBrainz.workId)
+    }
+
     private fun sourceWith(metadata: ByteArray): ByteArraySource =
         ByteArraySource().also { it.writeAt(0, metadata + AUDIO) }
 
@@ -68,3 +92,11 @@ class AudioExtensionsFlacTest {
         return bytes.copyOfRange(bytes.size - AUDIO.size, bytes.size)
     }
 }
+
+private const val TRACK_ID = "11111111-1111-1111-1111-111111111111"
+private const val RELEASE_TRACK_ID = "22222222-2222-2222-2222-222222222222"
+private const val ALBUM_ID = "33333333-3333-3333-3333-333333333333"
+private const val ARTIST_ID = "44444444-4444-4444-4444-444444444444"
+private const val ALBUM_ARTIST_ID = "55555555-5555-5555-5555-555555555555"
+private const val RELEASE_GROUP_ID = "66666666-6666-6666-6666-666666666666"
+private const val WORK_ID = "77777777-7777-7777-7777-777777777777"

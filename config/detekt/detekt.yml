@@ -24,7 +24,7 @@ complexity:
     allowedConditions: 4
   TooManyFunctions:
     allowedFunctionsPerFile: 20
-    allowedFunctionsPerClass: 20
+    allowedFunctionsPerClass: 25
     allowedFunctionsPerObject: 20
     allowedFunctionsPerInterface: 20
 

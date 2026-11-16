@@ -24,6 +24,10 @@ class AudioExtensionsMp4Test {
         file.extensions.albumArtistSort = "Artist, The"
         file.extensions.compilation = true
         file.extensions.bpm = 128
+        file.extensions.isrc = "US-XXX-12-34567"
+        file.extensions.musicBrainz.recordingId = TRACK_ID
+        file.extensions.musicBrainz.albumId = ALBUM_ID
+        file.extensions.musicBrainz.artistId = ARTIST_ID
         file.save(source)
 
         val reread = assertNotNull(AudioFile.read(source))
@@ -33,6 +37,10 @@ class AudioExtensionsMp4Test {
         assertEquals("Artist, The", reread.extensions.albumArtistSort)
         assertEquals(true, reread.extensions.compilation)
         assertEquals(128, reread.extensions.bpm)
+        assertEquals("US-XXX-12-34567", reread.extensions.isrc)
+        assertEquals(TRACK_ID, reread.extensions.musicBrainz.recordingId)
+        assertEquals(ALBUM_ID, reread.extensions.musicBrainz.albumId)
+        assertEquals(ARTIST_ID, reread.extensions.musicBrainz.artistId)
         val offsetsAfter = readChunkOffsets(source)
         samples.forEachIndexed { index, bytes ->
             assertContentEquals(bytes, readAt(source, offsetsAfter[index], bytes.size))
@@ -72,3 +80,7 @@ class AudioExtensionsMp4Test {
         return bytes
     }
 }
+
+private const val TRACK_ID = "11111111-1111-1111-1111-111111111111"
+private const val ALBUM_ID = "33333333-3333-3333-3333-333333333333"
+private const val ARTIST_ID = "44444444-4444-4444-4444-444444444444"

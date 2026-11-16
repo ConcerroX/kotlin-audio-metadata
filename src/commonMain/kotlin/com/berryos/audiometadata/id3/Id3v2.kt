@@ -65,6 +65,42 @@ class Id3v2Tag internal constructor(
         setTextFrame(id, listOfNotNull(value?.takeIf(String::isNotEmpty)))
     }
 
+    /** Reads a TXXX value by description, matched case-insensitively. */
+    internal fun userText(description: String): String? = framesOf(userTextFrameId)
+        .mapNotNull(::parseUserText)
+        .firstOrNull { (stored, _) -> stored.equals(description, ignoreCase = true) }
+        ?.second
+        ?.takeIf(String::isNotEmpty)
+
+    /** Replaces a TXXX value by description; null removes it. */
+    internal fun setUserText(description: String, value: String?) {
+        frameList.removeAll { frame ->
+            frame.id == userTextFrameId && parseUserText(frame)?.first?.equals(description, ignoreCase = true) == true
+        }
+        if (value != null) {
+            frameList += defaultFrame(userTextFrameId, Id3v2Encoding.userTextContent(version, description, value))
+        }
+    }
+
+    /** Reads the identifier of a UFID frame owned by [owner]. */
+    internal fun ufid(owner: String): String? {
+        val frame = framesOf(ufidFrameId).firstOrNull { candidate -> candidate.ownerMatches(owner) } ?: return null
+        val separator = frame.content.indexOf(0.toByte())
+        if (separator < 0 || separator + 1 >= frame.content.size) return null
+        return Id3Text.decode(Id3Text.LATIN1, frame.content, separator + 1, frame.content.size)
+            .trimEnd(0.toChar(), ' ')
+            .takeIf(String::isNotEmpty)
+    }
+
+    /** Replaces the identifier of a UFID frame owned by [owner]; null removes it. */
+    internal fun setUfid(owner: String, value: String?) {
+        frameList.removeAll { frame -> frame.id == ufidFrameId && frame.ownerMatches(owner) }
+        if (value != null) {
+            val content = owner.encodeToByteArray() + byteArrayOf(0) + value.encodeToByteArray()
+            frameList += defaultFrame(ufidFrameId, content)
+        }
+    }
+
     override var title: String?
         get() = firstText(titleFrameId)?.takeIf(String::isNotEmpty)
         set(value) = setTextFrame(titleFrameId, listOfNotNull(value?.takeIf(String::isNotEmpty)))
@@ -218,6 +254,9 @@ class Id3v2Tag internal constructor(
     private val pictureFrameId: String
         get() = frameId("PIC", "APIC")
 
+    private val ufidFrameId: String
+        get() = frameId("UFI", "UFID")
+
     private val yearFrameId: String
         get() = when (version) {
             Id3Version.V22 -> "TYE"
@@ -359,6 +398,12 @@ class Id3v2Tag internal constructor(
 }
 
 private fun Id3v2Frame.isDecodable(): Boolean = !compressed && !encrypted && rawHeader == null
+
+private fun Id3v2Frame.ownerMatches(owner: String): Boolean {
+    val separator = content.indexOf(0.toByte())
+    if (separator <= 0) return false
+    return Id3Text.decode(Id3Text.LATIN1, content, 0, separator).equals(owner, ignoreCase = true)
+}
 
 /** Frames with reserved flag bits are copied byte-for-byte instead of being reserialized. */
 private fun hasUnsupportedFlags(version: Id3Version, statusFlags: Int, formatFlags: Int): Boolean =

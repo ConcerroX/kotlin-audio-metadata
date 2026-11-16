@@ -51,11 +51,65 @@ class AudioExtensions internal constructor(private val fields: ExtensionFields) 
             fields.bpm = value
         }
 
-    /** ID3: TSRC, Vorbis: ISRC. MP4 stores it in a freeform atom and is not wired yet. */
+    /** ID3: TSRC, Vorbis: ISRC, MP4: freeform atom `ISRC`. */
     var isrc: String?
         get() = fields.isrc
         set(value) {
             fields.isrc = value
+        }
+
+    /** MusicBrainz identifiers; each format uses its conventional storage. */
+    val musicBrainz: MusicBrainzTags = MusicBrainzTags(fields.musicBrainz)
+}
+
+/**
+ * MusicBrainz identifiers.
+ *
+ * ID3 stores the recording ID in UFID and the rest in `TXXX:MusicBrainz *`; Vorbis uses
+ * `MUSICBRAINZ_*`; MP4 uses `----:com.apple.iTunes:*` freeform atoms.
+ */
+@ExperimentalAudioMetadataApi
+class MusicBrainzTags internal constructor(private val fields: MusicBrainzFields) {
+    var recordingId: String?
+        get() = fields.recordingId
+        set(value) {
+            fields.recordingId = value
+        }
+
+    var releaseTrackId: String?
+        get() = fields.releaseTrackId
+        set(value) {
+            fields.releaseTrackId = value
+        }
+
+    var albumId: String?
+        get() = fields.albumId
+        set(value) {
+            fields.albumId = value
+        }
+
+    var artistId: String?
+        get() = fields.artistId
+        set(value) {
+            fields.artistId = value
+        }
+
+    var albumArtistId: String?
+        get() = fields.albumArtistId
+        set(value) {
+            fields.albumArtistId = value
+        }
+
+    var releaseGroupId: String?
+        get() = fields.releaseGroupId
+        set(value) {
+            fields.releaseGroupId = value
+        }
+
+    var workId: String?
+        get() = fields.workId
+        set(value) {
+            fields.workId = value
         }
 }
 
@@ -68,4 +122,16 @@ internal interface ExtensionFields {
     var compilation: Boolean?
     var bpm: Int?
     var isrc: String?
+    val musicBrainz: MusicBrainzFields
+}
+
+/** Format-specific storage behind [MusicBrainzTags]. */
+internal interface MusicBrainzFields {
+    var recordingId: String?
+    var releaseTrackId: String?
+    var albumId: String?
+    var artistId: String?
+    var albumArtistId: String?
+    var releaseGroupId: String?
+    var workId: String?
 }

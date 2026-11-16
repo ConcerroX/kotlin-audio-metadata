@@ -164,6 +164,40 @@ internal class VorbisExtensionFields(private val tag: VorbisCommentTag) : Extens
         get() = value("ISRC")
         set(value) = tag.set("ISRC", value.orEmpty())
 
+    override val musicBrainz: MusicBrainzFields = object : MusicBrainzFields {
+        override var recordingId: String?
+            get() = key("MUSICBRAINZ_TRACKID")
+            set(value) = setKey("MUSICBRAINZ_TRACKID", value)
+
+        override var releaseTrackId: String?
+            get() = key("MUSICBRAINZ_RELEASETRACKID")
+            set(value) = setKey("MUSICBRAINZ_RELEASETRACKID", value)
+
+        override var albumId: String?
+            get() = key("MUSICBRAINZ_ALBUMID")
+            set(value) = setKey("MUSICBRAINZ_ALBUMID", value)
+
+        override var artistId: String?
+            get() = key("MUSICBRAINZ_ARTISTID")
+            set(value) = setKey("MUSICBRAINZ_ARTISTID", value)
+
+        override var albumArtistId: String?
+            get() = key("MUSICBRAINZ_ALBUMARTISTID")
+            set(value) = setKey("MUSICBRAINZ_ALBUMARTISTID", value)
+
+        override var releaseGroupId: String?
+            get() = key("MUSICBRAINZ_RELEASEGROUPID")
+            set(value) = setKey("MUSICBRAINZ_RELEASEGROUPID", value)
+
+        override var workId: String?
+            get() = key("MUSICBRAINZ_WORKID")
+            set(value) = setKey("MUSICBRAINZ_WORKID", value)
+
+        private fun key(name: String): String? = value(name)
+
+        private fun setKey(name: String, value: String?) = tag.set(name, value.orEmpty())
+    }
+
     private fun value(key: String): String? = tag.value(key)?.takeIf(String::isNotEmpty)
 
     private fun parseBoolean(value: String): Boolean =
@@ -385,10 +419,54 @@ internal class Mp4TagFields(var tags: Mp4Tags) : TagFields, ExtensionFields {
         }
 
     override var isrc: String?
-        get() = null
+        get() = tags.isrc
         set(value) {
-            if (value != null) throw UnsupportedOperationException("MP4 ISRC requires freeform atom support")
+            tags = tags.copy(isrc = value)
         }
+
+    override val musicBrainz: MusicBrainzFields = object : MusicBrainzFields {
+        override var recordingId: String?
+            get() = tags.musicBrainzTrackId
+            set(value) {
+                tags = tags.copy(musicBrainzTrackId = value)
+            }
+
+        override var releaseTrackId: String?
+            get() = tags.musicBrainzReleaseTrackId
+            set(value) {
+                tags = tags.copy(musicBrainzReleaseTrackId = value)
+            }
+
+        override var albumId: String?
+            get() = tags.musicBrainzAlbumId
+            set(value) {
+                tags = tags.copy(musicBrainzAlbumId = value)
+            }
+
+        override var artistId: String?
+            get() = tags.musicBrainzArtistId
+            set(value) {
+                tags = tags.copy(musicBrainzArtistId = value)
+            }
+
+        override var albumArtistId: String?
+            get() = tags.musicBrainzAlbumArtistId
+            set(value) {
+                tags = tags.copy(musicBrainzAlbumArtistId = value)
+            }
+
+        override var releaseGroupId: String?
+            get() = tags.musicBrainzReleaseGroupId
+            set(value) {
+                tags = tags.copy(musicBrainzReleaseGroupId = value)
+            }
+
+        override var workId: String?
+            get() = tags.musicBrainzWorkId
+            set(value) {
+                tags = tags.copy(musicBrainzWorkId = value)
+            }
+    }
 }
 
 internal class Mp4Backing(private val metadata: Mp4Metadata) : AudioFileBacking() {
