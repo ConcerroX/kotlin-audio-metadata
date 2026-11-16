@@ -130,7 +130,7 @@ internal class Mp3Backing(private var metadata: Mp3Metadata, loadArtworks: Boole
         val current = Mp3Metadata(id3Tag, metadata.audioStartOffset, metadata.id3v1, metadata.audioInfo)
         Mp3MetadataWriter.write(source, current)
         metadata = Mp3MetadataReader.read(source)
-            ?: throw IllegalStateException("MP3 metadata could not be read back after save")
+            ?: throw AudioMetadataException("MP3 metadata could not be read back after save")
         reset(metadata.tag ?: Id3Tag.create(), artworksLoaded)
     }
 }
@@ -146,7 +146,7 @@ internal class WavBacking(private var metadata: WavMetadata, loadArtworks: Boole
     override fun save(source: WritableRandomAccessSource) {
         WavMetadataWriter.write(source, metadata)
         metadata = WavMetadataReader.read(source)
-            ?: throw IllegalStateException("WAV metadata could not be read back after save")
+            ?: throw AudioMetadataException("WAV metadata could not be read back after save")
         reset(metadata.tag, artworksLoaded)
     }
 }
@@ -162,7 +162,7 @@ internal class AiffBacking(private var metadata: AiffMetadata, loadArtworks: Boo
     override fun save(source: WritableRandomAccessSource) {
         AiffMetadataWriter.write(source, metadata)
         metadata = AiffMetadataReader.read(source)
-            ?: throw IllegalStateException("AIFF metadata could not be read back after save")
+            ?: throw AudioMetadataException("AIFF metadata could not be read back after save")
         reset(metadata.tag, artworksLoaded)
     }
 }

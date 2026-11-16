@@ -2,7 +2,13 @@ package com.berryos.audiometadata
 
 import com.berryos.audiometadata.io.RandomAccessSource
 
-/** Detects the container format from the leading bytes of [source]. */
+/**
+ * Detects the container format from the leading bytes of [source].
+ *
+ * Returns [AudioFormat.Unknown] when no known signature matches. A recognised signature does not
+ * guarantee that the rest of the file is valid; readers report that by throwing
+ * [AudioMetadataException].
+ */
 object AudioFormatDetector {
     fun detect(source: RandomAccessSource): AudioFormat {
         val magic = ByteArray(MAGIC_SIZE)

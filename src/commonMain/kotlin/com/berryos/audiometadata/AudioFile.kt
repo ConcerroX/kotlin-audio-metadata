@@ -152,15 +152,14 @@ class AudioFile internal constructor(
 
     companion object {
         /**
-         * Reads metadata from [source], returning null when the container is not supported yet.
+         * Reads metadata from [source].
          *
-         * FLAC, Ogg Vorbis, Opus and MP4 are wired to this entry point while the unified model is
-         * being rolled out; the remaining formats are still available through their dedicated
-         * readers.
+         * Returns null when the container is not recognised. When the signature matches a supported
+         * container but its metadata is malformed, throws [AudioMetadataException].
          */
         fun read(source: RandomAccessSource, includeArtworks: Boolean = false): AudioFile? {
             val format = AudioFormatDetector.detect(source)
-            return when (format) {
+            val file = when (format) {
                 AudioFormat.Flac -> FlacMetadataReader.read(source, includeArtworks)
                     ?.let { AudioFile(FlacBacking(it)) }
 
@@ -174,6 +173,10 @@ class AudioFile internal constructor(
 
                 else -> openPlatformAudioFile(source, format, includeArtworks)
             }
+            if (file == null && format != AudioFormat.Unknown) {
+                throw AudioMetadataException("Detected ${format.name} data but the metadata could not be read")
+            }
+            return file
         }
     }
 }

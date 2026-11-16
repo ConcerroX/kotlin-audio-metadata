@@ -160,7 +160,7 @@ internal class FlacBacking(initial: FlacMetadata) : AudioFileBacking() {
         val current = metadata
         FlacMetadataWriter.write(source, current)
         metadata = FlacMetadataReader.read(source, includeArtworks = current.artworks != null)
-            ?: throw IllegalStateException("FLAC metadata could not be read back after save")
+            ?: throw AudioMetadataException("FLAC metadata could not be read back after save")
         fields = VorbisTagFields(metadata.tag)
     }
 }

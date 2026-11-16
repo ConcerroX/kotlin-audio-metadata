@@ -40,3 +40,12 @@ interface WritableRandomAccessSource : RandomAccessSource {
     /** Forces pending writes to the underlying storage where applicable. */
     fun flush()
 }
+
+/** Runs [block] with this source and closes it afterwards, even when the block throws. */
+inline fun <T, R : RandomAccessSource> R.use(block: (R) -> T): T {
+    try {
+        return block(this)
+    } finally {
+        close()
+    }
+}
