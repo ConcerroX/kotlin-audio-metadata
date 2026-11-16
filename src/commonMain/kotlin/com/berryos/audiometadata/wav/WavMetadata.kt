@@ -4,17 +4,17 @@ import com.berryos.audiometadata.Artwork
 import com.berryos.audiometadata.AudioFormat
 import com.berryos.audiometadata.AudioInfo
 import com.berryos.audiometadata.AudioMetadata
-import com.berryos.audiometadata.id3.JaudiotaggerId3Tag
-import com.berryos.audiometadata.id3.parseId3v2Tag
+import com.berryos.audiometadata.id3.Id3v2Reader
+import com.berryos.audiometadata.id3.Id3v2Tag
+import com.berryos.audiometadata.id3.Id3v2Writer
 import com.berryos.audiometadata.io.RandomAccessSource
 import com.berryos.audiometadata.io.WritableRandomAccessSource
 import com.berryos.audiometadata.io.moveTail
 import com.berryos.audiometadata.io.readFully
-import java.io.ByteArrayOutputStream
 
 /** Parsed WAV metadata: the embedded ID3 tag and the `fmt `/`data` properties. */
 internal class WavMetadata(
-    val tag: JaudiotaggerId3Tag,
+    val tag: Id3v2Tag,
     val audioInfo: AudioInfo?,
     internal val chunks: List<WavChunk>,
     internal val id3Chunk: WavChunk?,
@@ -67,8 +67,8 @@ internal object WavMetadataReader {
         val tag = id3?.let { chunk ->
             val bytes = ByteArray(chunk.size.toInt())
             source.readFully(chunk.payloadOffset, bytes, bytes.size)
-            parseId3v2Tag(bytes)
-        } ?: JaudiotaggerId3Tag.create()
+            Id3v2Reader.read(bytes)
+        } ?: Id3v2Tag.create()
         return WavMetadata(tag, audioInfo, chunks, id3)
     }
 
@@ -98,10 +98,7 @@ internal object WavMetadataReader {
  */
 internal object WavMetadataWriter {
     fun write(source: WritableRandomAccessSource, metadata: WavMetadata) {
-        val tagBytes = ByteArrayOutputStream().use { output ->
-            metadata.tag.tag.write(output, 0)
-            output.toByteArray()
-        }
+        val tagBytes = Id3v2Writer.encode(metadata.tag)
         val padding = tagBytes.size and 1
         val newChunkSize = CHUNK_HEADER_SIZE + tagBytes.size + padding
         val header = ByteArray(CHUNK_HEADER_SIZE)

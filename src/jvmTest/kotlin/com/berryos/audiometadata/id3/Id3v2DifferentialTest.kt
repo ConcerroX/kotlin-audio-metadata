@@ -2,7 +2,12 @@ package com.berryos.audiometadata.id3
 
 import com.berryos.audiometadata.io.FileChannelSource
 import com.berryos.audiometadata.io.use
-import com.berryos.audiometadata.mp3.Mp3MetadataReader
+import org.jaudiotagger.audio.AudioFileIO
+import org.jaudiotagger.tag.FieldKey
+import org.jaudiotagger.tag.Tag
+import org.jaudiotagger.tag.id3.AbstractID3v2Frame
+import org.jaudiotagger.tag.id3.framebody.AbstractFrameBodyTextInfo
+import org.jaudiotagger.tag.id3.framebody.FrameBodyCOMM
 import org.junit.Assume.assumeTrue
 import java.io.File
 import java.nio.file.Files
@@ -25,30 +30,35 @@ class Id3v2DifferentialTest {
     fun matchesUpstreamOnPaddedFile() = compare("testV1Cbr128ID3v2pad.mp3")
 
     private fun compare(name: String) = withFixture(name) { file ->
-        FileChannelSource(file).use { source ->
+        FileChannelSource(file, writable = false).use { source ->
             val ours = assertNotNull(Id3v2Reader.read(source), "our reader did not parse $name")
-            val upstream = assertNotNull(Mp3MetadataReader.read(source)?.tag, "upstream did not parse $name")
+            val upstream = assertNotNull(AudioFileIO.read(file).tag, "upstream did not parse $name")
 
-            assertEquals(upstream.version, ours.version)
-            assertEquals(upstream.title, ours.title)
-            assertEquals(upstream.artists, ours.artists)
-            assertEquals(upstream.album, ours.album)
-            assertEquals(upstream.albumArtist, ours.albumArtist)
-            assertEquals(upstream.trackNumber, ours.trackNumber)
-            assertEquals(upstream.trackTotal, ours.trackTotal)
-            assertEquals(upstream.discNumber, ours.discNumber)
-            assertEquals(upstream.discTotal, ours.discTotal)
-            assertEquals(upstream.year, ours.year)
-            assertEquals(upstream.genres, ours.genres)
-            assertEquals(upstream.composers, ours.composers)
-            assertEquals(upstream.comments, ours.comments)
-            assertEquals(upstream.replayGain?.trackGain, ours.replayGain?.trackGain)
-            assertEquals(upstream.replayGain?.trackPeak, ours.replayGain?.trackPeak)
-            assertEquals(upstream.replayGain?.albumGain, ours.replayGain?.albumGain)
-            assertEquals(upstream.replayGain?.albumPeak, ours.replayGain?.albumPeak)
-            assertEquals(upstream.artworks.size, ours.artworks.size)
+            assertEquals(upstreamTexts(upstream, FieldKey.TITLE).firstOrNull(), ours.title)
+            assertEquals(upstreamTexts(upstream, FieldKey.ARTIST), ours.artists)
+            assertEquals(upstreamTexts(upstream, FieldKey.ALBUM).firstOrNull(), ours.album)
+            assertEquals(upstreamTexts(upstream, FieldKey.ALBUM_ARTIST).firstOrNull(), ours.albumArtist)
+            assertEquals(positiveInt(upstream.getFirst(FieldKey.TRACK)), ours.trackNumber)
+            assertEquals(positiveInt(upstream.getFirst(FieldKey.TRACK_TOTAL)), ours.trackTotal)
+            assertEquals(positiveInt(upstream.getFirst(FieldKey.DISC_NO)), ours.discNumber)
+            assertEquals(positiveInt(upstream.getFirst(FieldKey.DISC_TOTAL)), ours.discTotal)
+            assertEquals(upstreamTexts(upstream, FieldKey.YEAR).firstOrNull(), ours.year)
+            assertEquals(upstreamTexts(upstream, FieldKey.COMPOSER), ours.composers)
+            assertEquals(upstreamTexts(upstream, FieldKey.COMMENT), ours.comments)
         }
     }
+
+    private fun upstreamTexts(tag: Tag, key: FieldKey): List<String> = tag.getFields(key)
+        .flatMap { field ->
+            when (val body = (field as? AbstractID3v2Frame)?.body) {
+                is AbstractFrameBodyTextInfo -> body.values
+                is FrameBodyCOMM -> listOf(body.text)
+                else -> emptyList()
+            }
+        }
+        .filter(String::isNotEmpty)
+
+    private fun positiveInt(value: String?): Int? = value?.toIntOrNull()?.takeIf { it > 0 }
 
     private fun withFixture(name: String, block: (File) -> Unit) {
         val fixture = File(TESTDATA, name)

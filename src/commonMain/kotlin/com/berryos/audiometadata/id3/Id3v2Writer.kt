@@ -20,9 +20,7 @@ object Id3v2Writer {
         originalTagSize: Int,
     ) {
         validate(tag)
-        val framesBytes = tag.frames.fold(ByteArray(0)) { accumulated, frame ->
-            accumulated + encodeFrame(tag.version, frame)
-        }
+        val framesBytes = encodeFrames(tag)
         val bodySize = maxOf(originalTagSize, framesBytes.size)
         val newAudioStart = HEADER_SIZE + bodySize.toLong()
         if (newAudioStart != audioStart) source.moveTail(audioStart, newAudioStart)
@@ -32,9 +30,18 @@ object Id3v2Writer {
         source.flush()
     }
 
+    /** Serializes the tag as header plus frames, without padding; used by embedded ID3 chunks. */
+    internal fun encode(tag: Id3v2Tag): ByteArray {
+        validate(tag)
+        val framesBytes = encodeFrames(tag)
+        return header(tag.version, framesBytes.size) + framesBytes
+    }
+
+    private fun encodeFrames(tag: Id3v2Tag): ByteArray =
+        tag.frames.fold(ByteArray(0)) { accumulated, frame -> accumulated + encodeFrame(tag.version, frame) }
+
     private fun validate(tag: Id3v2Tag) {
         val error = when {
-            tag.version == Id3Version.V22 -> "Writing ID3v2.2 tags is not supported yet"
             tag.extendedHeaderSize > 0 -> "Rewriting a tag with an extended header is not supported yet"
             tag.version == Id3Version.V23 && tag.unsynchronised ->
                 "Rewriting an unsynchronised ID3v2.3 tag is not supported yet"
@@ -62,6 +69,7 @@ object Id3v2Writer {
 
     private fun encodeFrame(version: Id3Version, frame: Id3v2Frame): ByteArray {
         frame.rawHeader?.let { header -> return header + frame.content }
+        if (version == Id3Version.V22) return encodeV22Frame(frame)
         val prefix = ArrayList<ByteArray>()
         if (version == Id3Version.V24) {
             frame.groupId?.let { groupId -> prefix += byteArrayOf(groupId.toByte()) }
@@ -84,6 +92,20 @@ object Id3v2Writer {
         }
         header[8] = frame.statusFlags.toByte()
         header[9] = formatFlags(version, frame).toByte()
+        return header + content
+    }
+
+    private fun encodeV22Frame(frame: Id3v2Frame): ByteArray {
+        val id = V22_FRAME_IDS[frame.id] ?: frame.id
+        if (id.length != V22_FRAME_ID_SIZE) {
+            throw AudioMetadataException("Frame ${frame.id} cannot be represented in ID3v2.2")
+        }
+        val content = frame.content
+        val header = ByteArray(V22_FRAME_HEADER_SIZE)
+        id.encodeToByteArray().copyInto(header)
+        header[3] = (content.size ushr 16).toByte()
+        header[4] = (content.size ushr 8).toByte()
+        header[5] = content.size.toByte()
         return header + content
     }
 
@@ -134,8 +156,42 @@ object Id3v2Writer {
 
 private const val HEADER_SIZE = 10
 private const val FRAME_HEADER_SIZE = 10
+private const val V22_FRAME_HEADER_SIZE = 6
+private const val V22_FRAME_ID_SIZE = 3
 private const val PADDING_CHUNK = 8192
 private const val V23_FLAG_GROUPING = 0x20
 private const val V24_FLAG_GROUPING = 0x40
 private const val V24_FLAG_UNSYNCHRONISATION = 0x02
 private const val V24_FLAG_DATA_LENGTH = 0x01
+
+private val V22_FRAME_IDS = mapOf(
+    "TIT2" to "TT2",
+    "TPE1" to "TP1",
+    "TALB" to "TAL",
+    "TPE2" to "TP2",
+    "TCOM" to "TCM",
+    "TRCK" to "TRK",
+    "TPOS" to "TPA",
+    "TYER" to "TYE",
+    "TDRC" to "TYE",
+    "TCON" to "TCO",
+    "COMM" to "COM",
+    "TXXX" to "TXX",
+    "APIC" to "PIC",
+    "TENC" to "TEN",
+    "TSSE" to "TSS",
+    "TCOP" to "TCR",
+    "TPUB" to "TPB",
+    "TBPM" to "TBP",
+    "TKEY" to "TKE",
+    "TLAN" to "TLA",
+    "TEXT" to "TXT",
+    "TIT1" to "TT1",
+    "TIT3" to "TT3",
+    "TPE3" to "TP3",
+    "TPE4" to "TP4",
+    "TOLY" to "TOT",
+    "TOPE" to "TOA",
+    "TORY" to "TOR",
+    "TSRC" to "TRC",
+)

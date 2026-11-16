@@ -58,61 +58,61 @@ class Id3v2Tag internal constructor(
     fun firstText(id: String): String? = textValues(id).firstOrNull()
 
     override var title: String?
-        get() = firstText(FRAME_TITLE)?.takeIf(String::isNotEmpty)
-        set(value) = setTextFrame(FRAME_TITLE, listOfNotNull(value?.takeIf(String::isNotEmpty)))
+        get() = firstText(titleFrameId)?.takeIf(String::isNotEmpty)
+        set(value) = setTextFrame(titleFrameId, listOfNotNull(value?.takeIf(String::isNotEmpty)))
 
     override var artists: List<String>
-        get() = textValues(FRAME_ARTIST)
-        set(value) = setTextFrame(FRAME_ARTIST, value)
+        get() = textValues(artistFrameId)
+        set(value) = setTextFrame(artistFrameId, value)
 
     override var album: String?
-        get() = firstText(FRAME_ALBUM)?.takeIf(String::isNotEmpty)
-        set(value) = setTextFrame(FRAME_ALBUM, listOfNotNull(value?.takeIf(String::isNotEmpty)))
+        get() = firstText(albumFrameId)?.takeIf(String::isNotEmpty)
+        set(value) = setTextFrame(albumFrameId, listOfNotNull(value?.takeIf(String::isNotEmpty)))
 
     override var albumArtist: String?
-        get() = firstText(FRAME_ALBUM_ARTIST)?.takeIf(String::isNotEmpty)
-        set(value) = setTextFrame(FRAME_ALBUM_ARTIST, listOfNotNull(value?.takeIf(String::isNotEmpty)))
+        get() = firstText(albumArtistFrameId)?.takeIf(String::isNotEmpty)
+        set(value) = setTextFrame(albumArtistFrameId, listOfNotNull(value?.takeIf(String::isNotEmpty)))
 
     override var composers: List<String>
-        get() = textValues(FRAME_COMPOSER)
-        set(value) = setTextFrame(FRAME_COMPOSER, value)
+        get() = textValues(composerFrameId)
+        set(value) = setTextFrame(composerFrameId, value)
 
     override var trackNumber: Int?
-        get() = numberPair(FRAME_TRACK).first
-        set(value) = setNumber(FRAME_TRACK, value, trackTotal)
+        get() = numberPair(trackFrameId).first
+        set(value) = setNumber(trackFrameId, value, trackTotal)
 
     override var trackTotal: Int?
-        get() = numberPair(FRAME_TRACK).second
-        set(value) = setNumber(FRAME_TRACK, trackNumber, value)
+        get() = numberPair(trackFrameId).second
+        set(value) = setNumber(trackFrameId, trackNumber, value)
 
     override var discNumber: Int?
-        get() = numberPair(FRAME_DISC).first
-        set(value) = setNumber(FRAME_DISC, value, discTotal)
+        get() = numberPair(discFrameId).first
+        set(value) = setNumber(discFrameId, value, discTotal)
 
     override var discTotal: Int?
-        get() = numberPair(FRAME_DISC).second
-        set(value) = setNumber(FRAME_DISC, discNumber, value)
+        get() = numberPair(discFrameId).second
+        set(value) = setNumber(discFrameId, discNumber, value)
 
     override var year: String?
         get() = firstText(yearFrameId)?.takeIf(String::isNotEmpty)
         set(value) = setTextFrame(yearFrameId, listOfNotNull(value?.takeIf(String::isNotEmpty)))
 
     override var genres: List<String>
-        get() = Id3Genres.resolveAll(textValues(FRAME_GENRE))
-        set(value) = setTextFrame(FRAME_GENRE, value)
+        get() = Id3Genres.resolveAll(textValues(genreFrameId))
+        set(value) = setTextFrame(genreFrameId, value)
 
     override var comments: List<String>
-        get() = framesOf(FRAME_COMMENT).mapNotNull(::parseComment)
+        get() = framesOf(commentFrameId).mapNotNull(::parseComment)
         set(value) {
-            frameList.removeAll { frame -> frame.id == FRAME_COMMENT }
+            frameList.removeAll { frame -> frame.id == commentFrameId }
             value.forEach { comment ->
-                frameList += defaultFrame(FRAME_COMMENT, Id3v2Encoding.commentContent(version, comment))
+                frameList += defaultFrame(commentFrameId, Id3v2Encoding.commentContent(version, comment))
             }
         }
 
     override var replayGain: ReplayGain?
         get() {
-            val values = framesOf(FRAME_USER_TEXT)
+            val values = framesOf(userTextFrameId)
                 .mapNotNull(::parseUserText)
                 .filter { (description, _) -> description.startsWith(REPLAYGAIN_PREFIX) }
                 .toMap()
@@ -127,7 +127,7 @@ class Id3v2Tag internal constructor(
         set(value) {
             frameList.removeAll { frame ->
                 val description = parseUserText(frame)?.first
-                frame.id == FRAME_USER_TEXT && description != null && description.startsWith(REPLAYGAIN_PREFIX)
+                frame.id == userTextFrameId && description != null && description.startsWith(REPLAYGAIN_PREFIX)
             }
             if (value == null) return
             val entries = mapOf(
@@ -139,7 +139,7 @@ class Id3v2Tag internal constructor(
             entries.forEach { (description, text) ->
                 if (text != null) {
                     frameList += defaultFrame(
-                        FRAME_USER_TEXT,
+                        userTextFrameId,
                         Id3v2Encoding.userTextContent(version, description, text),
                     )
                 }
@@ -147,12 +147,14 @@ class Id3v2Tag internal constructor(
         }
 
     override val artworks: List<Artwork>
-        get() = framesOf(FRAME_PICTURE).mapNotNull(::parseArtwork)
+        get() = framesOf(pictureFrameId).mapNotNull(::parseArtwork)
 
     override fun setArtworks(artworks: List<Artwork>) {
-        frameList.removeAll { frame -> frame.id == FRAME_PICTURE }
+        // ID3v2.2 uses PIC with a different picture format field; existing pictures are kept.
+        if (version == Id3Version.V22) return
+        frameList.removeAll { frame -> frame.id == pictureFrameId }
         artworks.forEach { artwork ->
-            frameList += defaultFrame(FRAME_PICTURE, Id3v2Encoding.pictureContent(version, artwork))
+            frameList += defaultFrame(pictureFrameId, Id3v2Encoding.pictureContent(version, artwork))
         }
     }
 
@@ -175,8 +177,48 @@ class Id3v2Tag internal constructor(
         audioInfo = audioInfo,
     )
 
+    private val titleFrameId: String
+        get() = frameId("TT2", "TIT2")
+
+    private val artistFrameId: String
+        get() = frameId("TP1", "TPE1")
+
+    private val albumFrameId: String
+        get() = frameId("TAL", "TALB")
+
+    private val albumArtistFrameId: String
+        get() = frameId("TP2", "TPE2")
+
+    private val composerFrameId: String
+        get() = frameId("TCM", "TCOM")
+
+    private val trackFrameId: String
+        get() = frameId("TRK", "TRCK")
+
+    private val discFrameId: String
+        get() = frameId("TPA", "TPOS")
+
+    private val genreFrameId: String
+        get() = frameId("TCO", "TCON")
+
+    private val commentFrameId: String
+        get() = frameId("COM", "COMM")
+
+    private val userTextFrameId: String
+        get() = frameId("TXX", "TXXX")
+
+    private val pictureFrameId: String
+        get() = frameId("PIC", "APIC")
+
     private val yearFrameId: String
-        get() = if (version == Id3Version.V24) FRAME_RECORDING_TIME else FRAME_YEAR
+        get() = when (version) {
+            Id3Version.V22 -> "TYE"
+            Id3Version.V23 -> "TYER"
+            Id3Version.V24 -> "TDRC"
+        }
+
+    private fun frameId(v22: String, v23OrLater: String): String =
+        if (version == Id3Version.V22) v22 else v23OrLater
 
     private fun setTextFrame(id: String, values: List<String>) {
         frameList.removeAll { frame -> frame.id == id }
@@ -238,7 +280,10 @@ class Id3v2Tag internal constructor(
         return description to value
     }
 
-    private fun parseArtwork(frame: Id3v2Frame): Artwork? {
+    private fun parseArtwork(frame: Id3v2Frame): Artwork? =
+        if (version == Id3Version.V22) parseV22Picture(frame) else parseApic(frame)
+
+    private fun parseApic(frame: Id3v2Frame): Artwork? {
         if (!frame.isDecodable()) return null
         val content = frame.content
         if (content.size < APIC_MIN_SIZE) return null
@@ -249,6 +294,35 @@ class Id3v2Tag internal constructor(
         if (mimeType == "-->" || mimeType.isEmpty()) return null
         val pictureType = content[mimeEnd + 1].toInt() and 0xFF
         val descriptionStart = mimeEnd + 2
+        val descriptionEnd = Id3Text.findTerminator(encoding, content, descriptionStart)
+        val description = Id3Text.decode(encoding, content, descriptionStart, descriptionEnd)
+        val dataStart = descriptionEnd + Id3Text.terminatorLength(encoding)
+        if (dataStart >= content.size) return null
+        return Artwork(
+            data = content.copyOfRange(dataStart, content.size),
+            mimeType = mimeType,
+            pictureType = pictureType,
+            description = description.ifEmpty { null },
+        )
+    }
+
+    /** ID3v2.2 PIC: encoding, three-character image format, picture type, description, data. */
+    private fun parseV22Picture(frame: Id3v2Frame): Artwork? {
+        if (!frame.isDecodable()) return null
+        val content = frame.content
+        if (content.size < PIC_MIN_SIZE) return null
+        val encoding = content[0].toInt() and 0xFF
+        val format = buildString(3) {
+            for (index in 1..3) append((content[index].toInt() and 0xFF).toChar())
+        }
+        if (format == "-->" || format.isEmpty()) return null
+        val mimeType = when (format.uppercase()) {
+            "PNG" -> "image/png"
+            "JPG" -> "image/jpeg"
+            else -> "image/${format.lowercase()}"
+        }
+        val pictureType = content[4].toInt() and 0xFF
+        val descriptionStart = PIC_MIN_SIZE
         val descriptionEnd = Id3Text.findTerminator(encoding, content, descriptionStart)
         val description = Id3Text.decode(encoding, content, descriptionStart, descriptionEnd)
         val dataStart = descriptionEnd + Id3Text.terminatorLength(encoding)
@@ -587,21 +661,9 @@ private const val V23_EXTENDED_MIN_SIZE = 6
 private const val V24_EXTENDED_MIN_SIZE = 6
 private const val COMMENT_HEADER_SIZE = 4
 private const val APIC_MIN_SIZE = 4
+private const val PIC_MIN_SIZE = 5
 private const val UPPER_A = 'A'.code
 private const val UPPER_Z = 'Z'.code
 private const val DIGIT_0 = '0'.code
 private const val DIGIT_9 = '9'.code
 private const val REPLAYGAIN_PREFIX = "REPLAYGAIN_"
-private const val FRAME_TITLE = "TIT2"
-private const val FRAME_ARTIST = "TPE1"
-private const val FRAME_ALBUM = "TALB"
-private const val FRAME_ALBUM_ARTIST = "TPE2"
-private const val FRAME_COMPOSER = "TCOM"
-private const val FRAME_TRACK = "TRCK"
-private const val FRAME_DISC = "TPOS"
-private const val FRAME_YEAR = "TYER"
-private const val FRAME_RECORDING_TIME = "TDRC"
-private const val FRAME_GENRE = "TCON"
-private const val FRAME_COMMENT = "COMM"
-private const val FRAME_USER_TEXT = "TXXX"
-private const val FRAME_PICTURE = "APIC"

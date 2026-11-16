@@ -1,6 +1,8 @@
 package com.berryos.audiometadata
 
+import com.berryos.audiometadata.aiff.AiffMetadataReader
 import com.berryos.audiometadata.flac.FlacMetadataReader
+import com.berryos.audiometadata.id3.Id3Tag
 import com.berryos.audiometadata.io.RandomAccessSource
 import com.berryos.audiometadata.io.WritableRandomAccessSource
 import com.berryos.audiometadata.mp4.Mp4MetadataReader
@@ -8,6 +10,7 @@ import com.berryos.audiometadata.mp4.Mp4Tags
 import com.berryos.audiometadata.opus.OpusMetadataReader
 import com.berryos.audiometadata.vorbis.OggVorbisMetadataReader
 import com.berryos.audiometadata.vorbis.VorbisCommentTag
+import com.berryos.audiometadata.wav.WavMetadataReader
 
 /**
  * Mutable metadata of one audio file.
@@ -40,6 +43,11 @@ class AudioFile internal constructor(
     @ExperimentalAudioMetadataApi
     val mp4: Mp4Tags?
         get() = backing.mp4Tags
+
+    /** Low-level ID3 tag shared by MP3, WAV and AIFF. */
+    @ExperimentalAudioMetadataApi
+    val id3: Id3Tag?
+        get() = (backing as? Id3FileBacking)?.id3Tag
 
     var title: String?
         get() = backing.text.title
@@ -171,7 +179,14 @@ class AudioFile internal constructor(
                 AudioFormat.Mp4 -> Mp4MetadataReader.read(source, includeArtworks)
                     ?.let { AudioFile(Mp4Backing(it)) }
 
-                else -> openPlatformAudioFile(source, format, includeArtworks)
+                AudioFormat.Mp3, AudioFormat.Unknown -> openMp3(source, includeArtworks)
+                AudioFormat.Wav -> WavMetadataReader.read(source)
+                    ?.let { AudioFile(WavBacking(it, includeArtworks)) }
+
+                AudioFormat.Aiff -> AiffMetadataReader.read(source)
+                    ?.let { AudioFile(AiffBacking(it, includeArtworks)) }
+
+                AudioFormat.Opus -> null
             }
             if (file == null && format != AudioFormat.Unknown) {
                 throw AudioMetadataException("Detected ${format.name} data but the metadata could not be read")

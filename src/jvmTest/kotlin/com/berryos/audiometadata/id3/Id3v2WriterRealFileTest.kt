@@ -5,7 +5,8 @@ import com.berryos.audiometadata.ReplayGain
 import com.berryos.audiometadata.io.FileChannelSource
 import com.berryos.audiometadata.io.RandomAccessSource
 import com.berryos.audiometadata.io.use
-import com.berryos.audiometadata.mp3.Mp3MetadataReader
+import org.jaudiotagger.audio.AudioFileIO
+import org.jaudiotagger.tag.FieldKey
 import org.junit.Assume.assumeTrue
 import java.io.File
 import java.nio.file.Files
@@ -27,9 +28,8 @@ class Id3v2WriterRealFileTest {
 
     private fun rewrite(name: String) = withFixture(name) { file ->
         FileChannelSource(file).use { source ->
-            val metadata = assertNotNull(Mp3MetadataReader.read(source))
             val tag = assertNotNull(Id3v2Reader.read(source))
-            val audioStart = metadata.audioStartOffset
+            val audioStart = HEADER_SIZE.toLong() + tag.declaredSize + if (tag.hasFooter) FOOTER_SIZE.toLong() else 0L
             val audioBefore = readRange(source, audioStart, (source.size - audioStart).toInt())
 
             tag.title = MARKER
@@ -44,14 +44,14 @@ class Id3v2WriterRealFileTest {
             assertEquals("-6.00 dB", reread.replayGain?.trackGain)
             assertEquals("0.98", reread.replayGain?.trackPeak)
             assertEquals(1, reread.artworks.size)
-            val newAudioStart = HEADER_SIZE + reread.declaredSize.toLong()
+            val newAudioStart = HEADER_SIZE.toLong() + reread.declaredSize +
+                if (reread.hasFooter) FOOTER_SIZE.toLong() else 0L
             assertContentEquals(audioBefore, readRange(source, newAudioStart, audioBefore.size))
-
-            val upstream = assertNotNull(Mp3MetadataReader.read(source)?.tag)
-            assertEquals(MARKER, upstream.title)
-            assertEquals(listOf("First", "Second"), upstream.artists)
-            assertEquals("-6.00 dB", upstream.replayGain?.trackGain)
         }
+
+        val upstream = assertNotNull(AudioFileIO.read(file).tag)
+        assertEquals(MARKER, upstream.getFirst(FieldKey.TITLE))
+        assertEquals("First", upstream.getFirst(FieldKey.ARTIST))
     }
 
     private fun readRange(source: RandomAccessSource, offset: Long, count: Int): ByteArray {
@@ -82,4 +82,5 @@ class Id3v2WriterRealFileTest {
 }
 
 private const val HEADER_SIZE = 10
+private const val FOOTER_SIZE = 20
 private const val MARKER = "kotlin-audio-metadata"

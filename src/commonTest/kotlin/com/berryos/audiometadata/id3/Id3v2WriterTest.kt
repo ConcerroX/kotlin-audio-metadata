@@ -126,13 +126,17 @@ class Id3v2WriterTest {
     }
 
     @Test
-    fun refusesV22Tags() {
-        val source = sourceWith(buildTag(3, frames = emptyList()))
+    fun writesV22Tags() {
+        val source = sourceWith(null)
         val tag = Id3v2Tag.create(Id3Version.V22)
+        tag.title = "Song"
 
-        assertFailsWith<AudioMetadataException> {
-            Id3v2Writer.write(source, tag, audioStart = 0, originalTagSize = 0)
-        }
+        Id3v2Writer.write(source, tag, audioStart = 0, originalTagSize = 0)
+
+        val reread = read(source)
+        assertEquals(Id3Version.V22, reread.version)
+        assertEquals("Song", reread.title)
+        assertContentEquals(AUDIO, tail(source, HEADER_SIZE + reread.declaredSize))
     }
 
     @Test

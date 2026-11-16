@@ -4,19 +4,19 @@ import com.berryos.audiometadata.Artwork
 import com.berryos.audiometadata.AudioFormat
 import com.berryos.audiometadata.AudioInfo
 import com.berryos.audiometadata.AudioMetadata
-import com.berryos.audiometadata.id3.JaudiotaggerId3Tag
-import com.berryos.audiometadata.id3.parseId3v2Tag
+import com.berryos.audiometadata.id3.Id3v2Reader
+import com.berryos.audiometadata.id3.Id3v2Tag
+import com.berryos.audiometadata.id3.Id3v2Writer
 import com.berryos.audiometadata.io.RandomAccessSource
 import com.berryos.audiometadata.io.WritableRandomAccessSource
 import com.berryos.audiometadata.io.moveTail
 import com.berryos.audiometadata.io.readFully
-import java.io.ByteArrayOutputStream
 import kotlin.math.pow
 import kotlin.math.roundToInt
 
 /** Parsed AIFF metadata: the embedded ID3 tag and the `COMM` properties. */
 internal class AiffMetadata(
-    val tag: JaudiotaggerId3Tag,
+    val tag: Id3v2Tag,
     val audioInfo: AudioInfo?,
     internal val chunks: List<AiffChunk>,
     internal val id3Chunk: AiffChunk?,
@@ -68,8 +68,8 @@ internal object AiffMetadataReader {
         val tag = id3?.let { chunk ->
             val bytes = ByteArray(chunk.size.toInt())
             source.readFully(chunk.payloadOffset, bytes, bytes.size)
-            parseId3v2Tag(bytes)
-        } ?: JaudiotaggerId3Tag.create()
+            Id3v2Reader.read(bytes)
+        } ?: Id3v2Tag.create()
         return AiffMetadata(tag, audioInfo, chunks, id3)
     }
 
@@ -97,10 +97,7 @@ internal object AiffMetadataReader {
 /** Writes the `ID3 ` chunk, inserting it at the end when absent and updating the FORM size. */
 internal object AiffMetadataWriter {
     fun write(source: WritableRandomAccessSource, metadata: AiffMetadata) {
-        val tagBytes = ByteArrayOutputStream().use { output ->
-            metadata.tag.tag.write(output, 0)
-            output.toByteArray()
-        }
+        val tagBytes = Id3v2Writer.encode(metadata.tag)
         val padding = tagBytes.size and 1
         val newChunkSize = CHUNK_HEADER_SIZE + tagBytes.size + padding
         val header = ByteArray(CHUNK_HEADER_SIZE)
