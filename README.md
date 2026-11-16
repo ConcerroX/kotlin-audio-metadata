@@ -3,8 +3,9 @@
 Kotlin Multiplatform audio metadata reader and writer. Byte-based I/O lets callers read and update
 tags without a `File`, and the same API is meant to work on every Kotlin target.
 
-The JVM implementation is derived from [jaudiotagger](https://bitbucket.org/ijabz/jaudiotagger)
-3.0.1 (LGPL-2.1-or-later); see [NOTICE.md](NOTICE.md) and [LICENSE](LICENSE).
+MP3/ID3, WAV and AIFF support on the JVM uses
+[jaudiotagger](https://bitbucket.org/ijabz/jaudiotagger) 3.0.1 as a dependency
+(LGPL-2.1-or-later); see [NOTICE.md](NOTICE.md) and [LICENSE](LICENSE).
 
 ## Supported formats
 
