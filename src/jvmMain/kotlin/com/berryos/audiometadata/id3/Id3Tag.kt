@@ -18,6 +18,7 @@ import org.jaudiotagger.tag.id3.ID3v24Frame
 import org.jaudiotagger.tag.id3.ID3v24Tag
 import org.jaudiotagger.tag.id3.framebody.AbstractFrameBodyTextInfo
 import org.jaudiotagger.tag.id3.framebody.FrameBodyAPIC
+import org.jaudiotagger.tag.id3.framebody.FrameBodyCOMM
 import org.jaudiotagger.tag.id3.framebody.FrameBodyTXXX
 import org.jaudiotagger.tag.reference.GenreTypes
 
@@ -225,7 +226,11 @@ class Id3Tag internal constructor(
 
     private fun fieldValues(field: TagField): List<String> {
         val body = (field as? AbstractID3v2Frame)?.body
-        return if (body is AbstractFrameBodyTextInfo) body.values else listOf(field.toString())
+        return when {
+            body is AbstractFrameBodyTextInfo -> body.values
+            body is FrameBodyCOMM -> listOf(body.text)
+            else -> listOf(field.toString())
+        }
     }
 
     companion object {
