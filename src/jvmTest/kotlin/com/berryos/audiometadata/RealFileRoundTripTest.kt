@@ -13,6 +13,7 @@ import com.berryos.audiometadata.ogg.findOggPackets
 import com.berryos.audiometadata.ogg.walkOggPages
 import com.berryos.audiometadata.vorbis.OggVorbisMetadataReader
 import com.berryos.audiometadata.vorbis.OggVorbisMetadataWriter
+import com.berryos.audiometadata.vorbis.setArtworks
 import org.junit.Assume.assumeTrue
 import java.io.File
 import java.nio.file.Files
@@ -75,6 +76,71 @@ class RealFileRoundTripTest {
     @Test
     fun artworkFromOggVorbis() = withReadOnly("test3.ogg") { source ->
         assertTrue(AudioArtworkReader.read(source).isNotEmpty())
+    }
+
+    @Test
+    fun writesArtworkToMp3() = withFixture("test23.mp3") { copy ->
+        val source = FileChannelSource(copy)
+        try {
+            val before = assertNotNull(Mp3MetadataReader.read(source))
+            val tag = assertNotNull(before.tag)
+            val tail = readTail(source, before.audioStartOffset)
+            val image = "MP3-ARTWORK".encodeToByteArray()
+
+            tag.setArtworks(listOf(Artwork(image, "image/png", 3)))
+            Mp3MetadataWriter.write(source, before)
+
+            val after = assertNotNull(Mp3MetadataReader.read(source))
+            assertEquals(1, after.tag!!.artworks.size)
+            assertContentEquals(image, after.tag!!.artworks.first().data)
+            assertContentEquals(tail, readTail(source, after.audioStartOffset))
+        } finally {
+            source.close()
+        }
+    }
+
+    @Test
+    fun writesArtworkToFlac() = withFixture("test.flac") { copy ->
+        val source = FileChannelSource(copy)
+        try {
+            val before = assertNotNull(FlacMetadataReader.read(source))
+            val tail = readTail(source, before.audioStartOffset)
+            val image = "FLAC-ARTWORK".encodeToByteArray()
+
+            FlacMetadataWriter.write(source, before, artworks = listOf(Artwork(image, "image/png", 3)))
+
+            val after = assertNotNull(FlacMetadataReader.read(source))
+            assertEquals(1, after.artworks.size)
+            assertContentEquals(image, after.artworks.first().data)
+            assertContentEquals(tail, readTail(source, after.audioStartOffset))
+        } finally {
+            source.close()
+        }
+    }
+
+    @Test
+    fun writesArtworkToOggVorbis() = withFixture("test3.ogg") { copy ->
+        val source = FileChannelSource(copy)
+        try {
+            val before = assertNotNull(OggVorbisMetadataReader.read(source))
+            val audio = audioPages(source)
+            val image = "OGG-ARTWORK".encodeToByteArray()
+
+            before.tag.setArtworks(listOf(Artwork(image, "image/png", 3)))
+            OggVorbisMetadataWriter.write(source, before)
+
+            val after = assertNotNull(OggVorbisMetadataReader.read(source))
+            assertEquals(1, after.artworks.size)
+            assertContentEquals(image, after.artworks.first().data)
+            val afterAudio = audioPages(source)
+            assertEquals(audio.size, afterAudio.size)
+            audio.indices.forEach { index ->
+                assertContentEquals(audio[index].payload, afterAudio[index].payload)
+                assertEquals(audio[index].granule, afterAudio[index].granule)
+            }
+        } finally {
+            source.close()
+        }
     }
 
     private fun withReadOnly(name: String, block: (RandomAccessSource) -> Unit) = withFixture(name) { copy ->

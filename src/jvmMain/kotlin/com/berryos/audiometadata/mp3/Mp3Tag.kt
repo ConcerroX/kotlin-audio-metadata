@@ -4,12 +4,15 @@ import com.berryos.audiometadata.Artwork
 import com.berryos.audiometadata.AudioFormat
 import com.berryos.audiometadata.AudioInfo
 import com.berryos.audiometadata.AudioMetadata
+import com.berryos.audiometadata.guessArtworkMimeType
 import com.berryos.audiometadata.Id3Version
 import com.berryos.audiometadata.ReplayGain
 import org.jaudiotagger.tag.FieldKey
 import org.jaudiotagger.tag.TagField
 import org.jaudiotagger.tag.id3.AbstractID3v2Frame
 import org.jaudiotagger.tag.id3.AbstractID3v2Tag
+import org.jaudiotagger.tag.id3.ID3v23Frame
+import org.jaudiotagger.tag.id3.ID3v24Frame
 import org.jaudiotagger.tag.id3.framebody.AbstractFrameBodyTextInfo
 import org.jaudiotagger.tag.id3.framebody.FrameBodyAPIC
 import org.jaudiotagger.tag.id3.framebody.FrameBodyTXXX
@@ -114,6 +117,25 @@ class Mp3Tag internal constructor(
             return result
         }
 
+    /** Replaces the embedded pictures. ID3v2.2 files keep their existing pictures. */
+    fun setArtworks(artworks: List<Artwork>) {
+        tag.deleteArtworkField()
+        if (version == Id3Version.V22) return
+        artworks.forEach { artwork ->
+            val frame = when (version) {
+                Id3Version.V23 -> ID3v23Frame("APIC")
+                Id3Version.V24 -> ID3v24Frame("APIC")
+                Id3Version.V22 -> return@forEach
+            }
+            val body = frame.body as FrameBodyAPIC
+            body.mimeType = artwork.mimeType ?: guessArtworkMimeType(artwork.data)
+            body.setPictureType((artwork.pictureType ?: DEFAULT_PICTURE_TYPE).toByte())
+            body.description = artwork.description.orEmpty()
+            body.imageData = artwork.data
+            tag.addField(frame)
+        }
+    }
+
     fun toAudioMetadata(audioInfo: AudioInfo? = null): AudioMetadata {
         return AudioMetadata(
             format = AudioFormat.Mp3,
@@ -168,6 +190,7 @@ class Mp3Tag internal constructor(
 }
 
 private const val REPLAYGAIN_PREFIX = "REPLAYGAIN_"
+private const val DEFAULT_PICTURE_TYPE = 3
 
 private val GENRE_REFERENCE = Regex("\\((\\d+)\\)")
 

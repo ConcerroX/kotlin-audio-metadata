@@ -1,5 +1,6 @@
 package com.berryos.audiometadata.flac
 
+import com.berryos.audiometadata.Artwork
 import com.berryos.audiometadata.AudioFormat
 import com.berryos.audiometadata.flacPicture
 import com.berryos.audiometadata.io.ByteArraySource
@@ -46,7 +47,7 @@ class FlacMetadataTest {
     fun keepsAudioAndOtherBlocksWhenTagFits() {
         val tag = VorbisCommentTag.create().apply { title = "Song" }
         val picture = "PICTURE-DATA".encodeToByteArray()
-        val source = sourceWith(buildFlac(tag, extra = listOf(TYPE_PICTURE to picture), padding = 128), AUDIO)
+        val source = sourceWith(buildFlac(tag, extra = listOf(TYPE_APPLICATION to picture), padding = 128), AUDIO)
         val before = source.toByteArray()
         val metadata = assertNotNull(FlacMetadataReader.read(source))
 
@@ -127,6 +128,26 @@ class FlacMetadataTest {
         assertEquals(listOf("Second", "Third"), tag.values("ARTIST"))
     }
 
+    @Test
+    fun writesAndRemovesEmbeddedPicture() {
+        val tag = VorbisCommentTag.create().apply { title = "Song" }
+        val source = sourceWith(buildFlac(tag, padding = 128), AUDIO)
+        val metadata = assertNotNull(FlacMetadataReader.read(source))
+        val image = "NEW-PNG".encodeToByteArray()
+
+        FlacMetadataWriter.write(source, metadata, artworks = listOf(Artwork(image, "image/png", 3)))
+
+        val after = assertNotNull(FlacMetadataReader.read(source))
+        assertEquals(1, after.artworks.size)
+        assertContentEquals(image, after.artworks.first().data)
+        assertEquals("image/png", after.artworks.first().mimeType)
+        val bytes = source.toByteArray()
+        assertContentEquals(AUDIO, bytes.copyOfRange(after.audioStartOffset.toInt(), bytes.size))
+
+        FlacMetadataWriter.write(source, after, artworks = emptyList())
+        assertTrue(assertNotNull(FlacMetadataReader.read(source)).artworks.isEmpty())
+    }
+
     private fun sourceWith(tag: ByteArray, audio: ByteArray): ByteArraySource =
         ByteArraySource().also { it.writeAt(0, tag + audio) }
 }
@@ -179,6 +200,7 @@ private fun ByteArray.containsAscii(value: String): Boolean =
 
 private const val TYPE_STREAMINFO = 0
 private const val TYPE_PADDING = 1
+private const val TYPE_APPLICATION = 2
 private const val TYPE_VORBIS_COMMENT = 4
 private const val TYPE_PICTURE = 6
 private val AUDIO = ByteArray(1024) { (it * 7 % 251).toByte() }

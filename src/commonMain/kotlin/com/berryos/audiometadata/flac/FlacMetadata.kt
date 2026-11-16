@@ -105,11 +105,19 @@ object FlacMetadataReader {
  * the audio is shifted by the difference first. Padding is always written as the last block.
  */
 object FlacMetadataWriter {
-    fun write(source: WritableRandomAccessSource, metadata: FlacMetadata) {
+    fun write(
+        source: WritableRandomAccessSource,
+        metadata: FlacMetadata,
+        artworks: List<Artwork> = metadata.artworks,
+    ) {
         val commentPayload = metadata.tag.encode()
-        val preserved = metadata.blocks.filter { it.type != TYPE_VORBIS_COMMENT && it.type != TYPE_PADDING }
+        val preserved = metadata.blocks.filter {
+            it.type != TYPE_VORBIS_COMMENT && it.type != TYPE_PADDING && it.type != TYPE_PICTURE
+        }
+        val picturePayloads = artworks.map(::encodeFlacPicture)
         val baseSize = FLAC_MAGIC.size.toLong() +
             preserved.sumOf { BLOCK_HEADER_SIZE + it.length.toLong() } +
+            picturePayloads.sumOf { BLOCK_HEADER_SIZE + it.size.toLong() } +
             BLOCK_HEADER_SIZE + commentPayload.size
         val newSize = maxOf(baseSize + BLOCK_HEADER_SIZE, metadata.audioStartOffset)
         val padding = (newSize - baseSize - BLOCK_HEADER_SIZE).toInt()
@@ -122,6 +130,9 @@ object FlacMetadataWriter {
             val payload = ByteArray(block.length)
             source.readFully(block.offset, payload, payload.size)
             position = writeBlock(source, position, block.type, payload, last = false)
+        }
+        picturePayloads.forEach { payload ->
+            position = writeBlock(source, position, TYPE_PICTURE, payload, last = false)
         }
         position = writeBlock(source, position, TYPE_VORBIS_COMMENT, commentPayload, last = false)
         position = writePadding(source, position, padding)

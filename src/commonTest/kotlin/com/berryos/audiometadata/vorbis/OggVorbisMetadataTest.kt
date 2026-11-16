@@ -1,5 +1,6 @@
 package com.berryos.audiometadata.vorbis
 
+import com.berryos.audiometadata.Artwork
 import com.berryos.audiometadata.AudioFormat
 import com.berryos.audiometadata.encodeBase64
 import com.berryos.audiometadata.flacPicture
@@ -60,6 +61,24 @@ class OggVorbisMetadataTest {
         kotlin.test.assertContentEquals(image, artwork.data)
         assertEquals("image/png", artwork.mimeType)
         assertEquals(3, artwork.pictureType)
+    }
+
+    @Test
+    fun writesAndRemovesArtwork() {
+        val source = sourceWith(vorbisFile("Song", "Artist"))
+        val metadata = assertNotNull(OggVorbisMetadataReader.read(source))
+        val image = "NEW-PNG".encodeToByteArray()
+
+        metadata.tag.setArtworks(listOf(Artwork(image, "image/png", 3)))
+        OggVorbisMetadataWriter.write(source, metadata)
+
+        val after = assertNotNull(OggVorbisMetadataReader.read(source))
+        assertEquals(1, after.artworks.size)
+        kotlin.test.assertContentEquals(image, after.artworks.first().data)
+
+        after.tag.setArtworks(emptyList())
+        OggVorbisMetadataWriter.write(source, after)
+        assertTrue(assertNotNull(OggVorbisMetadataReader.read(source)).artworks.isEmpty())
     }
 
     private fun sourceWith(bytes: ByteArray): ByteArraySource =

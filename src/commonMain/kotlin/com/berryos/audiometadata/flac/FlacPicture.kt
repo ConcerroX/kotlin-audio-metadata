@@ -1,6 +1,7 @@
 package com.berryos.audiometadata.flac
 
 import com.berryos.audiometadata.Artwork
+import com.berryos.audiometadata.guessArtworkMimeType
 
 /**
  * Parses the FLAC PICTURE block body, which is also the payload of the Vorbis
@@ -49,3 +50,31 @@ internal fun parseFlacPicture(bytes: ByteArray): Artwork? {
         colorDepth = colorDepth,
     )
 }
+
+/** Serializes an artwork into the FLAC PICTURE block body / Vorbis picture comment payload. */
+internal fun encodeFlacPicture(artwork: Artwork): ByteArray {
+    val mime = (artwork.mimeType ?: guessArtworkMimeType(artwork.data)).encodeToByteArray()
+    val description = artwork.description.orEmpty().encodeToByteArray()
+    val chunks = ArrayList<ByteArray>()
+    chunks += bigEndianInt(artwork.pictureType ?: DEFAULT_PICTURE_TYPE)
+    chunks += bigEndianInt(mime.size)
+    chunks += mime
+    chunks += bigEndianInt(description.size)
+    chunks += description
+    chunks += bigEndianInt(artwork.width ?: 0)
+    chunks += bigEndianInt(artwork.height ?: 0)
+    chunks += bigEndianInt(artwork.colorDepth ?: 0)
+    chunks += bigEndianInt(0)
+    chunks += bigEndianInt(artwork.data.size)
+    chunks += artwork.data
+    return chunks.fold(ByteArray(0)) { accumulated, chunk -> accumulated + chunk }
+}
+
+private fun bigEndianInt(value: Int): ByteArray = byteArrayOf(
+    (value ushr 24).toByte(),
+    (value ushr 16).toByte(),
+    (value ushr 8).toByte(),
+    value.toByte(),
+)
+
+private const val DEFAULT_PICTURE_TYPE = 3

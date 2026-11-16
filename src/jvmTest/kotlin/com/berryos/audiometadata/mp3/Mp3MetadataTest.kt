@@ -1,5 +1,6 @@
 package com.berryos.audiometadata.mp3
 
+import com.berryos.audiometadata.Artwork
 import com.berryos.audiometadata.Id3Version
 import com.berryos.audiometadata.io.ByteArraySource
 import org.jaudiotagger.tag.FieldKey
@@ -108,6 +109,25 @@ class Mp3MetadataTest {
         assertEquals("Album", audio.album)
         assertEquals("1998", audio.year)
         assertEquals(5, audio.trackNumber)
+    }
+
+    @Test
+    fun writesAndRemovesApicArtwork() {
+        val source = sourceWith(id3v23TagBytes("Song", "Artist", "Album").toByteArray(), AUDIO)
+        val metadata = assertNotNull(Mp3MetadataReader.read(source))
+        val image = byteArrayOf(1, 2, 3, 4, 5)
+
+        metadata.tag!!.setArtworks(listOf(Artwork(image, "image/png", 3)))
+        Mp3MetadataWriter.write(source, metadata)
+
+        val after = assertNotNull(Mp3MetadataReader.read(source))
+        assertEquals(1, after.tag!!.artworks.size)
+        assertContentEquals(image, after.tag!!.artworks.first().data)
+        assertEquals("image/png", after.tag!!.artworks.first().mimeType)
+
+        after.tag!!.setArtworks(emptyList())
+        Mp3MetadataWriter.write(source, after)
+        assertTrue(assertNotNull(Mp3MetadataReader.read(source)).tag!!.artworks.isEmpty())
     }
 
     @Test
