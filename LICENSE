@@ -1,0 +1,20 @@
+kotlin-audio-metadata: audio metadata library for Kotlin
+Copyright (C) 2026 Berry Music contributors
+
+This library is a Kotlin derivation of jaudiotagger, which is
+Copyright (C) 2015 Paul Taylor and contributors, and in turn derives from
+the Entagged audio tag library, Copyright (C) 2003-2005 Raphael Slinckx.
+
+This library is free software; you can redistribute it and/or modify it
+under the terms of the GNU Lesser General Public License as published by
+the Free Software Foundation; either version 2.1 of the License, or (at
+your option) any later version.
+
+This library is distributed in the hope that it will be useful, but
+WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser
+General Public License for more details.
+
+You should have received a copy of the GNU Lesser General Public License
+along with this library. If not, see
+https://www.gnu.org/licenses/old-licenses/lgpl-2.1.txt.

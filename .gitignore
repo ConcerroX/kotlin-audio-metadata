@@ -1,0 +1,29 @@
+.gradle/
+build/
+.idea/
+local.properties
+*.iml
+.DS_Store
+
+# Upstream reference checkout and sample files (not redistributed here)
+third_party/
+testdata/
+testtagdata/
+
+# Test artifacts written into the project directory
+testdatatmp/
+testV1.mp3
+
+# AI tooling files
+.claude/
+CLAUDE.md
+CLAUDE.local.md
+AGENTS.md
+.mcp.json
+.cursor/
+.cursorrules
+.windsurf/
+.aider*
+.continue/
+.junie/
+.github/copilot-instructions.md
