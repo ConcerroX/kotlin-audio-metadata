@@ -11,11 +11,11 @@ import com.berryos.audiometadata.io.moveTail
 import com.berryos.audiometadata.io.readFully
 
 /** Parsed MP4/M4A metadata. */
-class Mp4Metadata internal constructor(
+internal class Mp4Metadata(
     val tags: Mp4Tags,
     val audioInfo: AudioInfo?,
 ) {
-    val artworks: List<Artwork>
+    val artworks: List<Artwork>?
         get() = tags.artworks
 
     fun toAudioMetadata(): AudioMetadata = tags.toAudioMetadata(audioInfo)
@@ -35,7 +35,8 @@ data class Mp4Tags(
     val genres: List<String> = emptyList(),
     val composers: List<String> = emptyList(),
     val comments: List<String> = emptyList(),
-    val artworks: List<Artwork> = emptyList(),
+    /** Loaded pictures, or null when the reader was asked to skip them. */
+    val artworks: List<Artwork>? = null,
 ) {
     fun toAudioMetadata(audioInfo: AudioInfo? = null): AudioMetadata = AudioMetadata(
         format = AudioFormat.Mp4,
@@ -60,21 +61,27 @@ data class Mp4Tags(
  *
  * Fragmented MP4 and non-iTunes metadata keys are not handled.
  */
-object Mp4MetadataReader {
-    fun read(source: RandomAccessSource): Mp4Metadata? {
+internal object Mp4MetadataReader {
+    fun read(source: RandomAccessSource, includeArtworks: Boolean = true): Mp4Metadata? {
         val topLevel = topLevelAtoms(source) ?: return null
         val moov = topLevel.firstOrNull { it.type == "moov" } ?: return null
         val children = atomsIn(source, moov)
-        val tags = readTags(source, children)
+        val tags = readTags(source, children, includeArtworks)
         val audioInfo = readAudioInfo(source, children)
         return Mp4Metadata(tags, audioInfo)
     }
 
-    private fun readTags(source: RandomAccessSource, moovChildren: List<Mp4Atom>): Mp4Tags {
-        val udta = moovChildren.firstOrNull { it.type == "udta" } ?: return Mp4Tags()
-        val meta = atomsIn(source, udta).firstOrNull { it.type == "meta" } ?: return Mp4Tags()
+    private fun readTags(
+        source: RandomAccessSource,
+        moovChildren: List<Mp4Atom>,
+        includeArtworks: Boolean,
+    ): Mp4Tags {
+        val noArtworks: List<Artwork>? = if (includeArtworks) emptyList() else null
+        val udta = moovChildren.firstOrNull { it.type == "udta" } ?: return Mp4Tags(artworks = noArtworks)
+        val meta = atomsIn(source, udta).firstOrNull { it.type == "meta" } ?: return Mp4Tags(artworks = noArtworks)
         // meta is a full box: version/flags precede the child atoms.
-        val ilst = atomsIn(source, meta, skip = FULL_BOX_HEADER).firstOrNull { it.type == "ilst" } ?: return Mp4Tags()
+        val ilst = atomsIn(source, meta, skip = FULL_BOX_HEADER).firstOrNull { it.type == "ilst" }
+            ?: return Mp4Tags(artworks = noArtworks)
         // Some writers repeat an item atom, others put several data atoms under one item.
         val items = atomsIn(source, ilst).groupBy { it.type }
         fun texts(field: String): List<String> =
@@ -95,7 +102,7 @@ object Mp4MetadataReader {
             genres = texts(FIELD_GENRE),
             composers = texts(FIELD_COMPOSER),
             comments = texts(FIELD_COMMENT),
-            artworks = readArtworks(source, items["covr"].orEmpty()),
+            artworks = if (includeArtworks) readArtworks(source, items[COVER_ITEM].orEmpty()) else null,
         )
     }
 
@@ -330,7 +337,7 @@ private const val DATA_TYPE_IMPLICIT = 0
 private const val DATA_TYPE_UTF8 = 1
 
 /** Rebuilds `moov` with the supplied tags and keeps sample offsets valid. */
-object Mp4MetadataWriter {
+internal object Mp4MetadataWriter {
     fun write(source: WritableRandomAccessSource, metadata: Mp4Metadata, tags: Mp4Tags = metadata.tags) {
         val topLevel = topLevelAtoms(source) ?: return
         val moov = topLevel.firstOrNull { it.type == "moov" } ?: return
@@ -399,7 +406,7 @@ object Mp4MetadataWriter {
     private fun buildIlst(source: RandomAccessSource, ilst: Mp4Atom?, tags: Mp4Tags): ByteArray {
         val kept = if (ilst != null) {
             atomsIn(source, ilst)
-                .filter { it.type !in REPLACED_ITEMS }
+                .filter { it.type !in REPLACED_ITEMS || (it.type == COVER_ITEM && tags.artworks == null) }
                 .map { raw(source, it) }
         } else {
             emptyList()
@@ -423,7 +430,8 @@ object Mp4MetadataWriter {
         if (tags.genres.isNotEmpty()) items += multiTextItem(FIELD_GENRE, tags.genres)
         if (tags.composers.isNotEmpty()) items += multiTextItem(FIELD_COMPOSER, tags.composers)
         if (tags.comments.isNotEmpty()) items += multiTextItem(FIELD_COMMENT, tags.comments)
-        if (tags.artworks.isNotEmpty()) items += coverItem(tags.artworks)
+        val artworks = tags.artworks
+        if (!artworks.isNullOrEmpty()) items += coverItem(artworks)
         return items
     }
 
@@ -579,10 +587,11 @@ private fun ByteArray.writeBigEndianLong(offset: Int, value: Long) {
 
 private val REPLACED_ITEMS = setOf(
     FIELD_TITLE, FIELD_ARTIST, FIELD_ALBUM, FIELD_ALBUM_ARTIST, FIELD_YEAR,
-    FIELD_GENRE, FIELD_COMPOSER, FIELD_COMMENT, ITEM_TRACK, ITEM_DISC, "covr",
+    FIELD_GENRE, FIELD_COMPOSER, FIELD_COMMENT, ITEM_TRACK, ITEM_DISC, COVER_ITEM,
 )
 
 private val CONTAINER_TYPES = setOf("moov", "trak", "mdia", "minf", "stbl")
 
 private const val ITEM_TRACK = "trkn"
 private const val ITEM_DISC = "disk"
+private const val COVER_ITEM = "covr"

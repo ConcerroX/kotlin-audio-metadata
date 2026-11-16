@@ -90,8 +90,9 @@ class RealFileRoundTripTest {
             val after = assertNotNull(Mp4MetadataReader.read(source))
             assertEquals(MARKER, after.tags.title)
             assertEquals(listOf(MARKER), after.tags.artists)
-            assertEquals(1, after.artworks.size)
-            assertContentEquals(image, after.artworks.first().data)
+            val artworks = assertNotNull(after.artworks)
+            assertEquals(1, artworks.size)
+            assertContentEquals(image, artworks.first().data)
             val offsetsAfter = readChunkOffsets(source)
             assertEquals(offsetsBefore.size, offsetsAfter.size)
             samples.forEachIndexed { index, bytes ->

@@ -4,6 +4,9 @@ import com.berryos.audiometadata.flac.FlacMetadata
 import com.berryos.audiometadata.flac.FlacMetadataReader
 import com.berryos.audiometadata.flac.FlacMetadataWriter
 import com.berryos.audiometadata.io.WritableRandomAccessSource
+import com.berryos.audiometadata.mp4.Mp4Metadata
+import com.berryos.audiometadata.mp4.Mp4MetadataWriter
+import com.berryos.audiometadata.mp4.Mp4Tags
 import com.berryos.audiometadata.opus.OpusMetadata
 import com.berryos.audiometadata.opus.OpusMetadataWriter
 import com.berryos.audiometadata.vorbis.OggVorbisMetadata
@@ -33,13 +36,16 @@ internal interface TagFields {
 internal abstract class AudioFileBacking {
     abstract val format: AudioFormat
     abstract val audioInfo: AudioInfo?
-    abstract var text: TagFields
+    abstract val text: TagFields
     abstract var artworks: List<Artwork>?
 
     open val id3Version: Id3Version?
         get() = null
 
     open val vorbisTag: VorbisCommentTag?
+        get() = null
+
+    open val mp4Tags: Mp4Tags?
         get() = null
 
     abstract fun save(source: WritableRandomAccessSource)
@@ -130,6 +136,7 @@ internal class VorbisTagFields(private val tag: VorbisCommentTag) : TagFields {
 
 internal class FlacBacking(initial: FlacMetadata) : AudioFileBacking() {
     private var metadata = initial
+    private var fields = VorbisTagFields(metadata.tag)
 
     override val format: AudioFormat
         get() = AudioFormat.Flac
@@ -137,7 +144,8 @@ internal class FlacBacking(initial: FlacMetadata) : AudioFileBacking() {
     override val audioInfo: AudioInfo?
         get() = metadata.streamInfo?.toAudioInfo()
 
-    override var text: TagFields = VorbisTagFields(metadata.tag)
+    override val text: TagFields
+        get() = fields
 
     override val vorbisTag: VorbisCommentTag
         get() = metadata.tag
@@ -153,7 +161,7 @@ internal class FlacBacking(initial: FlacMetadata) : AudioFileBacking() {
         FlacMetadataWriter.write(source, current)
         metadata = FlacMetadataReader.read(source, includeArtworks = current.artworks != null)
             ?: throw IllegalStateException("FLAC metadata could not be read back after save")
-        text = VorbisTagFields(metadata.tag)
+        fields = VorbisTagFields(metadata.tag)
     }
 }
 
@@ -169,7 +177,7 @@ internal class OggVorbisBacking(
     override val audioInfo: AudioInfo?
         get() = metadata.audioInfo
 
-    override var text: TagFields = VorbisTagFields(metadata.tag)
+    override val text: TagFields = VorbisTagFields(metadata.tag)
 
     override val vorbisTag: VorbisCommentTag
         get() = metadata.tag
@@ -198,7 +206,7 @@ internal class OpusBacking(
     override val audioInfo: AudioInfo?
         get() = metadata.audioInfo
 
-    override var text: TagFields = VorbisTagFields(metadata.tag)
+    override val text: TagFields = VorbisTagFields(metadata.tag)
 
     override val vorbisTag: VorbisCommentTag
         get() = metadata.tag
@@ -212,5 +220,112 @@ internal class OpusBacking(
 
     override fun save(source: WritableRandomAccessSource) {
         OpusMetadataWriter.write(source, metadata)
+    }
+}
+
+/** iTunes fields are an immutable value object, so every edit replaces [tags] with a copy. */
+internal class Mp4TagFields(var tags: Mp4Tags) : TagFields {
+    override var title: String?
+        get() = tags.title
+        set(value) {
+            tags = tags.copy(title = value)
+        }
+
+    override var artists: List<String>
+        get() = tags.artists
+        set(value) {
+            tags = tags.copy(artists = value)
+        }
+
+    override var album: String?
+        get() = tags.album
+        set(value) {
+            tags = tags.copy(album = value)
+        }
+
+    override var albumArtist: String?
+        get() = tags.albumArtist
+        set(value) {
+            tags = tags.copy(albumArtist = value)
+        }
+
+    override var trackNumber: Int?
+        get() = tags.trackNumber
+        set(value) {
+            tags = tags.copy(trackNumber = value)
+        }
+
+    override var trackTotal: Int?
+        get() = tags.trackTotal
+        set(value) {
+            tags = tags.copy(trackTotal = value)
+        }
+
+    override var discNumber: Int?
+        get() = tags.discNumber
+        set(value) {
+            tags = tags.copy(discNumber = value)
+        }
+
+    override var discTotal: Int?
+        get() = tags.discTotal
+        set(value) {
+            tags = tags.copy(discTotal = value)
+        }
+
+    override var year: String?
+        get() = tags.year
+        set(value) {
+            tags = tags.copy(year = value)
+        }
+
+    override var genres: List<String>
+        get() = tags.genres
+        set(value) {
+            tags = tags.copy(genres = value)
+        }
+
+    override var composers: List<String>
+        get() = tags.composers
+        set(value) {
+            tags = tags.copy(composers = value)
+        }
+
+    override var comments: List<String>
+        get() = tags.comments
+        set(value) {
+            tags = tags.copy(comments = value)
+        }
+
+    override var replayGain: ReplayGain?
+        get() = null
+        set(value) {
+            if (value != null) throw UnsupportedOperationException("MP4 does not store ReplayGain")
+        }
+}
+
+internal class Mp4Backing(private val metadata: Mp4Metadata) : AudioFileBacking() {
+    private val tagFields = Mp4TagFields(metadata.tags)
+
+    override val format: AudioFormat
+        get() = AudioFormat.Mp4
+
+    override val audioInfo: AudioInfo?
+        get() = metadata.audioInfo
+
+    override val text: TagFields
+        get() = tagFields
+
+    override val mp4Tags: Mp4Tags
+        get() = tagFields.tags
+
+    override var artworks: List<Artwork>?
+        get() = tagFields.tags.artworks
+        set(value) {
+            tagFields.tags = tagFields.tags.copy(artworks = value)
+        }
+
+    override fun save(source: WritableRandomAccessSource) {
+        Mp4MetadataWriter.write(source, metadata, tagFields.tags)
     }
 }

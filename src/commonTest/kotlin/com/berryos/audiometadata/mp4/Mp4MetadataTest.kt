@@ -38,9 +38,10 @@ class Mp4MetadataTest {
         val image = "JPEG-DATA".encodeToByteArray()
         val metadata = assertNotNull(Mp4MetadataReader.read(sourceWith(mp4File(artwork = image))))
 
-        assertEquals(1, metadata.artworks.size)
-        assertContentEquals(image, metadata.artworks.first().data)
-        assertEquals("image/jpeg", metadata.artworks.first().mimeType)
+        val artworks = assertNotNull(metadata.artworks)
+        assertEquals(1, artworks.size)
+        assertContentEquals(image, artworks.first().data)
+        assertEquals("image/jpeg", artworks.first().mimeType)
     }
 
     @Test
@@ -75,8 +76,9 @@ class Mp4MetadataTest {
         val after = assertNotNull(Mp4MetadataReader.read(source))
         assertEquals("A much longer title than before", after.tags.title)
         assertEquals(listOf("New Artist"), after.tags.artists)
-        assertEquals(1, after.artworks.size)
-        assertContentEquals(image, after.artworks.first().data)
+        val artworks = assertNotNull(after.artworks)
+        assertEquals(1, artworks.size)
+        assertContentEquals(image, artworks.first().data)
 
         val offsetsAfter = readChunkOffsets(source)
         assertEquals(1, offsetsAfter.size)

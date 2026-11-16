@@ -3,6 +3,8 @@ package com.berryos.audiometadata
 import com.berryos.audiometadata.flac.FlacMetadataReader
 import com.berryos.audiometadata.io.RandomAccessSource
 import com.berryos.audiometadata.io.WritableRandomAccessSource
+import com.berryos.audiometadata.mp4.Mp4MetadataReader
+import com.berryos.audiometadata.mp4.Mp4Tags
 import com.berryos.audiometadata.opus.OpusMetadataReader
 import com.berryos.audiometadata.vorbis.OggVorbisMetadataReader
 import com.berryos.audiometadata.vorbis.VorbisCommentTag
@@ -33,6 +35,11 @@ class AudioFile internal constructor(
     @ExperimentalAudioMetadataApi
     val vorbis: VorbisCommentTag?
         get() = backing.vorbisTag
+
+    /** Low-level iTunes fields for MP4/M4A files. */
+    @ExperimentalAudioMetadataApi
+    val mp4: Mp4Tags?
+        get() = backing.mp4Tags
 
     var title: String?
         get() = backing.text.title
@@ -147,8 +154,9 @@ class AudioFile internal constructor(
         /**
          * Reads metadata from [source], returning null when the container is not supported yet.
          *
-         * FLAC, Ogg Vorbis and Opus are wired to this entry point while the unified model is being
-         * rolled out; the remaining formats are still available through their dedicated readers.
+         * FLAC, Ogg Vorbis, Opus and MP4 are wired to this entry point while the unified model is
+         * being rolled out; the remaining formats are still available through their dedicated
+         * readers.
          */
         fun read(source: RandomAccessSource, includeArtworks: Boolean = false): AudioFile? =
             when (AudioFormatDetector.detect(source)) {
@@ -159,6 +167,9 @@ class AudioFile internal constructor(
                     ?.let { AudioFile(OpusBacking(it, includeArtworks)) }
                     ?: OggVorbisMetadataReader.read(source)
                         ?.let { AudioFile(OggVorbisBacking(it, includeArtworks)) }
+
+                AudioFormat.Mp4 -> Mp4MetadataReader.read(source, includeArtworks)
+                    ?.let { AudioFile(Mp4Backing(it)) }
 
                 else -> null
             }
