@@ -1,11 +1,23 @@
 package com.berryos.audiometadata
 
 import com.berryos.audiometadata.io.ByteArraySource
+import com.berryos.audiometadata.vorbis.vorbisFile
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 
 class AudioMetadataReaderTest {
+    @Test
+    fun readsOggVorbisThroughUnifiedReader() {
+        val source = ByteArraySource().also { it.writeAt(0, vorbisFile("Title", "Artist")) }
+
+        val metadata = assertNotNull(AudioMetadataReader.read(source))
+
+        assertEquals(AudioFormat.Ogg, metadata.format)
+        assertEquals("Title", metadata.title)
+        assertEquals(listOf("Artist"), metadata.artists)
+    }
+
     @Test
     fun fallsBackToId3v1WhenNoId3v2HeaderExists() {
         val audio = ByteArray(256) { it.toByte() }
