@@ -1,0 +1,711 @@
+<!DOCTYPE html>
+<html class="no-js" lang="en">
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1" charset="UTF-8">
+    <title>Id3v2Tag</title>
+    <link href="../../../images/logo-icon.svg" rel="icon" type="image/svg">
+        <script>var pathToRoot = "../../../";</script>
+    <script>document.documentElement.classList.replace("no-js", "js");</script>
+    <script>const storage = localStorage.getItem("dokka-dark-mode")
+      if (storage == null) {
+        const osDarkSchemePreferred = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches
+        if (osDarkSchemePreferred === true) {
+          document.getElementsByTagName("html")[0].classList.add("theme-dark")
+        }
+      } else {
+        const savedDarkMode = JSON.parse(storage)
+        if (savedDarkMode === true) {
+          document.getElementsByTagName("html")[0].classList.add("theme-dark")
+        }
+      }
+    </script>
+<script type="text/javascript" src="../../../scripts/sourceset_dependencies.js" async="async"></script>
+<link href="../../../styles/style.css" rel="Stylesheet">
+<link href="../../../styles/main.css" rel="Stylesheet">
+<link href="../../../styles/prism.css" rel="Stylesheet">
+<link href="../../../styles/logo-styles.css" rel="Stylesheet">
+<link href="../../../ui-kit/ui-kit.min.css" rel="Stylesheet">
+<script type="text/javascript" src="../../../scripts/safe-local-storage_blocking.js"></script>
+<script type="text/javascript" src="../../../scripts/navigation-loader.js" async="async"></script>
+<script type="text/javascript" src="../../../scripts/platform-content-handler.js" async="async"></script>
+<script type="text/javascript" src="../../../scripts/main.js" defer="defer"></script>
+<script type="text/javascript" src="../../../scripts/prism.js" async="async"></script>
+<script type="text/javascript" src="../../../ui-kit/ui-kit.min.js" defer="defer"></script>
+</head>
+<body>
+<div class="root">
+    <header class="navigation theme-dark" id="navigation-wrapper" role="banner">
+            <a class="library-name--link" href="../../../index.html" tabindex="1">
+                    kotlin-audio-metadata
+            </a>
+        <button class="navigation-controls--btn navigation-controls--btn_toc ui-kit_mobile-only" id="toc-toggle"
+                type="button">Toggle table of contents
+        </button>
+        <div class="navigation-controls--break ui-kit_mobile-only"></div>
+        <div class="library-version" id="library-version">
+0.1.0-SNAPSHOT        </div>
+        <div class="navigation-controls">
+        <ul class="filter-section filter-section_loading" id="filter-section" aria-label="Target filter">
+                <button class="platform-tag platform-selector jvm-like" data-active="" aria-pressed="true"
+                        data-filter=":/commonMain">common</button>
+            <div class="dropdown filter-section--dropdown" data-role="dropdown" id="filter-section-dropdown">
+                <button class="button button_dropdown filter-section--dropdown-toggle" role="combobox"
+                        data-role="dropdown-toggle"
+                        aria-controls="platform-tags-listbox"
+                        aria-haspopup="listbox"
+                        aria-expanded="false"
+                        aria-label="Toggle source sets"
+                ></button>
+                <ul role="listbox" id="platform-tags-listbox" class="dropdown--list" data-role="dropdown-listbox" aria-label="Target filter">
+                    <div class="dropdown--header"><span>Target filter</span>
+                        <button class="button" data-role="dropdown-toggle" aria-label="Close target filter">
+                            <i class="ui-kit-icon ui-kit-icon_cross"></i>
+                        </button>
+                    </div>
+                        <li role="option" class="dropdown--option platform-selector-option jvm-like" tabindex="0">
+                            <label class="checkbox">
+                                <input type="checkbox" class="checkbox--input" id=":/commonMain"
+                                       data-filter=":/commonMain"/>
+                                <span class="checkbox--icon"></span>
+                                common
+                            </label>
+                        </li>
+                </ul>
+                <div class="dropdown--overlay"></div>
+            </div>
+        </ul>
+            <button class="navigation-controls--btn navigation-controls--btn_theme" id="theme-toggle-button"
+                    type="button">Switch theme
+            </button>
+            <div class="navigation-controls--btn navigation-controls--btn_search" id="searchBar" role="button">Search in
+                API
+            </div>
+        </div>
+    </header>
+    <div id="container">
+        <nav id="leftColumn" class="sidebar" data-item-type="SECTION" data-item-config='{"defaultSize": 280, "minSize": 200, "maxSize": 400}'>
+            <a class="toc--skip-link" href="#main">Skip to content</a>
+            <div class="dropdown theme-dark_mobile" data-role="dropdown" id="toc-dropdown">
+                <ul role="listbox" id="toc-listbox" class="dropdown--list dropdown--list_toc-list"
+                    data-role="dropdown-listbox" aria-label="Table of contents">
+                    <div class="dropdown--header">
+                            <span>
+                                    kotlin-audio-metadata
+                            </span>
+                        <button class="button" data-role="dropdown-toggle" aria-label="Close table of contents">
+                            <i class="ui-kit-icon ui-kit-icon_cross"></i>
+                        </button>
+                    </div>
+                    <div class="sidebar--inner" id="sideMenu"></div>
+                </ul>
+                <div class="dropdown--overlay"></div>
+            </div>
+        </nav>
+        <div id="resizer" class="resizer" data-item-type="BAR"></div>
+        <div id="main" data-item-type="SECTION" role="main">
+<div class="main-content" data-page-type="classlike" id="content" pageIds="kotlin-audio-metadata::com.berryos.audiometadata.id3/Id3v2Tag///PointingToDeclaration//629281051">
+  <div class="breadcrumbs"><a href="../../../index.html">kotlin-audio-metadata</a><span class="delimiter">/</span><a href="../index.html">com.berryos.audiometadata.id3</a><span class="delimiter">/</span><span class="current">Id3v2Tag</span></div>
+  <div class="cover ">
+    <h1 class="cover"><span><span>Id3v2Tag</span></span></h1>
+    <div class="platform-hinted  with-platform-tabs" data-platform-hinted="data-platform-hinted">
+      <div class="platform-bookmarks-row" data-toggle-list="data-toggle-list"><button class="platform-bookmark" data-filterable-current=":/commonMain" data-filterable-set=":/commonMain" data-active="" data-toggle=":/commonMain">common</button></div>
+<div class="content sourceset-dependent-content" data-active="" data-togglable=":/commonMain"><div class="symbol monospace"><span class="token keyword">class </span><a href="index.html">Id3v2Tag</a> : <a href="../-id3-tag/index.html">Id3Tag</a></div><p class="paragraph">A parsed ID3v2 tag.</p><p class="paragraph">Frames are exposed as they were read, including the ones without a typed mapping. Typed properties resolve the common frames listed in the ID3v2.3/2.4 specifications.</p><p class="paragraph">The tag is mutable and not thread-safe. <a href="../-id3v2-frame/content.html">Id3v2Frame.content</a> is a read-only view.</p></div>    </div>
+  </div>
+  <div class="tabbedcontent">
+    <div class="tabs-section" tabs-section="tabs-section"><button class="section-tab" data-active="" data-togglable="CONSTRUCTOR,TYPE,PROPERTY,FUNCTION">Members</button></div>
+    <div class="tabs-section-body">
+      <div data-togglable="TYPE">
+        <h2 class="tableheader">Types</h2>
+        <div class="table"><a data-name="-2075544212%2FClasslikes%2F629281051" anchor-label="Companion" id="-2075544212%2FClasslikes%2F629281051" data-filterable-set=":/commonMain"></a>
+          <div class="table-row table-row_content" data-filterable-current=":/commonMain" data-filterable-set=":/commonMain">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="-companion/index.html"><span><span>Companion</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-2075544212%2FClasslikes%2F629281051"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted  with-platform-tabs" data-platform-hinted="data-platform-hinted">
+                    <div class="platform-bookmarks-row" data-toggle-list="data-toggle-list"><button class="platform-bookmark" data-filterable-current=":/commonMain" data-filterable-set=":/commonMain" data-active="" data-toggle=":/commonMain">common</button></div>
+<div class="content sourceset-dependent-content" data-active="" data-togglable=":/commonMain"><div class="symbol monospace"><span class="token keyword">object </span><a href="-companion/index.html">Companion</a></div></div>                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div data-togglable="PROPERTY">
+        <h2 class="tableheader">Properties</h2>
+        <div class="table"><a data-name="180921494%2FProperties%2F629281051" anchor-label="album" id="180921494%2FProperties%2F629281051" data-filterable-set=":/commonMain"></a>
+          <div class="table-row table-row_content" data-filterable-current=":/commonMain" data-filterable-set=":/commonMain">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="album.html"><span><span>album</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="180921494%2FProperties%2F629281051"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted  with-platform-tabs" data-platform-hinted="data-platform-hinted">
+                    <div class="platform-bookmarks-row" data-toggle-list="data-toggle-list"><button class="platform-bookmark" data-filterable-current=":/commonMain" data-filterable-set=":/commonMain" data-active="" data-toggle=":/commonMain">common</button></div>
+<div class="content sourceset-dependent-content" data-active="" data-togglable=":/commonMain"><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">override </span><span class="token keyword">var </span><a href="album.html">album</a><span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-string/index.html">String</a><span class="token operator">?</span></div></div>                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="1493427279%2FProperties%2F629281051" anchor-label="albumArtist" id="1493427279%2FProperties%2F629281051" data-filterable-set=":/commonMain"></a>
+          <div class="table-row table-row_content" data-filterable-current=":/commonMain" data-filterable-set=":/commonMain">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="album-artist.html"><span>album</span><wbr></wbr><span><span>Artist</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="1493427279%2FProperties%2F629281051"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted  with-platform-tabs" data-platform-hinted="data-platform-hinted">
+                    <div class="platform-bookmarks-row" data-toggle-list="data-toggle-list"><button class="platform-bookmark" data-filterable-current=":/commonMain" data-filterable-set=":/commonMain" data-active="" data-toggle=":/commonMain">common</button></div>
+<div class="content sourceset-dependent-content" data-active="" data-togglable=":/commonMain"><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">override </span><span class="token keyword">var </span><a href="album-artist.html">albumArtist</a><span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-string/index.html">String</a><span class="token operator">?</span></div></div>                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="-1633158759%2FProperties%2F629281051" anchor-label="artists" id="-1633158759%2FProperties%2F629281051" data-filterable-set=":/commonMain"></a>
+          <div class="table-row table-row_content" data-filterable-current=":/commonMain" data-filterable-set=":/commonMain">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="artists.html"><span><span>artists</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-1633158759%2FProperties%2F629281051"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted  with-platform-tabs" data-platform-hinted="data-platform-hinted">
+                    <div class="platform-bookmarks-row" data-toggle-list="data-toggle-list"><button class="platform-bookmark" data-filterable-current=":/commonMain" data-filterable-set=":/commonMain" data-active="" data-toggle=":/commonMain">common</button></div>
+<div class="content sourceset-dependent-content" data-active="" data-togglable=":/commonMain"><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">override </span><span class="token keyword">var </span><a href="artists.html">artists</a><span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin.collections/-list/index.html">List</a><span class="token operator">&lt;</span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-string/index.html">String</a><span class="token operator">&gt;</span></div></div>                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="1270455350%2FProperties%2F629281051" anchor-label="artworks" id="1270455350%2FProperties%2F629281051" data-filterable-set=":/commonMain"></a>
+          <div class="table-row table-row_content" data-filterable-current=":/commonMain" data-filterable-set=":/commonMain">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="artworks.html"><span><span>artworks</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="1270455350%2FProperties%2F629281051"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted  with-platform-tabs" data-platform-hinted="data-platform-hinted">
+                    <div class="platform-bookmarks-row" data-toggle-list="data-toggle-list"><button class="platform-bookmark" data-filterable-current=":/commonMain" data-filterable-set=":/commonMain" data-active="" data-toggle=":/commonMain">common</button></div>
+<div class="content sourceset-dependent-content" data-active="" data-togglable=":/commonMain"><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">override </span><span class="token keyword">val </span><a href="artworks.html">artworks</a><span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin.collections/-list/index.html">List</a><span class="token operator">&lt;</span><a href="../../com.berryos.audiometadata/-artwork/index.html">Artwork</a><span class="token operator">&gt;</span></div></div>                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="-1187859743%2FProperties%2F629281051" anchor-label="comments" id="-1187859743%2FProperties%2F629281051" data-filterable-set=":/commonMain"></a>
+          <div class="table-row table-row_content" data-filterable-current=":/commonMain" data-filterable-set=":/commonMain">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="comments.html"><span><span>comments</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-1187859743%2FProperties%2F629281051"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted  with-platform-tabs" data-platform-hinted="data-platform-hinted">
+                    <div class="platform-bookmarks-row" data-toggle-list="data-toggle-list"><button class="platform-bookmark" data-filterable-current=":/commonMain" data-filterable-set=":/commonMain" data-active="" data-toggle=":/commonMain">common</button></div>
+<div class="content sourceset-dependent-content" data-active="" data-togglable=":/commonMain"><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">override </span><span class="token keyword">var </span><a href="comments.html">comments</a><span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin.collections/-list/index.html">List</a><span class="token operator">&lt;</span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-string/index.html">String</a><span class="token operator">&gt;</span></div></div>                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="-1997089742%2FProperties%2F629281051" anchor-label="composers" id="-1997089742%2FProperties%2F629281051" data-filterable-set=":/commonMain"></a>
+          <div class="table-row table-row_content" data-filterable-current=":/commonMain" data-filterable-set=":/commonMain">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="composers.html"><span><span>composers</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-1997089742%2FProperties%2F629281051"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted  with-platform-tabs" data-platform-hinted="data-platform-hinted">
+                    <div class="platform-bookmarks-row" data-toggle-list="data-toggle-list"><button class="platform-bookmark" data-filterable-current=":/commonMain" data-filterable-set=":/commonMain" data-active="" data-toggle=":/commonMain">common</button></div>
+<div class="content sourceset-dependent-content" data-active="" data-togglable=":/commonMain"><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">override </span><span class="token keyword">var </span><a href="composers.html">composers</a><span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin.collections/-list/index.html">List</a><span class="token operator">&lt;</span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-string/index.html">String</a><span class="token operator">&gt;</span></div></div>                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="-867563686%2FProperties%2F629281051" anchor-label="declaredSize" id="-867563686%2FProperties%2F629281051" data-filterable-set=":/commonMain"></a>
+          <div class="table-row table-row_content" data-filterable-current=":/commonMain" data-filterable-set=":/commonMain">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="declared-size.html"><span>declared</span><wbr></wbr><span><span>Size</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-867563686%2FProperties%2F629281051"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted  with-platform-tabs" data-platform-hinted="data-platform-hinted">
+                    <div class="platform-bookmarks-row" data-toggle-list="data-toggle-list"><button class="platform-bookmark" data-filterable-current=":/commonMain" data-filterable-set=":/commonMain" data-active="" data-toggle=":/commonMain">common</button></div>
+<div class="content sourceset-dependent-content" data-active="" data-togglable=":/commonMain"><div class="symbol monospace"><span class="token keyword">val </span><a href="declared-size.html">declaredSize</a><span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-int/index.html">Int</a></div></div>                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="1550983383%2FProperties%2F629281051" anchor-label="discNumber" id="1550983383%2FProperties%2F629281051" data-filterable-set=":/commonMain"></a>
+          <div class="table-row table-row_content" data-filterable-current=":/commonMain" data-filterable-set=":/commonMain">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="disc-number.html"><span>disc</span><wbr></wbr><span><span>Number</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="1550983383%2FProperties%2F629281051"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted  with-platform-tabs" data-platform-hinted="data-platform-hinted">
+                    <div class="platform-bookmarks-row" data-toggle-list="data-toggle-list"><button class="platform-bookmark" data-filterable-current=":/commonMain" data-filterable-set=":/commonMain" data-active="" data-toggle=":/commonMain">common</button></div>
+<div class="content sourceset-dependent-content" data-active="" data-togglable=":/commonMain"><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">override </span><span class="token keyword">var </span><a href="disc-number.html">discNumber</a><span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-int/index.html">Int</a><span class="token operator">?</span></div></div>                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="2110645334%2FProperties%2F629281051" anchor-label="discTotal" id="2110645334%2FProperties%2F629281051" data-filterable-set=":/commonMain"></a>
+          <div class="table-row table-row_content" data-filterable-current=":/commonMain" data-filterable-set=":/commonMain">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="disc-total.html"><span>disc</span><wbr></wbr><span><span>Total</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="2110645334%2FProperties%2F629281051"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted  with-platform-tabs" data-platform-hinted="data-platform-hinted">
+                    <div class="platform-bookmarks-row" data-toggle-list="data-toggle-list"><button class="platform-bookmark" data-filterable-current=":/commonMain" data-filterable-set=":/commonMain" data-active="" data-toggle=":/commonMain">common</button></div>
+<div class="content sourceset-dependent-content" data-active="" data-togglable=":/commonMain"><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">override </span><span class="token keyword">var </span><a href="disc-total.html">discTotal</a><span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-int/index.html">Int</a><span class="token operator">?</span></div></div>                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="45164526%2FProperties%2F629281051" anchor-label="extendedHeaderSize" id="45164526%2FProperties%2F629281051" data-filterable-set=":/commonMain"></a>
+          <div class="table-row table-row_content" data-filterable-current=":/commonMain" data-filterable-set=":/commonMain">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="extended-header-size.html"><span>extended</span><wbr></wbr><span>Header</span><wbr></wbr><span><span>Size</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="45164526%2FProperties%2F629281051"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted  with-platform-tabs" data-platform-hinted="data-platform-hinted">
+                    <div class="platform-bookmarks-row" data-toggle-list="data-toggle-list"><button class="platform-bookmark" data-filterable-current=":/commonMain" data-filterable-set=":/commonMain" data-active="" data-toggle=":/commonMain">common</button></div>
+<div class="content sourceset-dependent-content" data-active="" data-togglable=":/commonMain"><div class="symbol monospace"><span class="token keyword">val </span><a href="extended-header-size.html">extendedHeaderSize</a><span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-int/index.html">Int</a></div></div>                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="-1646371217%2FProperties%2F629281051" anchor-label="frames" id="-1646371217%2FProperties%2F629281051" data-filterable-set=":/commonMain"></a>
+          <div class="table-row table-row_content" data-filterable-current=":/commonMain" data-filterable-set=":/commonMain">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="frames.html"><span><span>frames</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-1646371217%2FProperties%2F629281051"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted  with-platform-tabs" data-platform-hinted="data-platform-hinted">
+                    <div class="platform-bookmarks-row" data-toggle-list="data-toggle-list"><button class="platform-bookmark" data-filterable-current=":/commonMain" data-filterable-set=":/commonMain" data-active="" data-toggle=":/commonMain">common</button></div>
+<div class="content sourceset-dependent-content" data-active="" data-togglable=":/commonMain"><div class="symbol monospace"><span class="token keyword">val </span><a href="frames.html">frames</a><span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin.collections/-list/index.html">List</a><span class="token operator">&lt;</span><a href="../-id3v2-frame/index.html">Id3v2Frame</a><span class="token operator">&gt;</span></div></div>                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="1998991109%2FProperties%2F629281051" anchor-label="genres" id="1998991109%2FProperties%2F629281051" data-filterable-set=":/commonMain"></a>
+          <div class="table-row table-row_content" data-filterable-current=":/commonMain" data-filterable-set=":/commonMain">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="genres.html"><span><span>genres</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="1998991109%2FProperties%2F629281051"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted  with-platform-tabs" data-platform-hinted="data-platform-hinted">
+                    <div class="platform-bookmarks-row" data-toggle-list="data-toggle-list"><button class="platform-bookmark" data-filterable-current=":/commonMain" data-filterable-set=":/commonMain" data-active="" data-toggle=":/commonMain">common</button></div>
+<div class="content sourceset-dependent-content" data-active="" data-togglable=":/commonMain"><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">override </span><span class="token keyword">var </span><a href="genres.html">genres</a><span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin.collections/-list/index.html">List</a><span class="token operator">&lt;</span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-string/index.html">String</a><span class="token operator">&gt;</span></div></div>                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="667071728%2FProperties%2F629281051" anchor-label="hasFooter" id="667071728%2FProperties%2F629281051" data-filterable-set=":/commonMain"></a>
+          <div class="table-row table-row_content" data-filterable-current=":/commonMain" data-filterable-set=":/commonMain">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="has-footer.html"><span>has</span><wbr></wbr><span><span>Footer</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="667071728%2FProperties%2F629281051"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted  with-platform-tabs" data-platform-hinted="data-platform-hinted">
+                    <div class="platform-bookmarks-row" data-toggle-list="data-toggle-list"><button class="platform-bookmark" data-filterable-current=":/commonMain" data-filterable-set=":/commonMain" data-active="" data-toggle=":/commonMain">common</button></div>
+<div class="content sourceset-dependent-content" data-active="" data-togglable=":/commonMain"><div class="symbol monospace"><span class="token keyword">val </span><a href="has-footer.html">hasFooter</a><span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-boolean/index.html">Boolean</a></div></div>                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="-1468813599%2FProperties%2F629281051" anchor-label="lyrics" id="-1468813599%2FProperties%2F629281051" data-filterable-set=":/commonMain"></a>
+          <div class="table-row table-row_content" data-filterable-current=":/commonMain" data-filterable-set=":/commonMain">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="lyrics.html"><span><span>lyrics</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-1468813599%2FProperties%2F629281051"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted  with-platform-tabs" data-platform-hinted="data-platform-hinted">
+                    <div class="platform-bookmarks-row" data-toggle-list="data-toggle-list"><button class="platform-bookmark" data-filterable-current=":/commonMain" data-filterable-set=":/commonMain" data-active="" data-toggle=":/commonMain">common</button></div>
+<div class="content sourceset-dependent-content" data-active="" data-togglable=":/commonMain"><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">override </span><span class="token keyword">var </span><a href="lyrics.html">lyrics</a><span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-string/index.html">String</a><span class="token operator">?</span></div></div>                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="-2092829005%2FProperties%2F629281051" anchor-label="paddingSize" id="-2092829005%2FProperties%2F629281051" data-filterable-set=":/commonMain"></a>
+          <div class="table-row table-row_content" data-filterable-current=":/commonMain" data-filterable-set=":/commonMain">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="padding-size.html"><span>padding</span><wbr></wbr><span><span>Size</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-2092829005%2FProperties%2F629281051"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted  with-platform-tabs" data-platform-hinted="data-platform-hinted">
+                    <div class="platform-bookmarks-row" data-toggle-list="data-toggle-list"><button class="platform-bookmark" data-filterable-current=":/commonMain" data-filterable-set=":/commonMain" data-active="" data-toggle=":/commonMain">common</button></div>
+<div class="content sourceset-dependent-content" data-active="" data-togglable=":/commonMain"><div class="symbol monospace"><span class="token keyword">val </span><a href="padding-size.html">paddingSize</a><span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-int/index.html">Int</a></div></div>                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="-1289476337%2FProperties%2F629281051" anchor-label="replayGain" id="-1289476337%2FProperties%2F629281051" data-filterable-set=":/commonMain"></a>
+          <div class="table-row table-row_content" data-filterable-current=":/commonMain" data-filterable-set=":/commonMain">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="replay-gain.html"><span>replay</span><wbr></wbr><span><span>Gain</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-1289476337%2FProperties%2F629281051"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted  with-platform-tabs" data-platform-hinted="data-platform-hinted">
+                    <div class="platform-bookmarks-row" data-toggle-list="data-toggle-list"><button class="platform-bookmark" data-filterable-current=":/commonMain" data-filterable-set=":/commonMain" data-active="" data-toggle=":/commonMain">common</button></div>
+<div class="content sourceset-dependent-content" data-active="" data-togglable=":/commonMain"><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">override </span><span class="token keyword">var </span><a href="replay-gain.html">replayGain</a><span class="token operator">: </span><a href="../../com.berryos.audiometadata/-replay-gain/index.html">ReplayGain</a><span class="token operator">?</span></div></div>                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="-421135654%2FProperties%2F629281051" anchor-label="revision" id="-421135654%2FProperties%2F629281051" data-filterable-set=":/commonMain"></a>
+          <div class="table-row table-row_content" data-filterable-current=":/commonMain" data-filterable-set=":/commonMain">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="revision.html"><span><span>revision</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-421135654%2FProperties%2F629281051"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted  with-platform-tabs" data-platform-hinted="data-platform-hinted">
+                    <div class="platform-bookmarks-row" data-toggle-list="data-toggle-list"><button class="platform-bookmark" data-filterable-current=":/commonMain" data-filterable-set=":/commonMain" data-active="" data-toggle=":/commonMain">common</button></div>
+<div class="content sourceset-dependent-content" data-active="" data-togglable=":/commonMain"><div class="symbol monospace"><span class="token keyword">val </span><a href="revision.html">revision</a><span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-int/index.html">Int</a></div></div>                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="2008549581%2FProperties%2F629281051" anchor-label="title" id="2008549581%2FProperties%2F629281051" data-filterable-set=":/commonMain"></a>
+          <div class="table-row table-row_content" data-filterable-current=":/commonMain" data-filterable-set=":/commonMain">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="title.html"><span><span>title</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="2008549581%2FProperties%2F629281051"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted  with-platform-tabs" data-platform-hinted="data-platform-hinted">
+                    <div class="platform-bookmarks-row" data-toggle-list="data-toggle-list"><button class="platform-bookmark" data-filterable-current=":/commonMain" data-filterable-set=":/commonMain" data-active="" data-toggle=":/commonMain">common</button></div>
+<div class="content sourceset-dependent-content" data-active="" data-togglable=":/commonMain"><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">override </span><span class="token keyword">var </span><a href="title.html">title</a><span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-string/index.html">String</a><span class="token operator">?</span></div></div>                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="1894662193%2FProperties%2F629281051" anchor-label="trackNumber" id="1894662193%2FProperties%2F629281051" data-filterable-set=":/commonMain"></a>
+          <div class="table-row table-row_content" data-filterable-current=":/commonMain" data-filterable-set=":/commonMain">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="track-number.html"><span>track</span><wbr></wbr><span><span>Number</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="1894662193%2FProperties%2F629281051"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted  with-platform-tabs" data-platform-hinted="data-platform-hinted">
+                    <div class="platform-bookmarks-row" data-toggle-list="data-toggle-list"><button class="platform-bookmark" data-filterable-current=":/commonMain" data-filterable-set=":/commonMain" data-active="" data-toggle=":/commonMain">common</button></div>
+<div class="content sourceset-dependent-content" data-active="" data-togglable=":/commonMain"><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">override </span><span class="token keyword">var </span><a href="track-number.html">trackNumber</a><span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-int/index.html">Int</a><span class="token operator">?</span></div></div>                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="-1341951556%2FProperties%2F629281051" anchor-label="trackTotal" id="-1341951556%2FProperties%2F629281051" data-filterable-set=":/commonMain"></a>
+          <div class="table-row table-row_content" data-filterable-current=":/commonMain" data-filterable-set=":/commonMain">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="track-total.html"><span>track</span><wbr></wbr><span><span>Total</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-1341951556%2FProperties%2F629281051"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted  with-platform-tabs" data-platform-hinted="data-platform-hinted">
+                    <div class="platform-bookmarks-row" data-toggle-list="data-toggle-list"><button class="platform-bookmark" data-filterable-current=":/commonMain" data-filterable-set=":/commonMain" data-active="" data-toggle=":/commonMain">common</button></div>
+<div class="content sourceset-dependent-content" data-active="" data-togglable=":/commonMain"><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">override </span><span class="token keyword">var </span><a href="track-total.html">trackTotal</a><span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-int/index.html">Int</a><span class="token operator">?</span></div></div>                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="-2146429137%2FProperties%2F629281051" anchor-label="unsynchronised" id="-2146429137%2FProperties%2F629281051" data-filterable-set=":/commonMain"></a>
+          <div class="table-row table-row_content" data-filterable-current=":/commonMain" data-filterable-set=":/commonMain">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="unsynchronised.html"><span><span>unsynchronised</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-2146429137%2FProperties%2F629281051"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted  with-platform-tabs" data-platform-hinted="data-platform-hinted">
+                    <div class="platform-bookmarks-row" data-toggle-list="data-toggle-list"><button class="platform-bookmark" data-filterable-current=":/commonMain" data-filterable-set=":/commonMain" data-active="" data-toggle=":/commonMain">common</button></div>
+<div class="content sourceset-dependent-content" data-active="" data-togglable=":/commonMain"><div class="symbol monospace"><span class="token keyword">val </span><a href="unsynchronised.html">unsynchronised</a><span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-boolean/index.html">Boolean</a></div></div>                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="-963484595%2FProperties%2F629281051" anchor-label="version" id="-963484595%2FProperties%2F629281051" data-filterable-set=":/commonMain"></a>
+          <div class="table-row table-row_content" data-filterable-current=":/commonMain" data-filterable-set=":/commonMain">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="version.html"><span><span>version</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-963484595%2FProperties%2F629281051"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted  with-platform-tabs" data-platform-hinted="data-platform-hinted">
+                    <div class="platform-bookmarks-row" data-toggle-list="data-toggle-list"><button class="platform-bookmark" data-filterable-current=":/commonMain" data-filterable-set=":/commonMain" data-active="" data-toggle=":/commonMain">common</button></div>
+<div class="content sourceset-dependent-content" data-active="" data-togglable=":/commonMain"><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">override </span><span class="token keyword">val </span><a href="version.html">version</a><span class="token operator">: </span><a href="../../com.berryos.audiometadata/-id3-version/index.html">Id3Version</a></div></div>                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="421464248%2FProperties%2F629281051" anchor-label="year" id="421464248%2FProperties%2F629281051" data-filterable-set=":/commonMain"></a>
+          <div class="table-row table-row_content" data-filterable-current=":/commonMain" data-filterable-set=":/commonMain">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="year.html"><span><span>year</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="421464248%2FProperties%2F629281051"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted  with-platform-tabs" data-platform-hinted="data-platform-hinted">
+                    <div class="platform-bookmarks-row" data-toggle-list="data-toggle-list"><button class="platform-bookmark" data-filterable-current=":/commonMain" data-filterable-set=":/commonMain" data-active="" data-toggle=":/commonMain">common</button></div>
+<div class="content sourceset-dependent-content" data-active="" data-togglable=":/commonMain"><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">override </span><span class="token keyword">var </span><a href="year.html">year</a><span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-string/index.html">String</a><span class="token operator">?</span></div></div>                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div data-togglable="FUNCTION">
+        <h2 class="tableheader">Functions</h2>
+        <div class="table"><a data-name="-218739488%2FFunctions%2F629281051" anchor-label="addFrame" id="-218739488%2FFunctions%2F629281051" data-filterable-set=":/commonMain"></a>
+          <div class="table-row table-row_content" data-filterable-current=":/commonMain" data-filterable-set=":/commonMain">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="add-frame.html"><span>add</span><wbr></wbr><span><span>Frame</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-218739488%2FFunctions%2F629281051"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted  with-platform-tabs" data-platform-hinted="data-platform-hinted">
+                    <div class="platform-bookmarks-row" data-toggle-list="data-toggle-list"><button class="platform-bookmark" data-filterable-current=":/commonMain" data-filterable-set=":/commonMain" data-active="" data-toggle=":/commonMain">common</button></div>
+<div class="content sourceset-dependent-content" data-active="" data-togglable=":/commonMain"><div class="symbol monospace"><span class="token keyword">fun </span><a href="add-frame.html"><span class="token function">addFrame</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">id<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-string/index.html">String</a><span class="token punctuation">, </span></span><span class="parameter ">content<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-byte-array/index.html">ByteArray</a></span></span><span class="token punctuation">)</span></div><div class="brief "><p class="paragraph">Adds a frame with <a href="add-frame.html">content</a> without removing existing frames with the same <a href="add-frame.html">id</a>.</p></div></div>                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="1416863548%2FFunctions%2F629281051" anchor-label="firstText" id="1416863548%2FFunctions%2F629281051" data-filterable-set=":/commonMain"></a>
+          <div class="table-row table-row_content" data-filterable-current=":/commonMain" data-filterable-set=":/commonMain">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="first-text.html"><span>first</span><wbr></wbr><span><span>Text</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="1416863548%2FFunctions%2F629281051"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted  with-platform-tabs" data-platform-hinted="data-platform-hinted">
+                    <div class="platform-bookmarks-row" data-toggle-list="data-toggle-list"><button class="platform-bookmark" data-filterable-current=":/commonMain" data-filterable-set=":/commonMain" data-active="" data-toggle=":/commonMain">common</button></div>
+<div class="content sourceset-dependent-content" data-active="" data-togglable=":/commonMain"><div class="symbol monospace"><span class="token keyword">fun </span><a href="first-text.html"><span class="token function">firstText</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">id<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-string/index.html">String</a></span></span><span class="token punctuation">)</span><span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-string/index.html">String</a><span class="token operator">?</span></div></div>                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="1698516012%2FFunctions%2F629281051" anchor-label="framesOf" id="1698516012%2FFunctions%2F629281051" data-filterable-set=":/commonMain"></a>
+          <div class="table-row table-row_content" data-filterable-current=":/commonMain" data-filterable-set=":/commonMain">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="frames-of.html"><span>frames</span><wbr></wbr><span><span>Of</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="1698516012%2FFunctions%2F629281051"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted  with-platform-tabs" data-platform-hinted="data-platform-hinted">
+                    <div class="platform-bookmarks-row" data-toggle-list="data-toggle-list"><button class="platform-bookmark" data-filterable-current=":/commonMain" data-filterable-set=":/commonMain" data-active="" data-toggle=":/commonMain">common</button></div>
+<div class="content sourceset-dependent-content" data-active="" data-togglable=":/commonMain"><div class="symbol monospace"><span class="token keyword">fun </span><a href="frames-of.html"><span class="token function">framesOf</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">id<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-string/index.html">String</a></span></span><span class="token punctuation">)</span><span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin.collections/-list/index.html">List</a><span class="token operator">&lt;</span><a href="../-id3v2-frame/index.html">Id3v2Frame</a><span class="token operator">&gt;</span></div></div>                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="-1189101688%2FFunctions%2F629281051" anchor-label="removeFrame" id="-1189101688%2FFunctions%2F629281051" data-filterable-set=":/commonMain"></a>
+          <div class="table-row table-row_content" data-filterable-current=":/commonMain" data-filterable-set=":/commonMain">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="remove-frame.html"><span>remove</span><wbr></wbr><span><span>Frame</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-1189101688%2FFunctions%2F629281051"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted  with-platform-tabs" data-platform-hinted="data-platform-hinted">
+                    <div class="platform-bookmarks-row" data-toggle-list="data-toggle-list"><button class="platform-bookmark" data-filterable-current=":/commonMain" data-filterable-set=":/commonMain" data-active="" data-toggle=":/commonMain">common</button></div>
+<div class="content sourceset-dependent-content" data-active="" data-togglable=":/commonMain"><div class="symbol monospace"><span class="token keyword">fun </span><a href="remove-frame.html"><span class="token function">removeFrame</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">id<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-string/index.html">String</a></span></span><span class="token punctuation">)</span></div><div class="brief "><p class="paragraph">Removes every frame whose ID is <a href="remove-frame.html">id</a>.</p></div></div>                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="-4288102%2FFunctions%2F629281051" anchor-label="setArtworks" id="-4288102%2FFunctions%2F629281051" data-filterable-set=":/commonMain"></a>
+          <div class="table-row table-row_content" data-filterable-current=":/commonMain" data-filterable-set=":/commonMain">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="set-artworks.html"><span>set</span><wbr></wbr><span><span>Artworks</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-4288102%2FFunctions%2F629281051"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted  with-platform-tabs" data-platform-hinted="data-platform-hinted">
+                    <div class="platform-bookmarks-row" data-toggle-list="data-toggle-list"><button class="platform-bookmark" data-filterable-current=":/commonMain" data-filterable-set=":/commonMain" data-active="" data-toggle=":/commonMain">common</button></div>
+<div class="content sourceset-dependent-content" data-active="" data-togglable=":/commonMain"><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">override </span><span class="token keyword">fun </span><a href="set-artworks.html"><span class="token function">setArtworks</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">artworks<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin.collections/-list/index.html">List</a><span class="token operator">&lt;</span><a href="../../com.berryos.audiometadata/-artwork/index.html">Artwork</a><span class="token operator">&gt;</span></span></span><span class="token punctuation">)</span></div><div class="brief "><p class="paragraph">Replaces the embedded pictures.</p></div></div>                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="1319506209%2FFunctions%2F629281051" anchor-label="setFrame" id="1319506209%2FFunctions%2F629281051" data-filterable-set=":/commonMain"></a>
+          <div class="table-row table-row_content" data-filterable-current=":/commonMain" data-filterable-set=":/commonMain">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="set-frame.html"><span>set</span><wbr></wbr><span><span>Frame</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="1319506209%2FFunctions%2F629281051"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted  with-platform-tabs" data-platform-hinted="data-platform-hinted">
+                    <div class="platform-bookmarks-row" data-toggle-list="data-toggle-list"><button class="platform-bookmark" data-filterable-current=":/commonMain" data-filterable-set=":/commonMain" data-active="" data-toggle=":/commonMain">common</button></div>
+<div class="content sourceset-dependent-content" data-active="" data-togglable=":/commonMain"><div class="symbol monospace"><span class="token keyword">fun </span><a href="set-frame.html"><span class="token function">setFrame</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">id<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-string/index.html">String</a><span class="token punctuation">, </span></span><span class="parameter ">content<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-byte-array/index.html">ByteArray</a></span></span><span class="token punctuation">)</span></div><div class="brief "><p class="paragraph">Replaces every frame with <a href="set-frame.html">id</a> by a single frame whose body is <a href="set-frame.html">content</a>.</p></div></div>                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="632277532%2FFunctions%2F629281051" anchor-label="setTextFrame" id="632277532%2FFunctions%2F629281051" data-filterable-set=":/commonMain"></a>
+          <div class="table-row table-row_content" data-filterable-current=":/commonMain" data-filterable-set=":/commonMain">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="set-text-frame.html"><span>set</span><wbr></wbr><span>Text</span><wbr></wbr><span><span>Frame</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="632277532%2FFunctions%2F629281051"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted  with-platform-tabs" data-platform-hinted="data-platform-hinted">
+                    <div class="platform-bookmarks-row" data-toggle-list="data-toggle-list"><button class="platform-bookmark" data-filterable-current=":/commonMain" data-filterable-set=":/commonMain" data-active="" data-toggle=":/commonMain">common</button></div>
+<div class="content sourceset-dependent-content" data-active="" data-togglable=":/commonMain"><div class="symbol monospace"><span class="token keyword">fun </span><a href="set-text-frame.html"><span class="token function">setTextFrame</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">id<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-string/index.html">String</a><span class="token punctuation">, </span></span><span class="parameter ">values<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin.collections/-list/index.html">List</a><span class="token operator">&lt;</span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-string/index.html">String</a><span class="token operator">&gt;</span></span></span><span class="token punctuation">)</span></div><div class="brief "><p class="paragraph">Replaces every frame with <a href="set-text-frame.html">id</a> by one text frame carrying <a href="set-text-frame.html">values</a>.</p></div></div>                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="-118747074%2FFunctions%2F629281051" anchor-label="textValues" id="-118747074%2FFunctions%2F629281051" data-filterable-set=":/commonMain"></a>
+          <div class="table-row table-row_content" data-filterable-current=":/commonMain" data-filterable-set=":/commonMain">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="text-values.html"><span>text</span><wbr></wbr><span><span>Values</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-118747074%2FFunctions%2F629281051"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted  with-platform-tabs" data-platform-hinted="data-platform-hinted">
+                    <div class="platform-bookmarks-row" data-toggle-list="data-toggle-list"><button class="platform-bookmark" data-filterable-current=":/commonMain" data-filterable-set=":/commonMain" data-active="" data-toggle=":/commonMain">common</button></div>
+<div class="content sourceset-dependent-content" data-active="" data-togglable=":/commonMain"><div class="symbol monospace"><span class="token keyword">fun </span><a href="text-values.html"><span class="token function">textValues</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">id<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-string/index.html">String</a></span></span><span class="token punctuation">)</span><span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin.collections/-list/index.html">List</a><span class="token operator">&lt;</span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-string/index.html">String</a><span class="token operator">&gt;</span></div><div class="brief "><p class="paragraph">Decoded values of the text frame <a href="text-values.html">id</a>; repeated frames contribute all their values.</p></div></div>                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="-545123562%2FFunctions%2F629281051" anchor-label="toAudioMetadata" id="-545123562%2FFunctions%2F629281051" data-filterable-set=":/commonMain"></a>
+          <div class="table-row table-row_content" data-filterable-current=":/commonMain" data-filterable-set=":/commonMain">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="to-audio-metadata.html"><span>to</span><wbr></wbr><span>Audio</span><wbr></wbr><span><span>Metadata</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-545123562%2FFunctions%2F629281051"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted  with-platform-tabs" data-platform-hinted="data-platform-hinted">
+                    <div class="platform-bookmarks-row" data-toggle-list="data-toggle-list"><button class="platform-bookmark" data-filterable-current=":/commonMain" data-filterable-set=":/commonMain" data-active="" data-toggle=":/commonMain">common</button></div>
+<div class="content sourceset-dependent-content" data-active="" data-togglable=":/commonMain"><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">override </span><span class="token keyword">fun </span><a href="to-audio-metadata.html"><span class="token function">toAudioMetadata</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">format<span class="token operator">: </span><a href="../../com.berryos.audiometadata/-audio-format/index.html">AudioFormat</a><span class="token operator"> = </span>AudioFormat.MP3<span class="token punctuation">, </span></span><span class="parameter ">audioInfo<span class="token operator">: </span><a href="../../com.berryos.audiometadata/-audio-info/index.html">AudioInfo</a><span class="token operator">?</span><span class="token operator"> = </span>null</span></span><span class="token punctuation">)</span><span class="token operator">: </span><a href="../../com.berryos.audiometadata/-audio-metadata/index.html">AudioMetadata</a></div></div>                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+    <div class="footer">
+        <div class="footer--container">
+            <a href="#content" id="go-to-top-link" class="footer--button footer--button_go-to-top"></a>
+            <div class="footer--content">
+                <div>
+                    <span>Generated by </span>
+                    <a class="footer--link footer--link_external" href="https://github.com/Kotlin/dokka">
+                        Dokka
+                    </a>
+                    <div>© 2026 Copyright</div>
+                </div>
+            </div>
+        </div>
+    </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>
