@@ -13,12 +13,12 @@ internal class Mp3Metadata(
     val id3v1: Id3v1Tag?,
     val audioInfo: AudioInfo? = null,
 ) {
-    fun toAudioMetadata(): AudioMetadata = tag?.toAudioMetadata(AudioFormat.Mp3, audioInfo)
+    fun toAudioMetadata(): AudioMetadata = tag?.toAudioMetadata(AudioFormat.MP3, audioInfo)
         ?: id3v1?.let(::id3v1Metadata)
-        ?: AudioMetadata(format = AudioFormat.Mp3, audioInfo = audioInfo)
+        ?: AudioMetadata(format = AudioFormat.MP3, audioInfo = audioInfo)
 
     private fun id3v1Metadata(tag: Id3v1Tag): AudioMetadata = AudioMetadata(
-        format = AudioFormat.Mp3,
+        format = AudioFormat.MP3,
         title = tag.title,
         artists = listOfNotNull(tag.artist),
         album = tag.album,

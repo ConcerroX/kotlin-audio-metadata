@@ -16,15 +16,15 @@ import com.berryos.audiometadata.io.readFully
  * (group identifier, data length indicator). Compressed and encrypted frames keep their stored
  * content and are never decoded by the typed accessors.
  */
-class Id3v2Frame internal constructor(
-    val id: String,
-    val statusFlags: Int,
-    val formatFlags: Int,
-    val groupId: Int?,
-    val dataLengthIndicator: Int?,
-    val compressed: Boolean,
-    val encrypted: Boolean,
-    val content: ByteArray,
+public class Id3v2Frame internal constructor(
+    public val id: String,
+    public val statusFlags: Int,
+    public val formatFlags: Int,
+    public val groupId: Int?,
+    public val dataLengthIndicator: Int?,
+    public val compressed: Boolean,
+    public val encrypted: Boolean,
+    public val content: ByteArray,
     /** Original header and stored content of frames that cannot be decoded safely. */
     internal val rawHeader: ByteArray? = null,
 )
@@ -34,28 +34,30 @@ class Id3v2Frame internal constructor(
  *
  * Frames are exposed as they were read, including the ones without a typed mapping. Typed
  * properties resolve the common frames listed in the ID3v2.3/2.4 specifications.
+ *
+ * The tag is mutable and not thread-safe. [Id3v2Frame.content] is a read-only view.
  */
-class Id3v2Tag internal constructor(
+public class Id3v2Tag internal constructor(
     override val version: Id3Version,
-    val revision: Int,
+    public val revision: Int,
     frames: List<Id3v2Frame>,
-    val declaredSize: Int,
-    val paddingSize: Int,
-    val unsynchronised: Boolean,
-    val extendedHeaderSize: Int,
-    val hasFooter: Boolean,
+    public val declaredSize: Int,
+    public val paddingSize: Int,
+    public val unsynchronised: Boolean,
+    public val extendedHeaderSize: Int,
+    public val hasFooter: Boolean,
 ) : Id3Tag {
     private val frameList = frames.toMutableList()
 
-    val frames: List<Id3v2Frame>
+    public val frames: List<Id3v2Frame>
         get() = frameList
 
-    fun framesOf(id: String): List<Id3v2Frame> = frameList.filter { frame -> frame.id == id }
+    public fun framesOf(id: String): List<Id3v2Frame> = frameList.filter { frame -> frame.id == id }
 
     /** Decoded values of the text frame [id]; repeated frames contribute all their values. */
-    fun textValues(id: String): List<String> = framesOf(id).flatMap(::frameTextValues)
+    public fun textValues(id: String): List<String> = framesOf(id).flatMap(::frameTextValues)
 
-    fun firstText(id: String): String? = textValues(id).firstOrNull()
+    public fun firstText(id: String): String? = textValues(id).firstOrNull()
 
     /**
      * Replaces every frame with [id] by a single frame whose body is [content].
@@ -67,7 +69,7 @@ class Id3v2Tag internal constructor(
      *
      * @throws IllegalArgumentException when [id] is not a valid frame ID for this tag version.
      */
-    fun setFrame(id: String, content: ByteArray) {
+    public fun setFrame(id: String, content: ByteArray) {
         val frameId = writableFrameId(id)
         frameList.removeAll { frame -> frame.id == frameId }
         frameList += defaultFrame(frameId, content)
@@ -78,18 +80,18 @@ class Id3v2Tag internal constructor(
      *
      * See [setFrame] for the expected body layout and ID mapping.
      */
-    fun addFrame(id: String, content: ByteArray) {
+    public fun addFrame(id: String, content: ByteArray) {
         frameList += defaultFrame(writableFrameId(id), content)
     }
 
     /** Removes every frame whose ID is [id]. */
-    fun removeFrame(id: String) {
+    public fun removeFrame(id: String) {
         val frameId = writableFrameId(id)
         frameList.removeAll { frame -> frame.id == frameId }
     }
 
     /** Replaces every frame with [id] by one text frame carrying [values]. */
-    fun setTextFrame(id: String, values: List<String>) {
+    public fun setTextFrame(id: String, values: List<String>) {
         val frameId = writableFrameId(id)
         frameList.removeAll { frame -> frame.id == frameId }
         if (values.isNotEmpty()) frameList += defaultFrame(frameId, Id3v2Encoding.textContent(version, values))
@@ -365,9 +367,9 @@ class Id3v2Tag internal constructor(
     private fun parseDescribedText(frame: Id3v2Frame): String? {
         if (!frame.isDecodable()) return null
         val content = frame.content
-        if (content.size < COMMENT_HEADER_SIZE) return null
+        if (content.size < LANGUAGE_TEXT_HEADER_SIZE) return null
         val encoding = content[0].toInt() and 0xFF
-        val descriptionStart = COMMENT_HEADER_SIZE
+        val descriptionStart = LANGUAGE_TEXT_HEADER_SIZE
         val descriptionEnd = Id3Text.findTerminator(encoding, content, descriptionStart)
         val textStart = descriptionEnd + Id3Text.terminatorLength(encoding)
         if (textStart > content.size) return null
@@ -442,9 +444,9 @@ class Id3v2Tag internal constructor(
         )
     }
 
-    companion object {
+    public companion object {
         /** Creates an empty tag, used when a container has no ID3v2 chunk yet. */
-        fun create(version: Id3Version = Id3Version.V23): Id3v2Tag = Id3v2Tag(
+        public fun create(version: Id3Version = Id3Version.V23): Id3v2Tag = Id3v2Tag(
             version = version,
             revision = 0,
             frames = emptyList(),
@@ -474,9 +476,9 @@ private fun hasUnsupportedFlags(version: Id3Version, statusFlags: Int, formatFla
     }
 
 /** Reads ID3v2 tags from the start of an audio file or an embedded chunk. */
-object Id3v2Reader {
+public object Id3v2Reader {
     /** Reads the tag at offset 0 of [source], or returns null when there is no parseable tag. */
-    fun read(source: RandomAccessSource): Id3v2Tag? {
+    public fun read(source: RandomAccessSource): Id3v2Tag? {
         if (source.size < HEADER_SIZE) return null
         val header = ByteArray(HEADER_SIZE)
         source.readFully(0, header, HEADER_SIZE)
@@ -661,12 +663,12 @@ object Id3v2Reader {
     }
 
     private class FramePrefix(
-        val groupId: Int?,
-        val dataLength: Int?,
-        val compressed: Boolean,
-        val encrypted: Boolean,
-        val unsynchronised: Boolean,
-        val contentStart: Int,
+        public val groupId: Int?,
+        public val dataLength: Int?,
+        public val compressed: Boolean,
+        public val encrypted: Boolean,
+        public val unsynchronised: Boolean,
+        public val contentStart: Int,
     )
 
     private fun extendedHeaderSize(version: Id3Version, body: ByteArray): Int? {
@@ -808,7 +810,7 @@ private const val V24_RESERVED_STATUS = 0x8F
 private const val V24_RESERVED_FORMAT = 0xB0
 private const val V23_EXTENDED_MIN_SIZE = 6
 private const val V24_EXTENDED_MIN_SIZE = 6
-private const val COMMENT_HEADER_SIZE = 4
+private const val LANGUAGE_TEXT_HEADER_SIZE = 4
 private const val APIC_MIN_SIZE = 4
 private const val PIC_MIN_SIZE = 5
 private const val UPPER_A = 'A'.code

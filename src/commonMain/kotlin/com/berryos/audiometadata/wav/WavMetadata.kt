@@ -29,8 +29,8 @@ internal class WavMetadata(
      * written through this library never mixes with stale INFO values.
      */
     fun toAudioMetadata(): AudioMetadata {
-        if (id3Chunk != null) return tag.toAudioMetadata(AudioFormat.Wav, audioInfo)
-        return info?.toAudioMetadata(audioInfo) ?: tag.toAudioMetadata(AudioFormat.Wav, audioInfo)
+        if (id3Chunk != null) return tag.toAudioMetadata(AudioFormat.WAV, audioInfo)
+        return info?.toAudioMetadata(audioInfo) ?: tag.toAudioMetadata(AudioFormat.WAV, audioInfo)
     }
 }
 
@@ -45,7 +45,7 @@ internal class WavInfoTags(
     val trackNumber: Int?,
 ) {
     fun toAudioMetadata(audioInfo: AudioInfo?): AudioMetadata = AudioMetadata(
-        format = AudioFormat.Wav,
+        format = AudioFormat.WAV,
         title = title,
         artists = listOfNotNull(artist),
         album = album,

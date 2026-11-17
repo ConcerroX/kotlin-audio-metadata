@@ -28,7 +28,7 @@ class FlacMetadataTest {
         val metadata = assertNotNull(FlacMetadataReader.read(sourceWith(buildFlac(tag), AUDIO)))
         val audio = metadata.toAudioMetadata()
 
-        assertEquals(AudioFormat.Flac, audio.format)
+        assertEquals(AudioFormat.FLAC, audio.format)
         assertEquals("Song", audio.title)
         assertEquals(listOf("Artist", "Guest"), audio.artists)
         assertEquals("Album", audio.album)

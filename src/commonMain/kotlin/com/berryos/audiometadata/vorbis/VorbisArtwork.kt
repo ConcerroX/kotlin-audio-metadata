@@ -5,7 +5,7 @@ import com.berryos.audiometadata.flac.encodeFlacPicture
 import com.berryos.audiometadata.flac.parseFlacPicture
 
 /** Embedded pictures stored in `METADATA_BLOCK_PICTURE`, with legacy COVERART support. */
-fun VorbisCommentTag.artworks(): List<Artwork> {
+public fun VorbisCommentTag.artworks(): List<Artwork> {
     val pictures = ArrayList<Artwork>()
     values("METADATA_BLOCK_PICTURE").forEach { encoded ->
         decodeBase64(encoded)?.let { bytes -> parseFlacPicture(bytes)?.let(pictures::add) }
@@ -27,7 +27,7 @@ fun VorbisCommentTag.artworks(): List<Artwork> {
 }
 
 /** Replaces the embedded pictures with [artworks], writing standard picture blocks. */
-fun VorbisCommentTag.setArtworks(artworks: List<Artwork>) {
+public fun VorbisCommentTag.setArtworks(artworks: List<Artwork>) {
     remove("METADATA_BLOCK_PICTURE")
     remove("COVERART")
     remove("COVERARTMIME")

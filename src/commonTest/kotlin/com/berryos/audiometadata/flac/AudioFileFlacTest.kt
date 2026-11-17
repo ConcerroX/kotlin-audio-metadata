@@ -31,7 +31,7 @@ class AudioFileFlacTest {
         }
         val file = assertNotNull(AudioFile.read(sourceWith(buildFlac(tag), AUDIO)))
 
-        assertEquals(AudioFormat.Flac, file.format)
+        assertEquals(AudioFormat.FLAC, file.format)
         assertEquals("Song", file.title)
         assertEquals(listOf("Artist", "Guest"), file.artists)
         assertEquals("Album", file.album)

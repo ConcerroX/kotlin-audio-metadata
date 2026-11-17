@@ -31,8 +31,8 @@ internal class AiffMetadata(
      * no ID3 chunk, so a tag written through this library never mixes with stale text chunks.
      */
     fun toAudioMetadata(): AudioMetadata {
-        if (id3Chunk != null) return tag.toAudioMetadata(AudioFormat.Aiff, audioInfo)
-        return text?.toAudioMetadata(audioInfo) ?: tag.toAudioMetadata(AudioFormat.Aiff, audioInfo)
+        if (id3Chunk != null) return tag.toAudioMetadata(AudioFormat.AIFF, audioInfo)
+        return text?.toAudioMetadata(audioInfo) ?: tag.toAudioMetadata(AudioFormat.AIFF, audioInfo)
     }
 }
 
@@ -43,7 +43,7 @@ internal class AiffTextTags(
     val comments: List<String>,
 ) {
     fun toAudioMetadata(audioInfo: AudioInfo?): AudioMetadata = AudioMetadata(
-        format = AudioFormat.Aiff,
+        format = AudioFormat.AIFF,
         title = title,
         artists = listOfNotNull(artist),
         comments = comments,

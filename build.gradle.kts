@@ -10,6 +10,8 @@ group = "com.berryos"
 version = "0.1.0-SNAPSHOT"
 
 kotlin {
+    explicitApi()
+
     jvm {
         compilerOptions {
             jvmTarget.set(JvmTarget.JVM_11)

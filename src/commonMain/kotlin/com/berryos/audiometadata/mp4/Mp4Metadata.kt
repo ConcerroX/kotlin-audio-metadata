@@ -22,26 +22,26 @@ internal class Mp4Metadata(
 }
 
 /** One `ilst` entry that has no typed property. */
-class Mp4Item internal constructor(
+public class Mp4Item internal constructor(
     /** Atom name; `----` for freeform entries. */
-    val type: String,
+    public val type: String,
     /** Type code of the first `data` atom, or -1 when the entry has no data atom. */
-    val dataType: Int,
+    public val dataType: Int,
     /** Payload of the first `data` atom, without its header. */
-    val data: ByteArray,
+    public val data: ByteArray,
     /** `mean` value of a freeform entry, otherwise null. */
-    val mean: String? = null,
+    public val mean: String? = null,
     /** `name` value of a freeform entry, otherwise null. */
-    val name: String? = null,
+    public val name: String? = null,
     /** Original atom bytes, emitted unchanged when the entry was not edited. */
     internal val raw: ByteArray? = null,
 ) {
-    companion object {
-        const val TYPE_IMPLICIT = 0
-        const val TYPE_UTF8 = 1
-        const val TYPE_JPEG = 13
-        const val TYPE_PNG = 14
-        const val TYPE_INTEGER = 21
+    public companion object {
+        public const val TYPE_IMPLICIT: Int = 0
+        public const val TYPE_UTF8: Int = 1
+        public const val TYPE_JPEG: Int = 13
+        public const val TYPE_PNG: Int = 14
+        public const val TYPE_INTEGER: Int = 21
     }
 }
 
@@ -50,60 +50,62 @@ class Mp4Item internal constructor(
  *
  * Typed properties cover the common fields. Every other entry is available through [items] and can
  * be edited with [setItem], [addItem], [removeItem], [setFreeform] and [removeFreeform].
+ *
+ * The tag is mutable and not thread-safe. [Mp4Item.data] is a read-only view.
  */
-class Mp4Tag internal constructor() {
-    var title: String? = null
-    var artists: List<String> = emptyList()
-    var album: String? = null
-    var albumArtist: String? = null
-    var trackNumber: Int? = null
-    var trackTotal: Int? = null
-    var discNumber: Int? = null
-    var discTotal: Int? = null
-    var year: String? = null
-    var genres: List<String> = emptyList()
-    var composers: List<String> = emptyList()
-    var comments: List<String> = emptyList()
-    var lyrics: String? = null
-    var titleSort: String? = null
-    var albumSort: String? = null
-    var artistSort: String? = null
-    var albumArtistSort: String? = null
-    var compilation: Boolean? = null
-    var bpm: Int? = null
-    var rating: Int? = null
-    var grouping: String? = null
-    var copyright: String? = null
-    var encoder: String? = null
-    var contentRating: Int? = null
-    var isrc: String? = null
-    var originalDate: String? = null
-    var musicBrainzTrackId: String? = null
-    var musicBrainzReleaseTrackId: String? = null
-    var musicBrainzAlbumId: String? = null
-    var musicBrainzArtistId: String? = null
-    var musicBrainzAlbumArtistId: String? = null
-    var musicBrainzReleaseGroupId: String? = null
-    var musicBrainzWorkId: String? = null
+public class Mp4Tag internal constructor() {
+    public var title: String? = null
+    public var artists: List<String> = emptyList()
+    public var album: String? = null
+    public var albumArtist: String? = null
+    public var trackNumber: Int? = null
+    public var trackTotal: Int? = null
+    public var discNumber: Int? = null
+    public var discTotal: Int? = null
+    public var year: String? = null
+    public var genres: List<String> = emptyList()
+    public var composers: List<String> = emptyList()
+    public var comments: List<String> = emptyList()
+    public var lyrics: String? = null
+    public var titleSort: String? = null
+    public var albumSort: String? = null
+    public var artistSort: String? = null
+    public var albumArtistSort: String? = null
+    public var compilation: Boolean? = null
+    public var bpm: Int? = null
+    public var rating: Int? = null
+    public var grouping: String? = null
+    public var copyright: String? = null
+    public var encoder: String? = null
+    public var contentRating: Int? = null
+    public var isrc: String? = null
+    public var originalDate: String? = null
+    public var musicBrainzTrackId: String? = null
+    public var musicBrainzReleaseTrackId: String? = null
+    public var musicBrainzAlbumId: String? = null
+    public var musicBrainzArtistId: String? = null
+    public var musicBrainzAlbumArtistId: String? = null
+    public var musicBrainzReleaseGroupId: String? = null
+    public var musicBrainzWorkId: String? = null
 
     /** Loaded pictures, or null when the reader was asked to skip them. */
-    var artworks: List<Artwork>? = null
+    public var artworks: List<Artwork>? = null
 
     private val otherItems = ArrayList<Mp4Item>()
 
     /** Entries that have no typed property, in file order. */
-    val items: List<Mp4Item>
+    public val items: List<Mp4Item>
         get() = otherItems
 
     /** Entries with the atom name [type]. */
-    fun item(type: String): List<Mp4Item> = otherItems.filter { item -> item.type == type }
+    public fun item(type: String): List<Mp4Item> = otherItems.filter { item -> item.type == type }
 
     /** The freeform entry [name] under [mean], or null. */
-    fun freeformItem(name: String, mean: String = FREEFORM_MEAN): Mp4Item? =
+    public fun freeformItem(name: String, mean: String = FREEFORM_MEAN): Mp4Item? =
         otherItems.firstOrNull { item -> item.isFreeform(mean, name) }
 
     /** Text of the freeform entry [name] under [mean], or null. */
-    fun freeformText(name: String, mean: String = FREEFORM_MEAN): String? =
+    public fun freeformText(name: String, mean: String = FREEFORM_MEAN): String? =
         freeformItem(name, mean)?.data?.decodeToString()
 
     /**
@@ -111,25 +113,25 @@ class Mp4Tag internal constructor() {
      *
      * @throws IllegalArgumentException when [type] is not a four-character atom name or is `----`.
      */
-    fun setItem(type: String, dataType: Int, data: ByteArray) {
+    public fun setItem(type: String, dataType: Int, data: ByteArray) {
         requireItemType(type)
         otherItems.removeAll { item -> item.type == type }
         otherItems += Mp4Item(type, dataType, data)
     }
 
     /** Adds an entry without removing existing entries with the same [type]. */
-    fun addItem(type: String, dataType: Int, data: ByteArray) {
+    public fun addItem(type: String, dataType: Int, data: ByteArray) {
         requireItemType(type)
         otherItems += Mp4Item(type, dataType, data)
     }
 
     /** Removes every entry with [type]. */
-    fun removeItem(type: String) {
+    public fun removeItem(type: String) {
         otherItems.removeAll { item -> item.type == type }
     }
 
     /** Replaces the freeform text entry [name] under the `com.apple.iTunes` mean. */
-    fun setFreeform(name: String, value: String) {
+    public fun setFreeform(name: String, value: String) {
         removeFreeform(name)
         if (value.isNotEmpty()) {
             otherItems += Mp4Item(
@@ -143,7 +145,7 @@ class Mp4Tag internal constructor() {
     }
 
     /** Removes the freeform entry [name] under the `com.apple.iTunes` mean. */
-    fun removeFreeform(name: String) {
+    public fun removeFreeform(name: String) {
         otherItems.removeAll { item -> item.isFreeform(FREEFORM_MEAN, name) }
     }
 
@@ -152,8 +154,8 @@ class Mp4Tag internal constructor() {
     }
 
     /** Immutable snapshot of the typed fields and loaded pictures. */
-    fun toAudioMetadata(audioInfo: AudioInfo? = null): AudioMetadata = AudioMetadata(
-        format = AudioFormat.Mp4,
+    public fun toAudioMetadata(audioInfo: AudioInfo? = null): AudioMetadata = AudioMetadata(
+        format = AudioFormat.MP4,
         title = title,
         artists = artists,
         album = album,

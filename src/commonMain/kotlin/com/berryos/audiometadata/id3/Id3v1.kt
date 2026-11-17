@@ -5,19 +5,19 @@ import com.berryos.audiometadata.io.WritableRandomAccessSource
 import com.berryos.audiometadata.io.readFully
 
 /** Fields of a trailing ID3v1/ID3v1.1 tag. */
-class Id3v1Tag internal constructor(
-    val title: String?,
-    val artist: String?,
-    val album: String?,
-    val year: String?,
-    val comment: String?,
-    val trackNumber: Int?,
-    val genreIndex: Int?,
+public class Id3v1Tag internal constructor(
+    public val title: String?,
+    public val artist: String?,
+    public val album: String?,
+    public val year: String?,
+    public val comment: String?,
+    public val trackNumber: Int?,
+    public val genreIndex: Int?,
 )
 
 /** Reads the fixed 128-byte ID3v1 tag stored at the end of an audio file. */
-object Id3v1Reader {
-    fun read(source: RandomAccessSource): Id3v1Tag? {
+public object Id3v1Reader {
+    public fun read(source: RandomAccessSource): Id3v1Tag? {
         if (source.size < TAG_SIZE) return null
         val bytes = ByteArray(TAG_SIZE)
         source.readFully(source.size - TAG_SIZE, bytes, TAG_SIZE)

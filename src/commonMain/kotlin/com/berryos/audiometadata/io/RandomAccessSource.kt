@@ -5,29 +5,29 @@ package com.berryos.audiometadata.io
  *
  * Implementations are not thread-safe unless documented otherwise.
  */
-interface RandomAccessSource {
+public interface RandomAccessSource {
     /** Current length of the underlying data in bytes. */
-    val size: Long
+    public val size: Long
 
     /**
      * Reads up to [length] bytes starting at [offset].
      *
      * Returns the number of bytes actually read, or 0 at end of data.
      */
-    fun readAt(
+    public fun readAt(
         offset: Long,
         destination: ByteArray,
         destinationOffset: Int = 0,
         length: Int = destination.size - destinationOffset,
     ): Int
 
-    fun close()
+    public fun close()
 }
 
 /** Random-access source that can also replace bytes and change its length. */
-interface WritableRandomAccessSource : RandomAccessSource {
+public interface WritableRandomAccessSource : RandomAccessSource {
     /** Writes [length] bytes at [offset], extending the data when needed. */
-    fun writeAt(
+    public fun writeAt(
         offset: Long,
         source: ByteArray,
         sourceOffset: Int = 0,
@@ -35,14 +35,14 @@ interface WritableRandomAccessSource : RandomAccessSource {
     )
 
     /** Shortens the data to [size] bytes; never extends it. */
-    fun truncate(size: Long)
+    public fun truncate(size: Long)
 
     /** Forces pending writes to the underlying storage where applicable. */
-    fun flush()
+    public fun flush()
 }
 
 /** Runs [block] with this source and closes it afterwards, even when the block throws. */
-inline fun <T, R : RandomAccessSource> R.use(block: (R) -> T): T {
+public inline fun <T, R : RandomAccessSource> R.use(block: (R) -> T): T {
     try {
         return block(this)
     } finally {

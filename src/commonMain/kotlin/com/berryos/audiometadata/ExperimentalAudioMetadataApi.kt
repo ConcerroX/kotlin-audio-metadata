@@ -18,4 +18,4 @@ package com.berryos.audiometadata
     AnnotationTarget.PROPERTY_GETTER,
     AnnotationTarget.PROPERTY_SETTER,
 )
-annotation class ExperimentalAudioMetadataApi
+public annotation class ExperimentalAudioMetadataApi

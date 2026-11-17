@@ -6,29 +6,31 @@ import com.berryos.audiometadata.AudioMetadata
 import com.berryos.audiometadata.ReplayGain
 
 /** A single `KEY=value` entry of a Vorbis comment block. */
-data class VorbisComment(val key: String, val value: String)
+public data class VorbisComment(public val key: String, public val value: String)
 
 /**
  * Mutable view of a Vorbis comment block, shared by FLAC and Ogg containers.
  *
  * Keys are matched case-insensitively, as required by the Vorbis comment specification.
+ *
+ * The tag is mutable and not thread-safe.
  */
-class VorbisCommentTag internal constructor(
-    var vendor: String = DEFAULT_VENDOR,
+public class VorbisCommentTag internal constructor(
+    public var vendor: String = DEFAULT_VENDOR,
     comments: List<VorbisComment> = emptyList(),
 ) {
     private val entries = comments.toMutableList()
 
-    val comments: List<VorbisComment>
+    public val comments: List<VorbisComment>
         get() = entries
 
-    fun value(key: String): String? = entries.firstOrNull { it.key.equals(key, ignoreCase = true) }?.value
+    public fun value(key: String): String? = entries.firstOrNull { it.key.equals(key, ignoreCase = true) }?.value
 
-    fun values(key: String): List<String> = entries
+    public fun values(key: String): List<String> = entries
         .filter { it.key.equals(key, ignoreCase = true) }
         .map(VorbisComment::value)
 
-    fun set(key: String, value: String) {
+    public fun set(key: String, value: String) {
         if (value.isEmpty()) {
             remove(key)
             return
@@ -42,52 +44,52 @@ class VorbisCommentTag internal constructor(
         entries.removeAll { it.key.equals(key, ignoreCase = true) && it !== entries[index] }
     }
 
-    fun add(key: String, value: String) {
+    public fun add(key: String, value: String) {
         entries += VorbisComment(key, value)
     }
 
-    fun setValues(key: String, values: List<String>) {
+    public fun setValues(key: String, values: List<String>) {
         remove(key)
         values.forEach { add(key, it) }
     }
 
-    fun remove(key: String) {
+    public fun remove(key: String) {
         entries.removeAll { it.key.equals(key, ignoreCase = true) }
     }
 
-    var title: String
+    public var title: String
         get() = value("TITLE").orEmpty()
         set(value) = set("TITLE", value)
 
-    var artist: String
+    public var artist: String
         get() = value("ARTIST").orEmpty()
         set(value) = set("ARTIST", value)
 
-    var album: String
+    public var album: String
         get() = value("ALBUM").orEmpty()
         set(value) = set("ALBUM", value)
 
-    var albumArtist: String
+    public var albumArtist: String
         get() = value("ALBUMARTIST").orEmpty()
         set(value) = set("ALBUMARTIST", value)
 
-    var date: String
+    public var date: String
         get() = value("DATE").orEmpty()
         set(value) = set("DATE", value)
 
-    var genre: String
+    public var genre: String
         get() = value("GENRE").orEmpty()
         set(value) = set("GENRE", value)
 
-    var composer: String
+    public var composer: String
         get() = value("COMPOSER").orEmpty()
         set(value) = set("COMPOSER", value)
 
-    var comment: String
+    public var comment: String
         get() = value("COMMENT").orEmpty()
         set(value) = set("COMMENT", value)
 
-    val replayGain: ReplayGain?
+    public val replayGain: ReplayGain?
         get() {
             val trackGain = value("REPLAYGAIN_TRACK_GAIN")
             val trackPeak = value("REPLAYGAIN_TRACK_PEAK")
@@ -97,7 +99,7 @@ class VorbisCommentTag internal constructor(
             return ReplayGain(trackGain, trackPeak, albumGain, albumPeak)
         }
 
-    fun toAudioMetadata(format: AudioFormat, audioInfo: AudioInfo? = null): AudioMetadata {
+    public fun toAudioMetadata(format: AudioFormat, audioInfo: AudioInfo? = null): AudioMetadata {
         val trackPair = parseNumberPair(value("TRACKNUMBER"))
         val discPair = parseNumberPair(value("DISCNUMBER"))
         return AudioMetadata(
@@ -139,8 +141,8 @@ class VorbisCommentTag internal constructor(
         return output
     }
 
-    companion object {
-        fun create(): VorbisCommentTag = VorbisCommentTag()
+    public companion object {
+        public fun create(): VorbisCommentTag = VorbisCommentTag()
 
         internal fun decode(bytes: ByteArray): VorbisCommentTag? {
             var offset = 0

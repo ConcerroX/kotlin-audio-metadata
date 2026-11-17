@@ -20,7 +20,7 @@ class AudioFileOggTest {
     fun readsVorbisFields() {
         val file = assertNotNull(AudioFile.read(sourceWith(vorbisFile("Song", "Artist"))))
 
-        assertEquals(AudioFormat.Ogg, file.format)
+        assertEquals(AudioFormat.OGG, file.format)
         assertEquals("Song", file.title)
         assertEquals(listOf("Artist"), file.artists)
         assertEquals(44_100, file.audioInfo?.sampleRateHz)

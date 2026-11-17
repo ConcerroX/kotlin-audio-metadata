@@ -5,24 +5,24 @@ import com.berryos.audiometadata.io.RandomAccessSource
 /**
  * Detects the container format from the leading bytes of [source].
  *
- * Returns [AudioFormat.Unknown] when no known signature matches. A recognised signature does not
+ * Returns [AudioFormat.UNKNOWN] when no known signature matches. A recognised signature does not
  * guarantee that the rest of the file is valid; readers report that by throwing
  * [AudioMetadataException].
  */
-object AudioFormatDetector {
-    fun detect(source: RandomAccessSource): AudioFormat {
+public object AudioFormatDetector {
+    public fun detect(source: RandomAccessSource): AudioFormat {
         val magic = ByteArray(MAGIC_SIZE)
         val count = source.readAt(0, magic)
         return when {
-            count >= 3 && magic.hasTypeAt(0, "ID3") -> AudioFormat.Mp3
-            count >= 4 && magic.hasTypeAt(0, "fLaC") -> AudioFormat.Flac
-            count >= 4 && magic.hasTypeAt(0, "OggS") -> AudioFormat.Ogg
-            count >= 12 && magic.hasTypeAt(0, "RIFF") && magic.hasTypeAt(8, "WAVE") -> AudioFormat.Wav
+            count >= 3 && magic.hasTypeAt(0, "ID3") -> AudioFormat.MP3
+            count >= 4 && magic.hasTypeAt(0, "fLaC") -> AudioFormat.FLAC
+            count >= 4 && magic.hasTypeAt(0, "OggS") -> AudioFormat.OGG
+            count >= 12 && magic.hasTypeAt(0, "RIFF") && magic.hasTypeAt(8, "WAVE") -> AudioFormat.WAV
             count >= 12 && magic.hasTypeAt(0, "FORM") &&
-                (magic.hasTypeAt(8, "AIFF") || magic.hasTypeAt(8, "AIFC")) -> AudioFormat.Aiff
+                (magic.hasTypeAt(8, "AIFF") || magic.hasTypeAt(8, "AIFC")) -> AudioFormat.AIFF
 
-            count >= 8 && (magic.hasTypeAt(4, "ftyp") || magic.hasTypeAt(0, "moov")) -> AudioFormat.Mp4
-            else -> AudioFormat.Unknown
+            count >= 8 && (magic.hasTypeAt(4, "ftyp") || magic.hasTypeAt(0, "moov")) -> AudioFormat.MP4
+            else -> AudioFormat.UNKNOWN
         }
     }
 }

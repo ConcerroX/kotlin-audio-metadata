@@ -21,7 +21,7 @@ internal class OggVorbisMetadata(
     val artworks: List<Artwork>
         get() = tag.artworks()
 
-    fun toAudioMetadata(): AudioMetadata = tag.toAudioMetadata(AudioFormat.Ogg, audioInfo)
+    fun toAudioMetadata(): AudioMetadata = tag.toAudioMetadata(AudioFormat.OGG, audioInfo)
 }
 
 /** Reads Vorbis comments from an Ogg Vorbis stream. */

@@ -12,7 +12,7 @@ import com.berryos.audiometadata.io.moveTail
  * the old tag size. Otherwise the audio is shifted by the difference. Frames that were not edited
  * are written back with their stored flags and content.
  */
-object Id3v2Writer {
+internal object Id3v2Writer {
     fun write(
         source: WritableRandomAccessSource,
         tag: Id3v2Tag,

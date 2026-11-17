@@ -3,7 +3,7 @@ package com.berryos.audiometadata.io
 import kotlin.math.max
 
 /** Growable in-memory implementation used by tests and in-memory consumers. */
-class ByteArraySource(initialSize: Int = 0) : WritableRandomAccessSource {
+public class ByteArraySource(initialSize: Int = 0) : WritableRandomAccessSource {
     private var bytes = ByteArray(initialSize)
     private var length = initialSize.toLong()
 
@@ -37,11 +37,11 @@ class ByteArraySource(initialSize: Int = 0) : WritableRandomAccessSource {
         length = size
     }
 
-    override fun flush() = Unit
+    override fun flush(): Unit = Unit
 
-    override fun close() = Unit
+    override fun close(): Unit = Unit
 
-    fun toByteArray(): ByteArray = bytes.copyOf(length.toInt())
+    public fun toByteArray(): ByteArray = bytes.copyOf(length.toInt())
 
     private fun ensureCapacity(required: Long) {
         if (required <= bytes.size) return

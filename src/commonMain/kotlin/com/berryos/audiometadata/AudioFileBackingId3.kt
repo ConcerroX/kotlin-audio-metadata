@@ -272,7 +272,7 @@ internal class Id3MusicBrainzFields(private val tag: Id3v2Tag) : MusicBrainzFiel
 }
 
 /** Common plumbing for containers whose metadata is an [Id3v2Tag]. */
-internal abstract class SpecId3Backing(tag: Id3v2Tag, loadArtworks: Boolean) : AudioFileBacking(), Id3FileBacking {
+internal abstract class EditableId3Backing(tag: Id3v2Tag, loadArtworks: Boolean) : AudioFileBacking(), Id3FileBacking {
     private var currentTag = tag
     private var fieldView = Id3TagFields(currentTag)
     private var extensionView = Id3ExtensionFields(currentTag)
@@ -312,9 +312,9 @@ internal class Mp3Backing(
     private var metadata: Mp3Metadata,
     tag: Id3v2Tag,
     loadArtworks: Boolean,
-) : SpecId3Backing(tag, loadArtworks) {
+) : EditableId3Backing(tag, loadArtworks) {
     override val format: AudioFormat
-        get() = AudioFormat.Mp3
+        get() = AudioFormat.MP3
 
     override val audioInfo: AudioInfo?
         get() = metadata.audioInfo
@@ -330,9 +330,9 @@ internal class Mp3Backing(
 }
 
 internal class WavBacking(private var metadata: WavMetadata, loadArtworks: Boolean) :
-    SpecId3Backing(metadata.tag, loadArtworks) {
+    EditableId3Backing(metadata.tag, loadArtworks) {
     override val format: AudioFormat
-        get() = AudioFormat.Wav
+        get() = AudioFormat.WAV
 
     override val audioInfo: AudioInfo?
         get() = metadata.audioInfo
@@ -346,9 +346,9 @@ internal class WavBacking(private var metadata: WavMetadata, loadArtworks: Boole
 }
 
 internal class AiffBacking(private var metadata: AiffMetadata, loadArtworks: Boolean) :
-    SpecId3Backing(metadata.tag, loadArtworks) {
+    EditableId3Backing(metadata.tag, loadArtworks) {
     override val format: AudioFormat
-        get() = AudioFormat.Aiff
+        get() = AudioFormat.AIFF
 
     override val audioInfo: AudioInfo?
         get() = metadata.audioInfo

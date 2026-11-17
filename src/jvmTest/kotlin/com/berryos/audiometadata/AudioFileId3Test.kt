@@ -23,7 +23,7 @@ class AudioFileId3Test {
         val source = FileChannelSource(copy)
         try {
             val file = assertNotNull(AudioFile.read(source))
-            assertEquals(AudioFormat.Mp3, file.format)
+            assertEquals(AudioFormat.MP3, file.format)
             assertNotNull(file.id3)
             val mp3Before = assertNotNull(Mp3MetadataReader.read(source))
             val tailBefore = readRange(source, mp3Before.audioStartOffset, audioLength(source, mp3Before))
@@ -50,7 +50,7 @@ class AudioFileId3Test {
             val before = assertNotNull(WavMetadataReader.read(source))
             val data = chunkPayload(source, before, "data")
             val file = assertNotNull(AudioFile.read(source))
-            assertEquals(AudioFormat.Wav, file.format)
+            assertEquals(AudioFormat.WAV, file.format)
 
             file.title = MARKER
             file.artists = listOf("First", "Second")
@@ -72,7 +72,7 @@ class AudioFileId3Test {
             val before = assertNotNull(AiffMetadataReader.read(source))
             val sound = chunkPayload(source, before, "SSND")
             val file = assertNotNull(AudioFile.read(source))
-            assertEquals(AudioFormat.Aiff, file.format)
+            assertEquals(AudioFormat.AIFF, file.format)
 
             file.title = MARKER
             file.save(source)

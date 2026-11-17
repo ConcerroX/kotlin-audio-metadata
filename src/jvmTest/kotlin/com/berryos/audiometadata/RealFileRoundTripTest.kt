@@ -137,7 +137,7 @@ class RealFileRoundTripTest {
             assertEquals(MARKER, after.toAudioMetadata().title)
             assertNotNull(after.audioInfo)
             assertContentEquals(data, aiffChunkPayload(source, after, "SSND"))
-            assertEquals(AudioFormat.Aiff, assertNotNull(AudioMetadataReader.read(source)).format)
+            assertEquals(AudioFormat.AIFF, assertNotNull(AudioMetadataReader.read(source)).format)
         } finally {
             source.close()
         }
@@ -165,7 +165,7 @@ class RealFileRoundTripTest {
             val after = assertNotNull(WavMetadataReader.read(source))
             assertEquals(MARKER, after.toAudioMetadata().title)
             assertContentEquals(data, chunkPayload(source, after, "data"))
-            assertEquals(AudioFormat.Wav, assertNotNull(AudioMetadataReader.read(source)).format)
+            assertEquals(AudioFormat.WAV, assertNotNull(AudioMetadataReader.read(source)).format)
         } finally {
             source.close()
         }
@@ -281,8 +281,8 @@ class RealFileRoundTripTest {
         try {
             val metadata = assertNotNull(Mp4MetadataReader.read(source))
             assertNotNull(metadata.audioInfo)
-            assertEquals(AudioFormat.Mp4, metadata.toAudioMetadata().format)
-            assertEquals(AudioFormat.Mp4, assertNotNull(AudioMetadataReader.read(source)).format)
+            assertEquals(AudioFormat.MP4, metadata.toAudioMetadata().format)
+            assertEquals(AudioFormat.MP4, assertNotNull(AudioMetadataReader.read(source)).format)
         } finally {
             source.close()
         }
@@ -303,7 +303,7 @@ class RealFileRoundTripTest {
             assertEquals(MARKER, after.toAudioMetadata().title)
             assertNotNull(after.audioInfo)
             assertContentEquals(tail, readBytesAt(source, after.audioStartOffset, tailLength))
-            assertEquals(AudioFormat.Mp3, assertNotNull(AudioMetadataReader.read(source)).format)
+            assertEquals(AudioFormat.MP3, assertNotNull(AudioMetadataReader.read(source)).format)
         } finally {
             source.close()
         }
@@ -322,7 +322,7 @@ class RealFileRoundTripTest {
             assertEquals(MARKER, after.toAudioMetadata().title)
             assertNotNull(after.toAudioMetadata().audioInfo)
             assertContentEquals(tail, readTail(source, after.audioStartOffset))
-            assertEquals(AudioFormat.Flac, assertNotNull(AudioMetadataReader.read(source)).format)
+            assertEquals(AudioFormat.FLAC, assertNotNull(AudioMetadataReader.read(source)).format)
         } finally {
             source.close()
         }
@@ -346,7 +346,7 @@ class RealFileRoundTripTest {
                 assertContentEquals(audio[index].payload, afterAudio[index].payload)
                 assertEquals(audio[index].granule, afterAudio[index].granule)
             }
-            assertEquals(AudioFormat.Ogg, assertNotNull(AudioMetadataReader.read(source)).format)
+            assertEquals(AudioFormat.OGG, assertNotNull(AudioMetadataReader.read(source)).format)
         } finally {
             source.close()
         }

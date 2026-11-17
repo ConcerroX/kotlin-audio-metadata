@@ -20,14 +20,14 @@ class AiffMetadataTest {
         val metadata = assertNotNull(AiffMetadataReader.read(source))
         val audio = metadata.toAudioMetadata()
 
-        assertEquals(AudioFormat.Aiff, audio.format)
+        assertEquals(AudioFormat.AIFF, audio.format)
         assertEquals("Song", audio.title)
         assertEquals(44_100, audio.audioInfo?.sampleRateHz)
         assertEquals(2, audio.audioInfo?.channels)
         assertEquals(16, audio.audioInfo?.bitsPerSample)
         assertEquals(1411, audio.audioInfo?.bitrateKbps)
         assertEquals(1000L, audio.audioInfo?.durationMs)
-        assertEquals(AudioFormat.Aiff, assertNotNull(AudioMetadataReader.read(source)).format)
+        assertEquals(AudioFormat.AIFF, assertNotNull(AudioMetadataReader.read(source)).format)
     }
 
     @Test

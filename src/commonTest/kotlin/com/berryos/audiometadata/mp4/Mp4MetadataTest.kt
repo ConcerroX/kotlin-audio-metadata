@@ -15,7 +15,7 @@ class Mp4MetadataTest {
         val metadata = assertNotNull(Mp4MetadataReader.read(sourceWith(mp4File())))
         val audio = metadata.toAudioMetadata()
 
-        assertEquals(AudioFormat.Mp4, audio.format)
+        assertEquals(AudioFormat.MP4, audio.format)
         assertEquals("Song", audio.title)
         assertEquals(listOf("Artist"), audio.artists)
         assertEquals("Album", audio.album)

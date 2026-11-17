@@ -18,7 +18,7 @@ class OpusMetadataTest {
         val metadata = assertNotNull(OpusMetadataReader.read(sourceWith(opusFile("Song", "Artist"))))
         val audio = metadata.toAudioMetadata()
 
-        assertEquals(AudioFormat.Opus, audio.format)
+        assertEquals(AudioFormat.OPUS, audio.format)
         assertEquals("Song", audio.title)
         assertEquals(listOf("Artist"), audio.artists)
         assertEquals(48_000, audio.audioInfo?.sampleRateHz)

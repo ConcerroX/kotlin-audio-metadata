@@ -26,7 +26,7 @@ class AudioMetadataReaderTest {
 
         val metadata = assertNotNull(AudioMetadataReader.read(source))
 
-        assertEquals(AudioFormat.Ogg, metadata.format)
+        assertEquals(AudioFormat.OGG, metadata.format)
         assertEquals("Title", metadata.title)
         assertEquals(listOf("Artist"), metadata.artists)
     }

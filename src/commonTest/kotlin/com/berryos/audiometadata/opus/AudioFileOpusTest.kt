@@ -16,7 +16,7 @@ class AudioFileOpusTest {
         val source = ByteArraySource().also { it.writeAt(0, opusFile("Song", "Artist")) }
         val file = assertNotNull(AudioFile.read(source))
 
-        assertEquals(AudioFormat.Opus, file.format)
+        assertEquals(AudioFormat.OPUS, file.format)
         assertEquals("Song", file.title)
         assertEquals(listOf("Artist"), file.artists)
         assertEquals(48_000, file.audioInfo?.sampleRateHz)

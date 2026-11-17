@@ -18,7 +18,7 @@ class AudioFileMp4Test {
     fun readsItunesFields() {
         val file = assertNotNull(AudioFile.read(sourceWith(mp4File())))
 
-        assertEquals(AudioFormat.Mp4, file.format)
+        assertEquals(AudioFormat.MP4, file.format)
         assertEquals("Song", file.title)
         assertEquals(listOf("Artist"), file.artists)
         assertEquals("Album", file.album)

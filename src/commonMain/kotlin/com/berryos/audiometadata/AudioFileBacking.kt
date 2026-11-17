@@ -254,7 +254,7 @@ internal class FlacBacking(initial: FlacMetadata) : AudioFileBacking() {
     private var extensionView = VorbisExtensionFields(metadata.tag)
 
     override val format: AudioFormat
-        get() = AudioFormat.Flac
+        get() = AudioFormat.FLAC
 
     override val audioInfo: AudioInfo?
         get() = metadata.streamInfo?.toAudioInfo()
@@ -291,7 +291,7 @@ internal class OggVorbisBacking(
     private var loadedArtworks: List<Artwork>? = if (loadArtworks) metadata.tag.artworks() else null
 
     override val format: AudioFormat
-        get() = AudioFormat.Ogg
+        get() = AudioFormat.OGG
 
     override val audioInfo: AudioInfo?
         get() = metadata.audioInfo
@@ -322,7 +322,7 @@ internal class OpusBacking(
     private var loadedArtworks: List<Artwork>? = if (loadArtworks) metadata.tag.artworks() else null
 
     override val format: AudioFormat
-        get() = AudioFormat.Opus
+        get() = AudioFormat.OPUS
 
     override val audioInfo: AudioInfo?
         get() = metadata.audioInfo
@@ -571,7 +571,7 @@ internal class Mp4Backing(private val metadata: Mp4Metadata) : AudioFileBacking(
     private val tagFields = Mp4TagFields(metadata.tags)
 
     override val format: AudioFormat
-        get() = AudioFormat.Mp4
+        get() = AudioFormat.MP4
 
     override val audioInfo: AudioInfo?
         get() = metadata.audioInfo

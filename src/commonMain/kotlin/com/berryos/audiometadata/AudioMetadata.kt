@@ -1,26 +1,26 @@
 package com.berryos.audiometadata
 
 /** Container format detected for an audio file. */
-enum class AudioFormat {
-    Mp3,
-    Flac,
-    Ogg,
-    Opus,
-    Mp4,
-    Wav,
-    Aiff,
-    Unknown,
+public enum class AudioFormat {
+    MP3,
+    FLAC,
+    OGG,
+    OPUS,
+    MP4,
+    WAV,
+    AIFF,
+    UNKNOWN,
 }
 
 /** ID3v2 tag versions supported by the MP3 reader. */
-enum class Id3Version(val majorVersion: Int) {
+public enum class Id3Version(public val majorVersion: Int) {
     V22(2),
     V23(3),
     V24(4),
 }
 
 /** Technical properties of the audio stream itself. */
-data class AudioInfo(
+public data class AudioInfo(
     val bitrateKbps: Int? = null,
     val sampleRateHz: Int? = null,
     val channels: Int? = null,
@@ -29,7 +29,7 @@ data class AudioInfo(
 )
 
 /** ReplayGain values as stored in the file, including their unit suffix. */
-data class ReplayGain(
+public data class ReplayGain(
     val trackGain: String? = null,
     val trackPeak: String? = null,
     val albumGain: String? = null,
@@ -37,7 +37,7 @@ data class ReplayGain(
 )
 
 /** Format-independent view of the tags attached to a single audio file. */
-data class AudioMetadata(
+public data class AudioMetadata(
     val format: AudioFormat,
     val id3Version: Id3Version? = null,
     val title: String? = null,
@@ -49,7 +49,6 @@ data class AudioMetadata(
     val discNumber: Int? = null,
     val discTotal: Int? = null,
     val year: String? = null,
-    val date: String? = null,
     val genres: List<String> = emptyList(),
     val composers: List<String> = emptyList(),
     val comments: List<String> = emptyList(),

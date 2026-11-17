@@ -18,7 +18,7 @@ class OggVorbisMetadataTest {
         val metadata = assertNotNull(OggVorbisMetadataReader.read(sourceWith(vorbisFile("Song", "Artist"))))
         val audio = metadata.toAudioMetadata()
 
-        assertEquals(AudioFormat.Ogg, audio.format)
+        assertEquals(AudioFormat.OGG, audio.format)
         assertEquals("Song", audio.title)
         assertEquals(listOf("Artist"), audio.artists)
         assertEquals(44_100, audio.audioInfo?.sampleRateHz)

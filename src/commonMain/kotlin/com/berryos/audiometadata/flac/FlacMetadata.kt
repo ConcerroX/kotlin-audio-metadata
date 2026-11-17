@@ -45,7 +45,7 @@ internal class FlacMetadata(
     internal val audioStartOffset: Long,
 ) {
     fun toAudioMetadata(): AudioMetadata =
-        tag.toAudioMetadata(AudioFormat.Flac, streamInfo?.toAudioInfo())
+        tag.toAudioMetadata(AudioFormat.FLAC, streamInfo?.toAudioInfo())
 }
 
 internal class FlacBlock(val type: Int, val offset: Long, val length: Int)

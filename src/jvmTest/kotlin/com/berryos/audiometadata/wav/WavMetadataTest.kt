@@ -22,14 +22,14 @@ class WavMetadataTest {
         val metadata = assertNotNull(WavMetadataReader.read(source))
         val audio = metadata.toAudioMetadata()
 
-        assertEquals(AudioFormat.Wav, audio.format)
+        assertEquals(AudioFormat.WAV, audio.format)
         assertEquals("Song", audio.title)
         assertEquals(44_100, audio.audioInfo?.sampleRateHz)
         assertEquals(2, audio.audioInfo?.channels)
         assertEquals(16, audio.audioInfo?.bitsPerSample)
         assertEquals(1411, audio.audioInfo?.bitrateKbps)
         assertEquals(250L, audio.audioInfo?.durationMs)
-        assertEquals(AudioFormat.Wav, assertNotNull(AudioMetadataReader.read(source)).format)
+        assertEquals(AudioFormat.WAV, assertNotNull(AudioMetadataReader.read(source)).format)
     }
 
     @Test

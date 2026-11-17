@@ -23,7 +23,7 @@ internal class OpusMetadata(
     val artworks: List<Artwork>
         get() = tag.artworks()
 
-    fun toAudioMetadata(): AudioMetadata = tag.toAudioMetadata(AudioFormat.Opus, audioInfo)
+    fun toAudioMetadata(): AudioMetadata = tag.toAudioMetadata(AudioFormat.OPUS, audioInfo)
 }
 
 /** Reads Opus tags from an Ogg Opus stream. */

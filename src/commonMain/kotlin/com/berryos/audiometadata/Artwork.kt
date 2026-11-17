@@ -1,14 +1,15 @@
 package com.berryos.audiometadata
 
 /** An embedded picture. [pictureType] follows the ID3/FLAC picture type numbering. */
-class Artwork(
-    val data: ByteArray,
-    val mimeType: String? = null,
-    val pictureType: Int? = null,
-    val description: String? = null,
-    val width: Int? = null,
-    val height: Int? = null,
-    val colorDepth: Int? = null,
+public class Artwork(
+    /** Encoded image bytes; treat as read-only. */
+    public val data: ByteArray,
+    public val mimeType: String? = null,
+    public val pictureType: Int? = null,
+    public val description: String? = null,
+    public val width: Int? = null,
+    public val height: Int? = null,
+    public val colorDepth: Int? = null,
 )
 
 internal fun guessArtworkMimeType(data: ByteArray): String = when {

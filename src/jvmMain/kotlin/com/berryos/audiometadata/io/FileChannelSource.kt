@@ -7,7 +7,7 @@ import java.nio.channels.FileChannel
 import java.nio.file.StandardOpenOption
 
 /** File-backed source using positional channel reads/writes; usable on JVM and Android. */
-class FileChannelSource(file: File, writable: Boolean = true) : WritableRandomAccessSource {
+public class FileChannelSource(file: File, writable: Boolean = true) : WritableRandomAccessSource {
     private val channel: FileChannel = if (writable) {
         FileChannel.open(
             file.toPath(),
