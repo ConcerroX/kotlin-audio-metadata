@@ -86,6 +86,20 @@ class AudioFileMp4Test {
         assertContentEquals(image, assertNotNull(reread.artworks).first().data)
     }
 
+    @Test
+    fun readsAndWritesLyrics() {
+        val source = sourceWith(mp4File(extraItems = textItem("©lyr", "First line\nSecond line")))
+        val file = assertNotNull(AudioFile.read(source))
+        assertEquals("First line\nSecond line", file.lyrics)
+
+        file.lyrics = "New lyrics"
+        file.save(source)
+
+        val reread = assertNotNull(AudioFile.read(source))
+        assertEquals("New lyrics", reread.lyrics)
+        assertEquals("New lyrics", reread.toAudioMetadata().lyrics)
+    }
+
     private fun sourceWith(bytes: ByteArray): ByteArraySource =
         ByteArraySource().also { it.writeAt(0, bytes) }
 

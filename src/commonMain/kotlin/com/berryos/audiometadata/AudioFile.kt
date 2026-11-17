@@ -126,6 +126,12 @@ class AudioFile internal constructor(
             backing.text.comments = value
         }
 
+    var lyrics: String?
+        get() = backing.text.lyrics
+        set(value) {
+            backing.text.lyrics = value
+        }
+
     var replayGain: ReplayGain?
         get() = backing.text.replayGain
         set(value) {
@@ -154,6 +160,7 @@ class AudioFile internal constructor(
         genres = genres,
         composers = composers,
         comments = comments,
+        lyrics = lyrics,
         replayGain = replayGain,
         audioInfo = audioInfo,
     )

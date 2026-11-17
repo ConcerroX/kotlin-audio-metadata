@@ -70,6 +70,27 @@ class Id3v2GenericApiTest {
         }
     }
 
+    @Test
+    fun readsAndWritesLyrics() {
+        val tag = read(buildTag(version = 3, frames = emptyList()))
+
+        tag.lyrics = "First line\nSecond line"
+
+        val reread = read(Id3v2Writer.encode(tag))
+        assertEquals("First line\nSecond line", reread.lyrics)
+        reread.lyrics = null
+        assertEquals(null, read(Id3v2Writer.encode(reread)).lyrics)
+    }
+
+    @Test
+    fun mapsLyricsFrameOnV22() {
+        val tag = read(buildTag(version = 2, frames = emptyList()))
+
+        tag.lyrics = "Words"
+
+        assertEquals("Words", read(Id3v2Writer.encode(tag)).lyrics)
+    }
+
     private fun read(bytes: ByteArray): Id3v2Tag = assertNotNull(Id3v2Reader.read(bytes))
 
     private fun text(value: String): ByteArray = byteArrayOf(0) + latin1Bytes(value)

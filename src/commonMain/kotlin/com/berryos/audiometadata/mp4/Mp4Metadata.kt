@@ -64,6 +64,7 @@ class Mp4Tag internal constructor() {
     var genres: List<String> = emptyList()
     var composers: List<String> = emptyList()
     var comments: List<String> = emptyList()
+    var lyrics: String? = null
     var titleSort: String? = null
     var albumSort: String? = null
     var artistSort: String? = null
@@ -160,6 +161,7 @@ class Mp4Tag internal constructor() {
         genres = genres,
         composers = composers,
         comments = comments,
+        lyrics = lyrics,
         audioInfo = audioInfo,
     )
 
@@ -220,6 +222,7 @@ internal object Mp4MetadataReader {
         tag.genres = texts(FIELD_GENRE)
         tag.composers = texts(FIELD_COMPOSER)
         tag.comments = texts(FIELD_COMMENT)
+        tag.lyrics = texts(FIELD_LYRICS).firstOrNull()
         tag.titleSort = texts(FIELD_TITLE_SORT).firstOrNull()
         tag.albumSort = texts(FIELD_ALBUM_SORT).firstOrNull()
         tag.artistSort = texts(FIELD_ARTIST_SORT).firstOrNull()
@@ -545,6 +548,7 @@ private const val FIELD_YEAR = "©day"
 private const val FIELD_GENRE = "©gen"
 private const val FIELD_COMPOSER = "©wrt"
 private const val FIELD_COMMENT = "©cmt"
+private const val FIELD_LYRICS = "©lyr"
 private const val FIELD_TITLE_SORT = "sonm"
 private const val FIELD_ALBUM_SORT = "soal"
 private const val FIELD_ARTIST_SORT = "soar"
@@ -683,6 +687,7 @@ internal object Mp4MetadataWriter {
         if (tags.genres.isNotEmpty()) items += multiTextItem(FIELD_GENRE, tags.genres)
         if (tags.composers.isNotEmpty()) items += multiTextItem(FIELD_COMPOSER, tags.composers)
         if (tags.comments.isNotEmpty()) items += multiTextItem(FIELD_COMMENT, tags.comments)
+        tags.lyrics?.takeIf(String::isNotEmpty)?.let { items += textItem(FIELD_LYRICS, it) }
         addExtensionItems(items, tags)
         val artworks = tags.artworks
         if (!artworks.isNullOrEmpty()) items += coverItem(artworks)
@@ -881,7 +886,7 @@ private fun ByteArray.writeBigEndianLong(offset: Int, value: Long) {
 
 private val REPLACED_ITEMS = setOf(
     FIELD_TITLE, FIELD_ARTIST, FIELD_ALBUM, FIELD_ALBUM_ARTIST, FIELD_YEAR,
-    FIELD_GENRE, FIELD_COMPOSER, FIELD_COMMENT, ITEM_TRACK, ITEM_DISC, COVER_ITEM,
+    FIELD_GENRE, FIELD_COMPOSER, FIELD_COMMENT, FIELD_LYRICS, ITEM_TRACK, ITEM_DISC, COVER_ITEM,
     FIELD_TITLE_SORT, FIELD_ALBUM_SORT, FIELD_ARTIST_SORT, FIELD_ALBUM_ARTIST_SORT,
     ITEM_COMPILATION, ITEM_BPM,
 )

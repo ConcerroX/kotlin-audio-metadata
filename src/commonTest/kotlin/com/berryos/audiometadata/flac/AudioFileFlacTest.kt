@@ -65,6 +65,30 @@ class AudioFileFlacTest {
     }
 
     @Test
+    fun readsAndWritesLyrics() {
+        val source = sourceWith(buildFlac(VorbisCommentTag.create().apply { title = "Song" }), AUDIO)
+        val file = assertNotNull(AudioFile.read(source))
+
+        file.lyrics = "First line\nSecond line"
+        file.save(source)
+
+        val reread = assertNotNull(AudioFile.read(source))
+        assertEquals("First line\nSecond line", reread.lyrics)
+        assertEquals("First line\nSecond line", assertNotNull(reread.vorbis).value("LYRICS"))
+    }
+
+    @Test
+    fun readsLegacyUnsyncedLyricsKey() {
+        val tag = VorbisCommentTag.create().apply {
+            title = "Song"
+            set("UNSYNCEDLYRICS", "Legacy words")
+        }
+        val file = assertNotNull(AudioFile.read(sourceWith(buildFlac(tag), AUDIO)))
+
+        assertEquals("Legacy words", file.lyrics)
+    }
+
+    @Test
     fun preservesPicturesThatWereNotLoaded() {
         val image = "PNG-DATA".encodeToByteArray()
         val tag = VorbisCommentTag.create().apply { title = "Song" }

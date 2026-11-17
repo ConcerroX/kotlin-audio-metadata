@@ -184,11 +184,20 @@ class Id3v2Tag internal constructor(
         set(value) = setTextFrame(genreFrameId, value)
 
     override var comments: List<String>
-        get() = framesOf(commentFrameId).mapNotNull(::parseComment)
+        get() = framesOf(commentFrameId).mapNotNull(::parseDescribedText)
         set(value) {
             frameList.removeAll { frame -> frame.id == commentFrameId }
             value.forEach { comment ->
-                frameList += defaultFrame(commentFrameId, Id3v2Encoding.commentContent(version, comment))
+                frameList += defaultFrame(commentFrameId, Id3v2Encoding.languageTextContent(version, comment))
+            }
+        }
+
+    override var lyrics: String?
+        get() = framesOf(lyricsFrameId).firstNotNullOfOrNull(::parseDescribedText)
+        set(value) {
+            frameList.removeAll { frame -> frame.id == lyricsFrameId }
+            if (!value.isNullOrEmpty()) {
+                frameList += defaultFrame(lyricsFrameId, Id3v2Encoding.languageTextContent(version, value))
             }
         }
 
@@ -255,6 +264,7 @@ class Id3v2Tag internal constructor(
         genres = genres,
         composers = composers,
         comments = comments,
+        lyrics = lyrics,
         replayGain = replayGain,
         audioInfo = audioInfo,
     )
@@ -291,6 +301,9 @@ class Id3v2Tag internal constructor(
 
     private val pictureFrameId: String
         get() = frameId("PIC", "APIC")
+
+    private val lyricsFrameId: String
+        get() = frameId("ULT", "USLT")
 
     private val ufidFrameId: String
         get() = frameId("UFI", "UFID")
@@ -349,7 +362,7 @@ class Id3v2Tag internal constructor(
         return number to total
     }
 
-    private fun parseComment(frame: Id3v2Frame): String? {
+    private fun parseDescribedText(frame: Id3v2Frame): String? {
         if (!frame.isDecodable()) return null
         val content = frame.content
         if (content.size < COMMENT_HEADER_SIZE) return null
@@ -750,6 +763,7 @@ private val V22_FRAME_IDS = mapOf(
     "TCON" to "TCO",
     "COMM" to "COM",
     "TXXX" to "TXX",
+    "USLT" to "ULT",
     "APIC" to "PIC",
     "TENC" to "TEN",
     "TSSE" to "TSS",

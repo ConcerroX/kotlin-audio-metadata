@@ -27,6 +27,7 @@ interface Id3Tag {
     var genres: List<String>
     var composers: List<String>
     var comments: List<String>
+    var lyrics: String?
     var replayGain: ReplayGain?
     val artworks: List<Artwork>
 

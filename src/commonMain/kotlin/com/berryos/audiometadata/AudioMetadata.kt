@@ -53,6 +53,7 @@ data class AudioMetadata(
     val genres: List<String> = emptyList(),
     val composers: List<String> = emptyList(),
     val comments: List<String> = emptyList(),
+    val lyrics: String? = null,
     val replayGain: ReplayGain? = null,
     val audioInfo: AudioInfo? = null,
 )

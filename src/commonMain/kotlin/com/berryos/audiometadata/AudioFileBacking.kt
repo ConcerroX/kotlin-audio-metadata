@@ -29,6 +29,7 @@ internal interface TagFields {
     var genres: List<String>
     var composers: List<String>
     var comments: List<String>
+    var lyrics: String?
     var replayGain: ReplayGain?
 }
 
@@ -107,6 +108,15 @@ internal class VorbisTagFields(private val tag: VorbisCommentTag) : TagFields {
     override var comments: List<String>
         get() = tag.values("COMMENT")
         set(value) = tag.setValues("COMMENT", value)
+
+    override var lyrics: String?
+        get() = tag.value("LYRICS")?.takeIf(String::isNotEmpty)
+            ?: tag.value("UNSYNCEDLYRICS")?.takeIf(String::isNotEmpty)
+        set(value) {
+            tag.remove("LYRICS")
+            tag.remove("UNSYNCEDLYRICS")
+            if (!value.isNullOrEmpty()) tag.set("LYRICS", value)
+        }
 
     override var replayGain: ReplayGain?
         get() = tag.replayGain
@@ -386,6 +396,12 @@ internal class Mp4TagFields(val tag: Mp4Tag) : TagFields, ExtensionFields {
         get() = tag.comments
         set(value) {
             tag.comments = value
+        }
+
+    override var lyrics: String?
+        get() = tag.lyrics
+        set(value) {
+            tag.lyrics = value
         }
 
     override var replayGain: ReplayGain?

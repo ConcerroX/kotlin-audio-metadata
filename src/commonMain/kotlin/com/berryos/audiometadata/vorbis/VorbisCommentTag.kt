@@ -114,6 +114,7 @@ class VorbisCommentTag internal constructor(
             genres = values("GENRE"),
             composers = values("COMPOSER"),
             comments = values("COMMENT"),
+            lyrics = (value("LYRICS") ?: value("UNSYNCEDLYRICS"))?.takeIf(String::isNotEmpty),
             replayGain = replayGain,
             audioInfo = audioInfo,
         )

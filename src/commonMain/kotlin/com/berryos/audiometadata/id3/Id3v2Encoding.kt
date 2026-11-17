@@ -23,9 +23,10 @@ internal object Id3v2Encoding {
             encode(encoding, value)
     }
 
-    fun commentContent(version: Id3Version, text: String): ByteArray {
+    /** COMM and USLT share the encoding/language/empty-description layout. */
+    fun languageTextContent(version: Id3Version, text: String): ByteArray {
         val encoding = chooseEncoding(version, listOf(text))
-        return byteArrayOf(encoding.toByte()) + COMMENT_LANGUAGE + terminator(encoding) + encode(encoding, text)
+        return byteArrayOf(encoding.toByte()) + LANGUAGE + terminator(encoding) + encode(encoding, text)
     }
 
     fun pictureContent(version: Id3Version, artwork: Artwork): ByteArray {
@@ -75,5 +76,5 @@ internal object Id3v2Encoding {
     }
 }
 
-private val COMMENT_LANGUAGE = "eng".encodeToByteArray()
+private val LANGUAGE = "eng".encodeToByteArray()
 private const val DEFAULT_PICTURE_TYPE = 3

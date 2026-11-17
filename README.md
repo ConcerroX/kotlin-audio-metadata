@@ -43,8 +43,9 @@ FileChannelSource(file).use { source ->
 
 `AudioFile` is an editable view over the parsed tags:
 
-- High-level properties (`title`, `artists`, `trackNumber`, `replayGain`, ...) and the low-level tag
-  (`vorbis`, `mp4`, `id3`) edit the same state, so changes are visible through both.
+- High-level properties (`title`, `artists`, `trackNumber`, `lyrics`, `replayGain`, ...) and the
+  low-level tag (`vorbis`, `mp4`, `id3`) edit the same state, so changes are visible through both.
+  Lyrics use USLT on ID3, LYRICS on Vorbis comments and `©lyr` on MP4.
 - `artworks` is `null` when the file was opened without pictures. In that case `save` leaves the
   embedded pictures untouched; assign an empty list to remove them.
 - `extensions` holds well-known non-core tags (sort keys, compilation flag, BPM, ISRC,

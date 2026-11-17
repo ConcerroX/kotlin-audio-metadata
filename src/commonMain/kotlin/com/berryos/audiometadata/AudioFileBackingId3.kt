@@ -90,6 +90,12 @@ internal class Id3TagFields(private val tag: Id3Tag) : TagFields {
             tag.comments = value
         }
 
+    override var lyrics: String?
+        get() = tag.lyrics
+        set(value) {
+            tag.lyrics = value
+        }
+
     override var replayGain: ReplayGain?
         get() = tag.replayGain
         set(value) {

@@ -43,6 +43,20 @@ class AudioFileOggTest {
     }
 
     @Test
+    fun readsAndWritesLyrics() {
+        val source = sourceWith(vorbisFile("Song", "Artist"))
+        val file = assertNotNull(AudioFile.read(source))
+
+        file.lyrics = "Words"
+        file.save(source)
+
+        val reread = assertNotNull(AudioFile.read(source))
+        assertEquals("Words", reread.lyrics)
+        assertEquals("Words", assertNotNull(reread.vorbis).value("LYRICS"))
+        assertContentEquals(AUDIO_TAIL, audioTail(source))
+    }
+
+    @Test
     fun preservesPicturesThatWereNotLoaded() {
         val image = "PNG-DATA".encodeToByteArray()
         val tag = VorbisCommentTag.create().apply {

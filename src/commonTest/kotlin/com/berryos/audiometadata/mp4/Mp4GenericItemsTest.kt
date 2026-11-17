@@ -14,34 +14,34 @@ class Mp4GenericItemsTest {
     @Test
     fun readsUnmanagedItems() {
         val source = sourceWith(
-            mp4File(extraItems = textItem("©lyr", "Lyrics") + freeformItem("LABEL", "Label")),
+            mp4File(extraItems = textItem("©grp", "Grouping") + freeformItem("LABEL", "Label")),
         )
         val file = assertNotNull(AudioFile.read(source))
         val mp4 = assertNotNull(file.mp4)
 
-        val lyrics = mp4.item("©lyr").single()
-        assertEquals("Lyrics", lyrics.data.decodeToString())
-        assertEquals(Mp4Item.TYPE_UTF8, lyrics.dataType)
+        val grouping = mp4.item("©grp").single()
+        assertEquals("Grouping", grouping.data.decodeToString())
+        assertEquals(Mp4Item.TYPE_UTF8, grouping.dataType)
         assertEquals("Label", mp4.freeformText("LABEL"))
     }
 
     @Test
     fun writesAndRemovesItems() {
-        val source = sourceWith(mp4File(extraItems = textItem("©lyr", "Lyrics") + freeformItem("LABEL", "Label")))
+        val source = sourceWith(mp4File(extraItems = textItem("©grp", "Grouping") + freeformItem("LABEL", "Label")))
         val file = assertNotNull(AudioFile.read(source))
         val mp4 = assertNotNull(file.mp4)
 
-        mp4.setItem("©grp", Mp4Item.TYPE_UTF8, "Grouping".encodeToByteArray())
+        mp4.setItem("©too", Mp4Item.TYPE_UTF8, "Encoder".encodeToByteArray())
         mp4.setFreeform("MOOD", "Calm")
-        mp4.removeItem("©lyr")
+        mp4.removeItem("©grp")
         file.save(source)
 
         val reread = assertNotNull(AudioFile.read(source))
         val updated = assertNotNull(reread.mp4)
-        assertEquals("Grouping", updated.item("©grp").single().data.decodeToString())
+        assertEquals("Encoder", updated.item("©too").single().data.decodeToString())
         assertEquals("Calm", updated.freeformText("MOOD"))
         assertEquals("Label", updated.freeformText("LABEL"))
-        assertTrue(updated.item("©lyr").isEmpty())
+        assertTrue(updated.item("©grp").isEmpty())
     }
 
     @Test
