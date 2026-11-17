@@ -1,5 +1,7 @@
 package com.berryos.audiometadata.io
 
+import com.berryos.audiometadata.AudioMetadataException
+
 /**
  * Moves everything from [from] to [to], extending or shortening the source as needed.
  *
@@ -40,7 +42,7 @@ internal fun RandomAccessSource.readFully(offset: Long, buffer: ByteArray, count
     var position = 0
     while (position < count) {
         val read = readAt(offset + position, buffer, position, count - position)
-        check(read > 0) { "Unexpected end of data at ${offset + position}" }
+        if (read <= 0) throw AudioMetadataException("Unexpected end of data at ${offset + position}")
         position += read
     }
 }

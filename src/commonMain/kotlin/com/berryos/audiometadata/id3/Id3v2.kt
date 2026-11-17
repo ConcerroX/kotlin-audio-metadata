@@ -482,7 +482,7 @@ public object Id3v2Reader {
         if (source.size < HEADER_SIZE) return null
         val header = ByteArray(HEADER_SIZE)
         source.readFully(0, header, HEADER_SIZE)
-        return readTag(header) { offset, destination ->
+        return readTag(header, source.size) { offset, destination ->
             source.readFully(offset, destination, destination.size)
             true
         }
@@ -492,7 +492,7 @@ public object Id3v2Reader {
     internal fun read(bytes: ByteArray): Id3v2Tag? {
         if (bytes.size < HEADER_SIZE) return null
         val header = bytes.copyOfRange(0, HEADER_SIZE)
-        return readTag(header) { offset, destination ->
+        return readTag(header, bytes.size.toLong()) { offset, destination ->
             val start = offset.toInt()
             if (start + destination.size > bytes.size) return@readTag false
             bytes.copyInto(destination, 0, start, start + destination.size)
@@ -502,6 +502,7 @@ public object Id3v2Reader {
 
     private inline fun readTag(
         header: ByteArray,
+        availableSize: Long,
         readAt: (Long, ByteArray) -> Boolean,
     ): Id3v2Tag? {
         if (!header.hasId3Magic()) return null
@@ -510,7 +511,7 @@ public object Id3v2Reader {
         val flags = header[5].toInt() and 0xFF
         if (version == Id3Version.V22 && flags and FLAG_V22_COMPRESSION != 0) return null
         val bodySize = synchsafeInt(header, 6)
-        if (bodySize < 0) return null
+        if (bodySize < 0 || HEADER_SIZE + bodySize.toLong() > availableSize) return null
         val body = ByteArray(bodySize)
         if (!readAt(HEADER_SIZE.toLong(), body)) return null
         return parseTag(version, revision, flags, body)

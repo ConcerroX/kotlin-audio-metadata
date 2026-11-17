@@ -52,6 +52,8 @@ internal object OggPages {
         if (offset + HEADER_BYTES + segmentCount > source.size) return null
         val lacing = ByteArray(segmentCount)
         if (segmentCount > 0 && source.readAt(offset + HEADER_BYTES, lacing) < segmentCount) return null
+        val payloadSize = lacing.sumOf { value -> value.toInt() and 0xFF }
+        if (offset + HEADER_BYTES + segmentCount + payloadSize > source.size) return null
 
         return OggPage(
             offset = offset,
