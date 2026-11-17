@@ -74,6 +74,27 @@ class WavMetadataTest {
         assertEquals(1, AudioArtworkReader.read(source).size)
     }
 
+    @Test
+    fun readsInfoChunkWhenNoId3() {
+        val source = sourceWith(wavFile(tag = null, info = infoList()))
+        val audio = assertNotNull(WavMetadataReader.read(source)).toAudioMetadata()
+
+        assertEquals("Info Title", audio.title)
+        assertEquals(listOf("Info Artist"), audio.artists)
+        assertEquals("Info Album", audio.album)
+        assertEquals(3, audio.trackNumber)
+        assertEquals("2001", audio.year)
+        assertEquals(listOf("Jazz"), audio.genres)
+        assertEquals(listOf("Info Comment"), audio.comments)
+    }
+
+    @Test
+    fun prefersId3OverInfo() {
+        val source = sourceWith(wavFile(id3Tag("Song"), info = infoList()))
+
+        assertEquals("Song", assertNotNull(WavMetadataReader.read(source)).toAudioMetadata().title)
+    }
+
     private fun sourceWith(bytes: ByteArray): ByteArraySource =
         ByteArraySource().also { it.writeAt(0, bytes) }
 
@@ -94,15 +115,33 @@ private fun id3Tag(title: String): ByteArray {
     return ByteArrayOutputStream().also { tag.write(it, 0) }.toByteArray()
 }
 
-private fun wavFile(tag: ByteArray?, data: ByteArray = DATA): ByteArray {
+private fun wavFile(tag: ByteArray?, data: ByteArray = DATA, info: ByteArray? = null): ByteArray {
     val body = "WAVE".encodeToByteArray() +
         chunk("fmt ", formatPayload()) +
         (tag?.let { chunk("id3 ", it) } ?: ByteArray(0)) +
+        (info?.let { chunk("LIST", "INFO".encodeToByteArray() + it) } ?: ByteArray(0)) +
         chunk("data", data)
     val header = ByteArray(8)
     "RIFF".encodeToByteArray().copyInto(header)
     writeLittleEndianInt(header, 4, body.size)
     return header + body
+}
+
+private fun infoList(): ByteArray =
+    infoItem("INAM", "Info Title") +
+        infoItem("IART", "Info Artist") +
+        infoItem("IPRD", "Info Album") +
+        infoItem("ICRD", "2001") +
+        infoItem("IGNR", "Jazz") +
+        infoItem("ICMT", "Info Comment") +
+        infoItem("ITRK", "3/9")
+
+private fun infoItem(id: String, value: String): ByteArray {
+    val payload = value.encodeToByteArray() + byteArrayOf(0)
+    val header = ByteArray(8)
+    id.encodeToByteArray().copyInto(header)
+    writeLittleEndianInt(header, 4, payload.size)
+    return header + payload + (if (payload.size % 2 == 0) ByteArray(0) else byteArrayOf(0))
 }
 
 private fun chunk(id: String, payload: ByteArray): ByteArray {

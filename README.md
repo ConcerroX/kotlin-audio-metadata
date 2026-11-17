@@ -26,6 +26,8 @@ Known limitations:
 - Fragmented MP4 and non-iTunes MP4 metadata keys are not handled.
 - ID3v2.2 keeps its existing artwork when saving and does not write the extension fields (sort
   keys, compilation, MusicBrainz, R128).
+- WAV and AIFF are written as an embedded ID3 chunk. When a file has no ID3 chunk, WAV
+  `LIST/INFO` and AIFF `NAME`/`AUTH`/`ANNO` text chunks are read as a fallback.
 
 ## Usage
 

@@ -57,6 +57,23 @@ class AiffMetadataTest {
         assertContentEquals(soundData(), chunkPayload(source, after, "SSND"))
     }
 
+    @Test
+    fun readsNativeTextWhenNoId3() {
+        val source = sourceWith(aiffFile(tag = null, nativeText = nativeText()))
+        val audio = assertNotNull(AiffMetadataReader.read(source)).toAudioMetadata()
+
+        assertEquals("Native Title", audio.title)
+        assertEquals(listOf("Native Artist"), audio.artists)
+        assertEquals(listOf("First note", "Second note"), audio.comments)
+    }
+
+    @Test
+    fun prefersId3OverNativeText() {
+        val source = sourceWith(aiffFile(id3Tag("Song"), nativeText = nativeText()))
+
+        assertEquals("Song", assertNotNull(AiffMetadataReader.read(source)).toAudioMetadata().title)
+    }
+
     private fun sourceWith(bytes: ByteArray): ByteArraySource =
         ByteArraySource().also { it.writeAt(0, bytes) }
 
@@ -77,16 +94,23 @@ private fun id3Tag(title: String): ByteArray {
     return ByteArrayOutputStream().also { tag.write(it, 0) }.toByteArray()
 }
 
-private fun aiffFile(tag: ByteArray?): ByteArray {
+private fun aiffFile(tag: ByteArray?, nativeText: ByteArray = ByteArray(0)): ByteArray {
     val body = "AIFF".encodeToByteArray() +
         chunk("COMM", commonChunk()) +
         chunk("SSND", soundData()) +
+        nativeText +
         (tag?.let { chunk("ID3 ", it) } ?: ByteArray(0))
     val header = ByteArray(8)
     "FORM".encodeToByteArray().copyInto(header)
     writeBigEndianInt(header, 4, body.size)
     return header + body
 }
+
+private fun nativeText(): ByteArray =
+    chunk("NAME", "Native Title".encodeToByteArray()) +
+        chunk("AUTH", "Native Artist".encodeToByteArray()) +
+        chunk("ANNO", "First note".encodeToByteArray()) +
+        chunk("ANNO", "Second note".encodeToByteArray())
 
 private fun commonChunk(): ByteArray {
     val bytes = ByteArray(18)

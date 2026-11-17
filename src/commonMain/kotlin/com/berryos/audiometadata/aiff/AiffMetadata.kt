@@ -4,6 +4,7 @@ import com.berryos.audiometadata.Artwork
 import com.berryos.audiometadata.AudioFormat
 import com.berryos.audiometadata.AudioInfo
 import com.berryos.audiometadata.AudioMetadata
+import com.berryos.audiometadata.decodePlainText
 import com.berryos.audiometadata.id3.Id3v2Reader
 import com.berryos.audiometadata.id3.Id3v2Tag
 import com.berryos.audiometadata.id3.Id3v2Writer
@@ -14,17 +15,40 @@ import com.berryos.audiometadata.io.readFully
 import kotlin.math.pow
 import kotlin.math.roundToInt
 
-/** Parsed AIFF metadata: the embedded ID3 tag and the `COMM` properties. */
+/** Parsed AIFF metadata: the embedded ID3 tag, the native text chunks and the `COMM` properties. */
 internal class AiffMetadata(
     val tag: Id3v2Tag,
     val audioInfo: AudioInfo?,
+    val text: AiffTextTags?,
     internal val chunks: List<AiffChunk>,
     internal val id3Chunk: AiffChunk?,
 ) {
     val artworks: List<Artwork>
         get() = tag.artworks
 
-    fun toAudioMetadata(): AudioMetadata = tag.toAudioMetadata(AudioFormat.Aiff, audioInfo)
+    /**
+     * ID3 is the canonical tag. Native `NAME`/`AUTH`/`ANNO` chunks are only used when the file has
+     * no ID3 chunk, so a tag written through this library never mixes with stale text chunks.
+     */
+    fun toAudioMetadata(): AudioMetadata {
+        if (id3Chunk != null) return tag.toAudioMetadata(AudioFormat.Aiff, audioInfo)
+        return text?.toAudioMetadata(audioInfo) ?: tag.toAudioMetadata(AudioFormat.Aiff, audioInfo)
+    }
+}
+
+/** Fields of the native AIFF `NAME`, `AUTH` and `ANNO` text chunks. */
+internal class AiffTextTags(
+    val title: String?,
+    val artist: String?,
+    val comments: List<String>,
+) {
+    fun toAudioMetadata(audioInfo: AudioInfo?): AudioMetadata = AudioMetadata(
+        format = AudioFormat.Aiff,
+        title = title,
+        artists = listOfNotNull(artist),
+        comments = comments,
+        audioInfo = audioInfo,
+    )
 }
 
 internal class AiffChunk(
@@ -48,6 +72,9 @@ internal object AiffMetadataReader {
         var position = FORM_HEADER_SIZE.toLong()
         var common: AiffChunk? = null
         var id3: AiffChunk? = null
+        var textTitle: String? = null
+        var textArtist: String? = null
+        val textComments = ArrayList<String>()
         val chunks = ArrayList<AiffChunk>()
         val chunkHeader = ByteArray(CHUNK_HEADER_SIZE)
         while (position + CHUNK_HEADER_SIZE <= source.size) {
@@ -60,6 +87,9 @@ internal object AiffMetadataReader {
             when (id) {
                 "COMM" -> common = chunk
                 "ID3 " -> id3 = chunk
+                "NAME" -> textTitle = readChunkText(source, chunk)
+                "AUTH" -> textArtist = readChunkText(source, chunk)
+                "ANNO" -> readChunkText(source, chunk)?.let(textComments::add)
             }
             position = chunk.end
         }
@@ -70,7 +100,19 @@ internal object AiffMetadataReader {
             source.readFully(chunk.payloadOffset, bytes, bytes.size)
             Id3v2Reader.read(bytes)
         } ?: Id3v2Tag.create()
-        return AiffMetadata(tag, audioInfo, chunks, id3)
+        val text = if (textTitle != null || textArtist != null || textComments.isNotEmpty()) {
+            AiffTextTags(textTitle, textArtist, textComments)
+        } else {
+            null
+        }
+        return AiffMetadata(tag, audioInfo, text, chunks, id3)
+    }
+
+    private fun readChunkText(source: RandomAccessSource, chunk: AiffChunk): String? {
+        if (chunk.size <= 0 || chunk.size > MAX_TEXT_CHUNK_SIZE) return null
+        val bytes = ByteArray(chunk.size.toInt())
+        source.readFully(chunk.payloadOffset, bytes, bytes.size)
+        return decodePlainText(bytes)
     }
 
     private fun readAudioInfo(source: RandomAccessSource, chunk: AiffChunk): AudioInfo? {
@@ -164,3 +206,4 @@ private const val FORM_HEADER_SIZE = 12
 private const val CHUNK_HEADER_SIZE = 8
 private const val COMMON_MIN_SIZE = 18
 private const val EXTENDED_EXPONENT_BIAS = 16383
+private const val MAX_TEXT_CHUNK_SIZE = 1L shl 20

@@ -4,6 +4,7 @@ import com.berryos.audiometadata.Artwork
 import com.berryos.audiometadata.AudioFormat
 import com.berryos.audiometadata.AudioInfo
 import com.berryos.audiometadata.AudioMetadata
+import com.berryos.audiometadata.decodePlainText
 import com.berryos.audiometadata.id3.Id3v2Reader
 import com.berryos.audiometadata.id3.Id3v2Tag
 import com.berryos.audiometadata.id3.Id3v2Writer
@@ -12,17 +13,48 @@ import com.berryos.audiometadata.io.WritableRandomAccessSource
 import com.berryos.audiometadata.io.moveTail
 import com.berryos.audiometadata.io.readFully
 
-/** Parsed WAV metadata: the embedded ID3 tag and the `fmt `/`data` properties. */
+/** Parsed WAV metadata: the embedded ID3 tag, the `LIST/INFO` fields and the audio properties. */
 internal class WavMetadata(
     val tag: Id3v2Tag,
     val audioInfo: AudioInfo?,
+    val info: WavInfoTags?,
     internal val chunks: List<WavChunk>,
     internal val id3Chunk: WavChunk?,
 ) {
     val artworks: List<Artwork>
         get() = tag.artworks
 
-    fun toAudioMetadata(): AudioMetadata = tag.toAudioMetadata(AudioFormat.Wav, audioInfo)
+    /**
+     * ID3 is the canonical tag. `LIST/INFO` is only used when the file has no ID3 chunk, so a tag
+     * written through this library never mixes with stale INFO values.
+     */
+    fun toAudioMetadata(): AudioMetadata {
+        if (id3Chunk != null) return tag.toAudioMetadata(AudioFormat.Wav, audioInfo)
+        return info?.toAudioMetadata(audioInfo) ?: tag.toAudioMetadata(AudioFormat.Wav, audioInfo)
+    }
+}
+
+/** Fields of a RIFF `LIST` chunk with type `INFO`. */
+internal class WavInfoTags(
+    val title: String?,
+    val artist: String?,
+    val album: String?,
+    val year: String?,
+    val genre: String?,
+    val comment: String?,
+    val trackNumber: Int?,
+) {
+    fun toAudioMetadata(audioInfo: AudioInfo?): AudioMetadata = AudioMetadata(
+        format = AudioFormat.Wav,
+        title = title,
+        artists = listOfNotNull(artist),
+        album = album,
+        trackNumber = trackNumber,
+        year = year,
+        genres = listOfNotNull(genre),
+        comments = listOfNotNull(comment),
+        audioInfo = audioInfo,
+    )
 }
 
 internal class WavChunk(
@@ -46,6 +78,7 @@ internal object WavMetadataReader {
         var format: WavChunk? = null
         var data: WavChunk? = null
         var id3: WavChunk? = null
+        var info: WavInfoTags? = null
         val chunks = ArrayList<WavChunk>()
         val chunkHeader = ByteArray(CHUNK_HEADER_SIZE)
         while (position + CHUNK_HEADER_SIZE <= source.size) {
@@ -59,6 +92,7 @@ internal object WavMetadataReader {
                 id == "fmt " -> format = chunk
                 id == "data" -> data = chunk
                 id == "id3 " || id == "ID3 " -> id3 = chunk
+                id == "LIST" -> info = readInfo(source, chunk) ?: info
             }
             position = chunk.end
         }
@@ -69,7 +103,40 @@ internal object WavMetadataReader {
             source.readFully(chunk.payloadOffset, bytes, bytes.size)
             Id3v2Reader.read(bytes)
         } ?: Id3v2Tag.create()
-        return WavMetadata(tag, audioInfo, chunks, id3)
+        return WavMetadata(tag, audioInfo, info, chunks, id3)
+    }
+
+    private fun readInfo(source: RandomAccessSource, chunk: WavChunk): WavInfoTags? {
+        if (chunk.size < INFO_TYPE_SIZE) return null
+        val type = ByteArray(INFO_TYPE_SIZE)
+        source.readFully(chunk.payloadOffset, type, type.size)
+        if (!type.hasTypeAt(0, "INFO")) return null
+
+        val end = chunk.payloadOffset + chunk.size
+        var position = chunk.payloadOffset + INFO_TYPE_SIZE
+        val header = ByteArray(CHUNK_HEADER_SIZE)
+        val values = LinkedHashMap<String, String>()
+        while (position + CHUNK_HEADER_SIZE <= end) {
+            source.readFully(position, header, header.size)
+            val id = fourCc(header, 0)
+            val size = header.readLittleEndianInt(4).toLong() and 0xFFFFFFFFL
+            val payloadStart = position + CHUNK_HEADER_SIZE
+            if (payloadStart + size > end) break
+            val bytes = ByteArray(size.toInt())
+            source.readFully(payloadStart, bytes, bytes.size)
+            decodePlainText(bytes)?.let { text -> values[id] = text }
+            position = payloadStart + size + (size and 1L)
+        }
+        if (values.isEmpty()) return null
+        return WavInfoTags(
+            title = values["INAM"],
+            artist = values["IART"],
+            album = values["IPRD"],
+            year = values["ICRD"],
+            genre = values["IGNR"],
+            comment = values["ICMT"],
+            trackNumber = values["ITRK"]?.substringBefore('/')?.trim()?.toIntOrNull(),
+        )
     }
 
     private fun readAudioInfo(source: RandomAccessSource, chunk: WavChunk, dataSize: Long): AudioInfo? {
@@ -157,3 +224,4 @@ internal fun ByteArray.writeLittleEndianInt(offset: Int, value: Int) {
 private const val RIFF_HEADER_SIZE = 12
 private const val CHUNK_HEADER_SIZE = 8
 private const val FORMAT_MIN_SIZE = 16
+private const val INFO_TYPE_SIZE = 4
