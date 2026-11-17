@@ -9,9 +9,9 @@ import com.berryos.audiometadata.io.WritableRandomAccessSource
 import com.berryos.audiometadata.ogg.OggPages
 import com.berryos.audiometadata.ogg.findOggPacket
 import com.berryos.audiometadata.ogg.findOggPackets
-import com.berryos.audiometadata.ogg.readLittleEndianInt
 import com.berryos.audiometadata.ogg.replaceOggPackets
 import com.berryos.audiometadata.ogg.walkOggPages
+import com.berryos.audiometadata.readUInt32Le
 
 /** Parsed Ogg Vorbis tags and stream info; the comment block is exposed as [tag]. */
 internal class OggVorbisMetadata(
@@ -40,8 +40,8 @@ internal object OggVorbisMetadataReader {
             ?: VorbisCommentTag.create()
 
         val channels = head[11].toInt() and 0xFF
-        val sampleRate = head.readLittleEndianInt(12)
-        val nominalBitrate = head.readLittleEndianInt(20)
+        val sampleRate = head.readUInt32Le(12)
+        val nominalBitrate = head.readUInt32Le(20)
         val lastGranule = pages.lastOrNull { it.granulePosition > 0 }?.granulePosition ?: 0L
         val audioInfo = AudioInfo(
             bitrateKbps = if (nominalBitrate > 0) nominalBitrate / 1000 else null,

@@ -4,6 +4,7 @@ import com.berryos.audiometadata.Artwork
 import com.berryos.audiometadata.AudioFormat
 import com.berryos.audiometadata.AudioInfo
 import com.berryos.audiometadata.AudioMetadata
+import com.berryos.audiometadata.asciiAt
 import com.berryos.audiometadata.guessArtworkMimeType
 import com.berryos.audiometadata.io.RandomAccessSource
 import com.berryos.audiometadata.io.WritableRandomAccessSource
@@ -411,7 +412,7 @@ internal object Mp4MetadataReader {
     private fun readHandlerType(source: RandomAccessSource, hdlr: Mp4Atom): String? {
         val data = readBytes(source, hdlr.payloadStart, minOf(hdlr.payloadSize, 12L).toInt())
         if (data.size < 12) return null
-        return fourCc(data, 8)
+        return data.asciiAt(8, ATOM_TYPE_SIZE)
     }
 
     private fun readText(source: RandomAccessSource, item: Mp4Atom?): List<String>? {
@@ -490,7 +491,7 @@ private fun readAtom(source: RandomAccessSource, offset: Long, limit: Long): Mp4
     val header = ByteArray(8)
     source.readAt(offset, header)
     var size = header.readBigEndianInt(0).toLong() and 0xFFFFFFFFL
-    val type = fourCc(header, 4)
+    val type = header.asciiAt(4, ATOM_TYPE_SIZE)
     var headerSize = ATOM_HEADER_SIZE
     if (size == 1L) {
         if (offset + 16 > limit) return null
@@ -525,10 +526,6 @@ private fun fullBoxText(source: RandomAccessSource, atom: Mp4Atom): String? {
     if (atom.payloadSize <= FULL_BOX_HEADER) return null
     val length = (atom.payloadSize - FULL_BOX_HEADER).toInt()
     return readBytes(source, atom.payloadStart + FULL_BOX_HEADER, length).decodeToString()
-}
-
-private fun fourCc(bytes: ByteArray, offset: Int): String = buildString(4) {
-    repeat(4) { index -> append((bytes[offset + index].toInt() and 0xFF).toChar()) }
 }
 
 private fun ByteArray.readBigEndianInt(offset: Int): Int =
@@ -794,7 +791,7 @@ internal object Mp4MetadataWriter {
         while (position + ATOM_HEADER_SIZE <= end) {
             val size = bytes.readBigEndianInt(position)
             if (size < ATOM_HEADER_SIZE || position + size > end) return
-            when (val type = fourCc(bytes, position + 4)) {
+            when (val type = bytes.asciiAt(position + 4, ATOM_TYPE_SIZE)) {
                 "stco" -> {
                     val count = bytes.readBigEndianInt(position + 12)
                     var entry = position + 16

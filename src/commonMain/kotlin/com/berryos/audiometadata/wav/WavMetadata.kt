@@ -4,7 +4,9 @@ import com.berryos.audiometadata.Artwork
 import com.berryos.audiometadata.AudioFormat
 import com.berryos.audiometadata.AudioInfo
 import com.berryos.audiometadata.AudioMetadata
+import com.berryos.audiometadata.asciiAt
 import com.berryos.audiometadata.decodePlainText
+import com.berryos.audiometadata.hasAsciiAt
 import com.berryos.audiometadata.id3.Id3v2Reader
 import com.berryos.audiometadata.id3.Id3v2Tag
 import com.berryos.audiometadata.id3.Id3v2Writer
@@ -12,6 +14,9 @@ import com.berryos.audiometadata.io.RandomAccessSource
 import com.berryos.audiometadata.io.WritableRandomAccessSource
 import com.berryos.audiometadata.io.moveTail
 import com.berryos.audiometadata.io.readFully
+import com.berryos.audiometadata.readUInt16Le
+import com.berryos.audiometadata.readUInt32Le
+import com.berryos.audiometadata.writeUInt32Le
 
 /** Parsed WAV metadata: the embedded ID3 tag, the `LIST/INFO` fields and the audio properties. */
 internal class WavMetadata(
@@ -72,7 +77,7 @@ internal object WavMetadataReader {
         if (source.size < RIFF_HEADER_SIZE) return null
         val header = ByteArray(RIFF_HEADER_SIZE)
         source.readFully(0, header, header.size)
-        if (!header.hasTypeAt(0, "RIFF") || !header.hasTypeAt(8, "WAVE")) return null
+        if (!header.hasAsciiAt(0, "RIFF") || !header.hasAsciiAt(8, "WAVE")) return null
 
         var position = RIFF_HEADER_SIZE.toLong()
         var format: WavChunk? = null
@@ -83,8 +88,8 @@ internal object WavMetadataReader {
         val chunkHeader = ByteArray(CHUNK_HEADER_SIZE)
         while (position + CHUNK_HEADER_SIZE <= source.size) {
             source.readFully(position, chunkHeader, chunkHeader.size)
-            val id = fourCc(chunkHeader, 0)
-            val size = chunkHeader.readLittleEndianInt(4).toLong() and 0xFFFFFFFFL
+            val id = chunkHeader.asciiAt(0, CHUNK_ID_SIZE)
+            val size = chunkHeader.readUInt32Le(4).toLong() and 0xFFFFFFFFL
             if (position + CHUNK_HEADER_SIZE + size > source.size) break
             val chunk = WavChunk(id, position, position + CHUNK_HEADER_SIZE, size)
             chunks += chunk
@@ -110,7 +115,7 @@ internal object WavMetadataReader {
         if (chunk.size < INFO_TYPE_SIZE) return null
         val type = ByteArray(INFO_TYPE_SIZE)
         source.readFully(chunk.payloadOffset, type, type.size)
-        if (!type.hasTypeAt(0, "INFO")) return null
+        if (!type.hasAsciiAt(0, "INFO")) return null
 
         val end = chunk.payloadOffset + chunk.size
         var position = chunk.payloadOffset + INFO_TYPE_SIZE
@@ -118,8 +123,8 @@ internal object WavMetadataReader {
         val values = LinkedHashMap<String, String>()
         while (position + CHUNK_HEADER_SIZE <= end) {
             source.readFully(position, header, header.size)
-            val id = fourCc(header, 0)
-            val size = header.readLittleEndianInt(4).toLong() and 0xFFFFFFFFL
+            val id = header.asciiAt(0, CHUNK_ID_SIZE)
+            val size = header.readUInt32Le(4).toLong() and 0xFFFFFFFFL
             val payloadStart = position + CHUNK_HEADER_SIZE
             if (payloadStart + size > end) break
             val bytes = ByteArray(size.toInt())
@@ -143,10 +148,10 @@ internal object WavMetadataReader {
         if (chunk.size < FORMAT_MIN_SIZE) return null
         val bytes = ByteArray(minOf(chunk.size, FORMAT_MIN_SIZE.toLong()).toInt())
         source.readFully(chunk.payloadOffset, bytes, bytes.size)
-        val channels = bytes.readLittleEndianShort(2)
-        val sampleRate = bytes.readLittleEndianInt(4)
-        val byteRate = bytes.readLittleEndianInt(8)
-        val bitsPerSample = bytes.readLittleEndianShort(14)
+        val channels = bytes.readUInt16Le(2)
+        val sampleRate = bytes.readUInt32Le(4)
+        val byteRate = bytes.readUInt32Le(8)
+        val bitsPerSample = bytes.readUInt16Le(14)
         val durationMs = if (byteRate > 0 && dataSize > 0) dataSize * 1000 / byteRate else null
         return AudioInfo(
             bitrateKbps = if (byteRate > 0) byteRate * 8 / 1000 else null,
@@ -170,7 +175,7 @@ internal object WavMetadataWriter {
         val newChunkSize = CHUNK_HEADER_SIZE + tagBytes.size + padding
         val header = ByteArray(CHUNK_HEADER_SIZE)
         "id3 ".encodeToByteArray().copyInto(header)
-        header.writeLittleEndianInt(4, tagBytes.size)
+        header.writeUInt32Le(4, tagBytes.size)
 
         val existing = metadata.id3Chunk
         val chunkOffset = existing?.offset ?: source.size
@@ -188,40 +193,13 @@ internal object WavMetadataWriter {
 
     private fun writeRiffSize(source: WritableRandomAccessSource) {
         val size = ByteArray(4)
-        size.writeLittleEndianInt(0, (source.size - RIFF_HEADER_SIZE).toInt())
+        size.writeUInt32Le(0, (source.size - RIFF_HEADER_SIZE).toInt())
         source.writeAt(4, size)
     }
 }
 
-internal fun ByteArray.hasTypeAt(offset: Int, type: String): Boolean {
-    if (size < offset + type.length) return false
-    for (index in type.indices) {
-        if (this[offset + index] != type[index].code.toByte()) return false
-    }
-    return true
-}
-
-private fun fourCc(bytes: ByteArray, offset: Int): String = buildString(4) {
-    repeat(4) { index -> append((bytes[offset + index].toInt() and 0xFF).toChar()) }
-}
-
-internal fun ByteArray.readLittleEndianInt(offset: Int): Int =
-    (this[offset].toInt() and 0xFF) or
-        ((this[offset + 1].toInt() and 0xFF) shl 8) or
-        ((this[offset + 2].toInt() and 0xFF) shl 16) or
-        ((this[offset + 3].toInt() and 0xFF) shl 24)
-
-internal fun ByteArray.readLittleEndianShort(offset: Int): Int =
-    (this[offset].toInt() and 0xFF) or ((this[offset + 1].toInt() and 0xFF) shl 8)
-
-internal fun ByteArray.writeLittleEndianInt(offset: Int, value: Int) {
-    this[offset] = value.toByte()
-    this[offset + 1] = (value ushr 8).toByte()
-    this[offset + 2] = (value ushr 16).toByte()
-    this[offset + 3] = (value ushr 24).toByte()
-}
-
 private const val RIFF_HEADER_SIZE = 12
 private const val CHUNK_HEADER_SIZE = 8
+private const val CHUNK_ID_SIZE = 4
 private const val FORMAT_MIN_SIZE = 16
 private const val INFO_TYPE_SIZE = 4

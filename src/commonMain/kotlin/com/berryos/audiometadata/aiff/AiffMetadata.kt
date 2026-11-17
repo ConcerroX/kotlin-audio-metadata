@@ -4,7 +4,9 @@ import com.berryos.audiometadata.Artwork
 import com.berryos.audiometadata.AudioFormat
 import com.berryos.audiometadata.AudioInfo
 import com.berryos.audiometadata.AudioMetadata
+import com.berryos.audiometadata.asciiAt
 import com.berryos.audiometadata.decodePlainText
+import com.berryos.audiometadata.hasAsciiAt
 import com.berryos.audiometadata.id3.Id3v2Reader
 import com.berryos.audiometadata.id3.Id3v2Tag
 import com.berryos.audiometadata.id3.Id3v2Writer
@@ -12,6 +14,9 @@ import com.berryos.audiometadata.io.RandomAccessSource
 import com.berryos.audiometadata.io.WritableRandomAccessSource
 import com.berryos.audiometadata.io.moveTail
 import com.berryos.audiometadata.io.readFully
+import com.berryos.audiometadata.readUInt16Be
+import com.berryos.audiometadata.readUInt32Be
+import com.berryos.audiometadata.writeUInt32Be
 import kotlin.math.pow
 import kotlin.math.roundToInt
 
@@ -66,8 +71,8 @@ internal object AiffMetadataReader {
         if (source.size < FORM_HEADER_SIZE) return null
         val header = ByteArray(FORM_HEADER_SIZE)
         source.readFully(0, header, header.size)
-        if (!header.hasTypeAt(0, "FORM")) return null
-        if (!header.hasTypeAt(8, "AIFF") && !header.hasTypeAt(8, "AIFC")) return null
+        if (!header.hasAsciiAt(0, "FORM")) return null
+        if (!header.hasAsciiAt(8, "AIFF") && !header.hasAsciiAt(8, "AIFC")) return null
 
         var position = FORM_HEADER_SIZE.toLong()
         var common: AiffChunk? = null
@@ -79,8 +84,8 @@ internal object AiffMetadataReader {
         val chunkHeader = ByteArray(CHUNK_HEADER_SIZE)
         while (position + CHUNK_HEADER_SIZE <= source.size) {
             source.readFully(position, chunkHeader, chunkHeader.size)
-            val id = fourCc(chunkHeader, 0)
-            val size = chunkHeader.readBigEndianInt(4).toLong() and 0xFFFFFFFFL
+            val id = chunkHeader.asciiAt(0, CHUNK_ID_SIZE)
+            val size = chunkHeader.readUInt32Be(4).toLong() and 0xFFFFFFFFL
             if (position + CHUNK_HEADER_SIZE + size > source.size) break
             val chunk = AiffChunk(id, position, position + CHUNK_HEADER_SIZE, size)
             chunks += chunk
@@ -119,9 +124,9 @@ internal object AiffMetadataReader {
         if (chunk.size < COMMON_MIN_SIZE) return null
         val bytes = ByteArray(COMMON_MIN_SIZE)
         source.readFully(chunk.payloadOffset, bytes, bytes.size)
-        val channels = bytes.readBigEndianShort(0)
-        val frames = bytes.readBigEndianInt(2).toLong() and 0xFFFFFFFFL
-        val bitsPerSample = bytes.readBigEndianShort(6)
+        val channels = bytes.readUInt16Be(0)
+        val frames = bytes.readUInt32Be(2).toLong() and 0xFFFFFFFFL
+        val bitsPerSample = bytes.readUInt16Be(6)
         val sampleRate = readExtendedFloat(bytes, 8).roundToInt()
         if (sampleRate <= 0) return null
         val durationMs = frames * 1000 / sampleRate
@@ -144,7 +149,7 @@ internal object AiffMetadataWriter {
         val newChunkSize = CHUNK_HEADER_SIZE + tagBytes.size + padding
         val header = ByteArray(CHUNK_HEADER_SIZE)
         "ID3 ".encodeToByteArray().copyInto(header)
-        header.writeBigEndianInt(4, tagBytes.size)
+        header.writeUInt32Be(4, tagBytes.size)
 
         val existing = metadata.id3Chunk
         val chunkOffset = existing?.offset ?: source.size
@@ -157,18 +162,10 @@ internal object AiffMetadataWriter {
             source.writeAt(chunkOffset + CHUNK_HEADER_SIZE + tagBytes.size, byteArrayOf(0))
         }
         val size = ByteArray(4)
-        size.writeBigEndianInt(0, (source.size - FORM_HEADER_SIZE).toInt())
+        size.writeUInt32Be(0, (source.size - FORM_HEADER_SIZE).toInt())
         source.writeAt(4, size)
         source.flush()
     }
-}
-
-internal fun ByteArray.hasTypeAt(offset: Int, type: String): Boolean {
-    if (size < offset + type.length) return false
-    for (index in type.indices) {
-        if (this[offset + index] != type[index].code.toByte()) return false
-    }
-    return true
 }
 
 private fun readExtendedFloat(bytes: ByteArray, offset: Int): Double {
@@ -182,28 +179,9 @@ private fun readExtendedFloat(bytes: ByteArray, offset: Int): Double {
     return sign * mantissa.toDouble() * 2.0.pow(exponent - EXTENDED_EXPONENT_BIAS - 63)
 }
 
-private fun fourCc(bytes: ByteArray, offset: Int): String = buildString(4) {
-    repeat(4) { index -> append((bytes[offset + index].toInt() and 0xFF).toChar()) }
-}
-
-internal fun ByteArray.readBigEndianInt(offset: Int): Int =
-    ((this[offset].toInt() and 0xFF) shl 24) or
-        ((this[offset + 1].toInt() and 0xFF) shl 16) or
-        ((this[offset + 2].toInt() and 0xFF) shl 8) or
-        (this[offset + 3].toInt() and 0xFF)
-
-internal fun ByteArray.readBigEndianShort(offset: Int): Int =
-    ((this[offset].toInt() and 0xFF) shl 8) or (this[offset + 1].toInt() and 0xFF)
-
-internal fun ByteArray.writeBigEndianInt(offset: Int, value: Int) {
-    this[offset] = (value ushr 24).toByte()
-    this[offset + 1] = (value ushr 16).toByte()
-    this[offset + 2] = (value ushr 8).toByte()
-    this[offset + 3] = value.toByte()
-}
-
 private const val FORM_HEADER_SIZE = 12
 private const val CHUNK_HEADER_SIZE = 8
+private const val CHUNK_ID_SIZE = 4
 private const val COMMON_MIN_SIZE = 18
 private const val EXTENDED_EXPONENT_BIAS = 16383
 private const val MAX_TEXT_CHUNK_SIZE = 1L shl 20

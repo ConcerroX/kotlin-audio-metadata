@@ -3,6 +3,10 @@ package com.berryos.audiometadata.ogg
 import com.berryos.audiometadata.io.RandomAccessSource
 import com.berryos.audiometadata.io.WritableRandomAccessSource
 import com.berryos.audiometadata.io.readFully
+import com.berryos.audiometadata.readUInt32Le
+import com.berryos.audiometadata.readUInt64Le
+import com.berryos.audiometadata.writeUInt32Le
+import com.berryos.audiometadata.writeUInt64Le
 
 /**
  * One Ogg page as described by RFC 3533 section 6.
@@ -58,9 +62,9 @@ internal object OggPages {
         return OggPage(
             offset = offset,
             headerType = header[HEADER_TYPE_OFFSET].toInt() and 0xFF,
-            granulePosition = header.readLittleEndianLong(GRANULE_OFFSET),
-            serialNumber = header.readLittleEndianInt(SERIAL_OFFSET),
-            sequenceNumber = header.readLittleEndianInt(SEQUENCE_OFFSET),
+            granulePosition = header.readUInt64Le(GRANULE_OFFSET),
+            serialNumber = header.readUInt32Le(SERIAL_OFFSET),
+            sequenceNumber = header.readUInt32Le(SEQUENCE_OFFSET),
             segmentTable = IntArray(segmentCount) { index -> lacing[index].toInt() and 0xFF },
         )
     }
@@ -120,9 +124,9 @@ internal object OggPages {
         val page = read(source, offset) ?: return -1
         val bytes = ByteArray(page.size)
         source.readFully(offset, bytes, bytes.size)
-        bytes.writeLittleEndianInt(SEQUENCE_OFFSET, sequence)
-        bytes.writeLittleEndianInt(CRC_OFFSET, 0)
-        bytes.writeLittleEndianInt(CRC_OFFSET, computeCrc(bytes, 0, bytes.size))
+        bytes.writeUInt32Le(SEQUENCE_OFFSET, sequence)
+        bytes.writeUInt32Le(CRC_OFFSET, 0)
+        bytes.writeUInt32Le(CRC_OFFSET, computeCrc(bytes, 0, bytes.size))
         source.writeAt(offset, bytes)
         return page.size
     }
@@ -152,15 +156,15 @@ internal object OggPages {
         header[3] = 'S'.code.toByte()
         header[VERSION_OFFSET] = 0
         header[HEADER_TYPE_OFFSET] = (if (continued) HEADER_CONTINUED else 0).toByte()
-        header.writeLittleEndianLong(GRANULE_OFFSET, granule)
-        header.writeLittleEndianInt(SERIAL_OFFSET, serial)
-        header.writeLittleEndianInt(SEQUENCE_OFFSET, sequence)
-        header.writeLittleEndianInt(CRC_OFFSET, 0)
+        header.writeUInt64Le(GRANULE_OFFSET, granule)
+        header.writeUInt32Le(SERIAL_OFFSET, serial)
+        header.writeUInt32Le(SEQUENCE_OFFSET, sequence)
+        header.writeUInt32Le(CRC_OFFSET, 0)
         header[SEGMENT_COUNT_OFFSET] = lacing.size.toByte()
         lacing.forEachIndexed { index, value -> header[HEADER_BYTES + index] = value.toByte() }
 
         val page = header + payload
-        page.writeLittleEndianInt(CRC_OFFSET, computeCrc(page, 0, page.size))
+        page.writeUInt32Le(CRC_OFFSET, computeCrc(page, 0, page.size))
         return page
     }
 
@@ -194,35 +198,3 @@ private const val HEADER_BYTES = 27
 private const val HEADER_CONTINUED = 0x01
 private const val HEADER_FIRST_PAGE = 0x02
 private const val HEADER_LAST_PAGE = 0x04
-
-internal fun ByteArray.readLittleEndianInt(offset: Int): Int =
-    (this[offset].toInt() and 0xFF) or
-        ((this[offset + 1].toInt() and 0xFF) shl 8) or
-        ((this[offset + 2].toInt() and 0xFF) shl 16) or
-        ((this[offset + 3].toInt() and 0xFF) shl 24)
-
-internal fun ByteArray.readLittleEndianLong(offset: Int): Long =
-    (this[offset].toLong() and 0xFF) or
-        ((this[offset + 1].toLong() and 0xFF) shl 8) or
-        ((this[offset + 2].toLong() and 0xFF) shl 16) or
-        ((this[offset + 3].toLong() and 0xFF) shl 24) or
-        ((this[offset + 4].toLong() and 0xFF) shl 32) or
-        ((this[offset + 5].toLong() and 0xFF) shl 40) or
-        ((this[offset + 6].toLong() and 0xFF) shl 48) or
-        ((this[offset + 7].toLong() and 0xFF) shl 56)
-
-internal fun ByteArray.writeLittleEndianInt(offset: Int, value: Int) {
-    this[offset] = value.toByte()
-    this[offset + 1] = (value ushr 8).toByte()
-    this[offset + 2] = (value ushr 16).toByte()
-    this[offset + 3] = (value ushr 24).toByte()
-}
-
-private fun ByteArray.writeLittleEndianLong(offset: Int, value: Long) {
-    for (index in 0 until 8) {
-        this[offset + index] = (value ushr (index * 8)).toByte()
-    }
-}
-
-internal fun ByteArray.readLittleEndianShort(offset: Int): Int =
-    (this[offset].toInt() and 0xFF) or ((this[offset + 1].toInt() and 0xFF) shl 8)

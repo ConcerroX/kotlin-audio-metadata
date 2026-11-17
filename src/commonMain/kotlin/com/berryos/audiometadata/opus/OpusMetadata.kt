@@ -8,10 +8,10 @@ import com.berryos.audiometadata.io.RandomAccessSource
 import com.berryos.audiometadata.io.WritableRandomAccessSource
 import com.berryos.audiometadata.ogg.OggPages
 import com.berryos.audiometadata.ogg.findOggPacket
-import com.berryos.audiometadata.ogg.readLittleEndianInt
-import com.berryos.audiometadata.ogg.readLittleEndianShort
 import com.berryos.audiometadata.ogg.replaceOggPacket
 import com.berryos.audiometadata.ogg.walkOggPages
+import com.berryos.audiometadata.readUInt16Le
+import com.berryos.audiometadata.readUInt32Le
 import com.berryos.audiometadata.vorbis.VorbisCommentTag
 import com.berryos.audiometadata.vorbis.artworks
 
@@ -42,8 +42,8 @@ internal object OpusMetadataReader {
             ?: VorbisCommentTag.create()
 
         val channels = head[9].toInt() and 0xFF
-        val preSkip = head.readLittleEndianShort(10)
-        val inputSampleRate = head.readLittleEndianInt(12)
+        val preSkip = head.readUInt16Le(10)
+        val inputSampleRate = head.readUInt32Le(12)
         val lastGranule = pages.lastOrNull { it.granulePosition > 0 }?.granulePosition ?: 0L
         val samples = (lastGranule - preSkip).coerceAtLeast(0L)
         val audioInfo = AudioInfo(
