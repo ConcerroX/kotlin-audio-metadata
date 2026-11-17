@@ -7,6 +7,8 @@ All format handling lives in common code, written from the published format spec
 RFCs; see [NOTICE.md](NOTICE.md). Behavior and field mappings were informed by jaudiotagger, which
 is used only as a test-time comparison oracle.
 
+API documentation: https://concerrox.github.io/kotlin-audio-metadata/
+
 ## Supported formats
 
 | Format | Read | Write |
