@@ -4,6 +4,8 @@ import com.berryos.audiometadata.aiff.AiffMetadata
 import com.berryos.audiometadata.aiff.AiffMetadataReader
 import com.berryos.audiometadata.io.FileChannelSource
 import com.berryos.audiometadata.io.RandomAccessSource
+import com.berryos.audiometadata.mp3.Mp3Metadata
+import com.berryos.audiometadata.mp3.Mp3MetadataReader
 import com.berryos.audiometadata.wav.WavMetadata
 import com.berryos.audiometadata.wav.WavMetadataReader
 import org.junit.Assume.assumeTrue
@@ -23,7 +25,8 @@ class AudioFileId3Test {
             val file = assertNotNull(AudioFile.read(source))
             assertEquals(AudioFormat.Mp3, file.format)
             assertNotNull(file.id3)
-            val tailBefore = tail(source, TAIL_SIZE)
+            val mp3Before = assertNotNull(Mp3MetadataReader.read(source))
+            val tailBefore = readRange(source, mp3Before.audioStartOffset, audioLength(source, mp3Before))
 
             file.title = MARKER
             file.replayGain = ReplayGain(trackGain = "-6.00 dB", trackPeak = "0.98")
@@ -33,7 +36,8 @@ class AudioFileId3Test {
             assertEquals(MARKER, reread.title)
             assertEquals("-6.00 dB", reread.replayGain?.trackGain)
             assertEquals("0.98", reread.replayGain?.trackPeak)
-            assertContentEquals(tailBefore, tail(source, TAIL_SIZE))
+            val mp3After = assertNotNull(Mp3MetadataReader.read(source))
+            assertContentEquals(tailBefore, readRange(source, mp3After.audioStartOffset, audioLength(source, mp3After)))
         } finally {
             source.close()
         }
@@ -100,10 +104,8 @@ class AudioFileId3Test {
         return bytes
     }
 
-    private fun tail(source: RandomAccessSource, count: Int): ByteArray {
-        val length = minOf(count.toLong(), source.size).toInt()
-        return readRange(source, source.size - length, length)
-    }
+    private fun audioLength(source: RandomAccessSource, metadata: Mp3Metadata): Int =
+        (source.size - metadata.audioStartOffset - if (metadata.id3v1 != null) ID3V1_SIZE.toLong() else 0L).toInt()
 
     private fun withFixture(name: String, block: (File) -> Unit) {
         val fixture = File(TESTDATA, name)
@@ -121,4 +123,4 @@ class AudioFileId3Test {
 
 private val TESTDATA = File("testdata")
 private const val MARKER = "kotlin-audio-metadata"
-private const val TAIL_SIZE = 4096
+private const val ID3V1_SIZE = 128

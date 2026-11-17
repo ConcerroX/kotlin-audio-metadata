@@ -30,6 +30,9 @@ internal object Id3Genres {
 
     fun name(index: Int): String? = NAMES.getOrNull(index)
 
+    fun index(name: String): Int? = NAMES.indexOfFirst { candidate -> candidate.equals(name, ignoreCase = true) }
+        .takeIf { it >= 0 }
+
     /**
      * Resolves a TCON value.
      *

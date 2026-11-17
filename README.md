@@ -11,7 +11,7 @@ is used only as a test-time comparison oracle.
 
 | Format | Read | Write |
 |---|---|---|
-| MP3 (ID3v2.2/2.3/2.4, ID3v1) | Yes | Yes (ID3v2.2/2.3/2.4) |
+| MP3 (ID3v2.2/2.3/2.4, ID3v1) | Yes | Yes (ID3v2.2/2.3/2.4; ID3v1 updated when present) |
 | FLAC | Yes | Yes |
 | Ogg Vorbis | Yes | Yes |
 | Opus | Yes | Yes |
@@ -28,6 +28,8 @@ Known limitations:
   keys, compilation, MusicBrainz, R128).
 - WAV and AIFF are written as an embedded ID3 chunk. When a file has no ID3 chunk, WAV
   `LIST/INFO` and AIFF `NAME`/`AUTH`/`ANNO` text chunks are read as a fallback.
+- Files carrying only an ID3v1 tag are exposed through the same editable model. Saving writes an
+  ID3v2 tag and refreshes an existing ID3v1 tag; files without ID3v1 do not gain one.
 
 ## Usage
 

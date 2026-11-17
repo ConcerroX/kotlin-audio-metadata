@@ -4,9 +4,11 @@ import com.berryos.audiometadata.aiff.AiffMetadata
 import com.berryos.audiometadata.aiff.AiffMetadataReader
 import com.berryos.audiometadata.aiff.AiffMetadataWriter
 import com.berryos.audiometadata.id3.Id3Tag
+import com.berryos.audiometadata.id3.Id3v1Writer
 import com.berryos.audiometadata.id3.Id3v2Reader
 import com.berryos.audiometadata.id3.Id3v2Tag
 import com.berryos.audiometadata.id3.Id3v2Writer
+import com.berryos.audiometadata.id3.toEditableTag
 import com.berryos.audiometadata.io.RandomAccessSource
 import com.berryos.audiometadata.io.WritableRandomAccessSource
 import com.berryos.audiometadata.mp3.Mp3AudioInfoReader
@@ -261,7 +263,9 @@ internal class Mp3Backing(
         get() = metadata.audioInfo
 
     override fun save(source: WritableRandomAccessSource) {
+        val hadId3v1 = metadata.id3v1 != null
         Id3v2Writer.write(source, id3Tag, metadata.audioStartOffset, id3Tag.declaredSize)
+        if (hadId3v1) Id3v1Writer.write(source, id3Tag)
         metadata = Mp3MetadataReader.read(source)
             ?: throw AudioMetadataException("MP3 metadata could not be read back after save")
         replaceTag(metadata.tag ?: Id3v2Tag.create(), artworksLoaded)
@@ -307,6 +311,6 @@ internal fun openMp3(source: RandomAccessSource, includeArtworks: Boolean): Audi
         val untagged = Mp3Metadata(tag = null, audioStartOffset = 0, id3v1 = null, audioInfo = audioInfo)
         return AudioFile(Mp3Backing(untagged, Id3v2Tag.create(), includeArtworks))
     }
-    val tag = Id3v2Reader.read(source) ?: metadata.tag ?: Id3v2Tag.create()
+    val tag = Id3v2Reader.read(source) ?: metadata.tag ?: metadata.id3v1?.toEditableTag() ?: Id3v2Tag.create()
     return AudioFile(Mp3Backing(metadata, tag, includeArtworks))
 }

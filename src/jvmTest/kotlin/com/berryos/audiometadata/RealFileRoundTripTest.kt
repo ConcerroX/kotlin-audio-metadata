@@ -293,7 +293,8 @@ class RealFileRoundTripTest {
         try {
             val before = assertNotNull(Mp3MetadataReader.read(source))
             val tag = assertNotNull(before.tag)
-            val tail = readTail(source, before.audioStartOffset)
+            val tailLength = (source.size - before.audioStartOffset - if (before.id3v1 != null) 128L else 0L).toInt()
+            val tail = readBytesAt(source, before.audioStartOffset, tailLength)
 
             tag.title = MARKER
             Mp3MetadataWriter.write(source, before)
@@ -301,7 +302,7 @@ class RealFileRoundTripTest {
             val after = assertNotNull(Mp3MetadataReader.read(source))
             assertEquals(MARKER, after.toAudioMetadata().title)
             assertNotNull(after.audioInfo)
-            assertContentEquals(tail, readTail(source, after.audioStartOffset))
+            assertContentEquals(tail, readBytesAt(source, after.audioStartOffset, tailLength))
             assertEquals(AudioFormat.Mp3, assertNotNull(AudioMetadataReader.read(source)).format)
         } finally {
             source.close()
