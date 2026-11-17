@@ -27,6 +27,9 @@ class AudioExtensionsId3Test {
         file.extensions.r128TrackGain = "-1500"
         file.extensions.r128AlbumGain = "-1600"
         file.extensions.rating = 80
+        file.extensions.grouping = "Group"
+        file.extensions.copyright = "2026 Label"
+        file.extensions.encoder = "LAME"
         file.save(source)
 
         val reread = assertNotNull(AudioFile.read(source))
@@ -41,6 +44,9 @@ class AudioExtensionsId3Test {
         assertEquals("-1500", reread.extensions.r128TrackGain)
         assertEquals("-1600", reread.extensions.r128AlbumGain)
         assertEquals(80, reread.extensions.rating)
+        assertEquals("Group", reread.extensions.grouping)
+        assertEquals("2026 Label", reread.extensions.copyright)
+        assertEquals("LAME", reread.extensions.encoder)
         assertContentEquals(AUDIO_TAIL, audioTail(source))
     }
 

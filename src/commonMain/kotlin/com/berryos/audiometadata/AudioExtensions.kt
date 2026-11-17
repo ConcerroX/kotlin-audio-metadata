@@ -51,6 +51,40 @@ class AudioExtensions internal constructor(private val fields: ExtensionFields) 
             fields.bpm = value
         }
 
+    /** ID3: GRP1, Vorbis: GROUPING, MP4: ©grp. */
+    var grouping: String?
+        get() = fields.grouping
+        set(value) {
+            fields.grouping = value
+        }
+
+    /** ID3: TCOP, Vorbis: COPYRIGHT, MP4: cprt. */
+    var copyright: String?
+        get() = fields.copyright
+        set(value) {
+            fields.copyright = value
+        }
+
+    /** ID3: TENC, Vorbis: ENCODER, MP4: ©too. */
+    var encoder: String?
+        get() = fields.encoder
+        set(value) {
+            fields.encoder = value
+        }
+
+    /**
+     * MP4 `rtng` content rating (0 = none, 1 = explicit, 2 = clean, 4 = old explicit).
+     *
+     * Other formats do not store it; setting a non-null value throws
+     * [UnsupportedOperationException].
+     */
+    var contentRating: Int?
+        get() = fields.contentRating
+        set(value) {
+            require(value == null || value in 0..255) { "Content rating must be between 0 and 255: $value" }
+            fields.contentRating = value
+        }
+
     /** ID3: TSRC, Vorbis: ISRC, MP4: freeform atom `ISRC`. */
     var isrc: String?
         get() = fields.isrc
@@ -155,6 +189,10 @@ internal interface ExtensionFields {
     var albumArtistSort: String?
     var compilation: Boolean?
     var bpm: Int?
+    var grouping: String?
+    var copyright: String?
+    var encoder: String?
+    var contentRating: Int?
     var isrc: String?
     var originalDate: String?
     var r128TrackGain: String?

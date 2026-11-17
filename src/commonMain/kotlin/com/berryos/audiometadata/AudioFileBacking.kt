@@ -170,6 +170,24 @@ internal class VorbisExtensionFields(private val tag: VorbisCommentTag) : Extens
         get() = value("BPM")?.toIntOrNull()
         set(value) = tag.set("BPM", value?.toString().orEmpty())
 
+    override var grouping: String?
+        get() = value("GROUPING")
+        set(value) = tag.set("GROUPING", value.orEmpty())
+
+    override var copyright: String?
+        get() = value("COPYRIGHT")
+        set(value) = tag.set("COPYRIGHT", value.orEmpty())
+
+    override var encoder: String?
+        get() = value("ENCODER")
+        set(value) = tag.set("ENCODER", value.orEmpty())
+
+    override var contentRating: Int?
+        get() = null
+        set(value) {
+            if (value != null) throw UnsupportedOperationException("Vorbis comments do not store content ratings")
+        }
+
     override var isrc: String?
         get() = value("ISRC")
         set(value) = tag.set("ISRC", value.orEmpty())
@@ -454,6 +472,30 @@ internal class Mp4TagFields(val tag: Mp4Tag) : TagFields, ExtensionFields {
         get() = tag.rating
         set(value) {
             tag.rating = value
+        }
+
+    override var grouping: String?
+        get() = tag.grouping
+        set(value) {
+            tag.grouping = value
+        }
+
+    override var copyright: String?
+        get() = tag.copyright
+        set(value) {
+            tag.copyright = value
+        }
+
+    override var encoder: String?
+        get() = tag.encoder
+        set(value) {
+            tag.encoder = value
+        }
+
+    override var contentRating: Int?
+        get() = tag.contentRating
+        set(value) {
+            tag.contentRating = value
         }
 
     override var isrc: String?

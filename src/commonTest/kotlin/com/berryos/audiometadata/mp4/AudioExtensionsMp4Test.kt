@@ -26,6 +26,10 @@ class AudioExtensionsMp4Test {
         file.extensions.compilation = true
         file.extensions.bpm = 128
         file.extensions.rating = 60
+        file.extensions.grouping = "Group"
+        file.extensions.copyright = "2026 Label"
+        file.extensions.encoder = "iTunes"
+        file.extensions.contentRating = 1
         file.extensions.isrc = "US-XXX-12-34567"
         file.extensions.originalDate = "1990-01-01"
         file.extensions.musicBrainz.recordingId = TRACK_ID
@@ -41,6 +45,10 @@ class AudioExtensionsMp4Test {
         assertEquals(true, reread.extensions.compilation)
         assertEquals(128, reread.extensions.bpm)
         assertEquals(60, reread.extensions.rating)
+        assertEquals("Group", reread.extensions.grouping)
+        assertEquals("2026 Label", reread.extensions.copyright)
+        assertEquals("iTunes", reread.extensions.encoder)
+        assertEquals(1, reread.extensions.contentRating)
         assertEquals("US-XXX-12-34567", reread.extensions.isrc)
         assertEquals("1990-01-01", reread.extensions.originalDate)
         assertEquals(TRACK_ID, reread.extensions.musicBrainz.recordingId)

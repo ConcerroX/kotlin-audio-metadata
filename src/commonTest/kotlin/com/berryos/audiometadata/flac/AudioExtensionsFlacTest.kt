@@ -7,6 +7,7 @@ import com.berryos.audiometadata.vorbis.VorbisCommentTag
 import kotlin.test.Test
 import kotlin.test.assertContentEquals
 import kotlin.test.assertEquals
+import kotlin.test.assertFailsWith
 import kotlin.test.assertNotNull
 import kotlin.test.assertNull
 
@@ -28,6 +29,9 @@ class AudioExtensionsFlacTest {
         file.extensions.r128TrackGain = "-1500"
         file.extensions.r128AlbumGain = "-1600"
         file.extensions.rating = 75
+        file.extensions.grouping = "Group"
+        file.extensions.copyright = "2026 Label"
+        file.extensions.encoder = "FLAC 1.5"
         file.save(source)
 
         val reread = assertNotNull(AudioFile.read(source))
@@ -42,7 +46,20 @@ class AudioExtensionsFlacTest {
         assertEquals("-1500", reread.extensions.r128TrackGain)
         assertEquals("-1600", reread.extensions.r128AlbumGain)
         assertEquals(75, reread.extensions.rating)
+        assertEquals("Group", reread.extensions.grouping)
+        assertEquals("2026 Label", reread.extensions.copyright)
+        assertEquals("FLAC 1.5", reread.extensions.encoder)
         assertContentEquals(AUDIO, audioTail(source))
+    }
+
+    @Test
+    fun rejectsContentRatingOnVorbisComments() {
+        val source = sourceWith(buildFlac(VorbisCommentTag.create().apply { title = "Song" }))
+        val file = assertNotNull(AudioFile.read(source))
+
+        assertFailsWith<UnsupportedOperationException> {
+            file.extensions.contentRating = 1
+        }
     }
 
     @Test

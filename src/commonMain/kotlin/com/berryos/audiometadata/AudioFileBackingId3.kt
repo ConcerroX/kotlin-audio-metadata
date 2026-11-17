@@ -141,6 +141,24 @@ internal class Id3ExtensionFields(private val tag: Id3v2Tag) : ExtensionFields {
         get() = if (supported) tag.frameText("TBPM")?.toIntOrNull() else null
         set(value) = setText("TBPM", value?.toString())
 
+    override var grouping: String?
+        get() = if (supported) tag.frameText("GRP1") else null
+        set(value) = setText("GRP1", value)
+
+    override var copyright: String?
+        get() = if (supported) tag.frameText("TCOP") else null
+        set(value) = setText("TCOP", value)
+
+    override var encoder: String?
+        get() = if (supported) tag.frameText("TENC") else null
+        set(value) = setText("TENC", value)
+
+    override var contentRating: Int?
+        get() = null
+        set(value) {
+            if (value != null) throw UnsupportedOperationException("ID3 does not store content ratings")
+        }
+
     override var isrc: String?
         get() = if (supported) tag.frameText("TSRC") else null
         set(value) = setText("TSRC", value)

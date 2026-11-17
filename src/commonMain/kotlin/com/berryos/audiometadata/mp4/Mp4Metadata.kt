@@ -72,6 +72,10 @@ class Mp4Tag internal constructor() {
     var compilation: Boolean? = null
     var bpm: Int? = null
     var rating: Int? = null
+    var grouping: String? = null
+    var copyright: String? = null
+    var encoder: String? = null
+    var contentRating: Int? = null
     var isrc: String? = null
     var originalDate: String? = null
     var musicBrainzTrackId: String? = null
@@ -231,6 +235,10 @@ internal object Mp4MetadataReader {
         tag.compilation = readIntegerValue(source, items[ITEM_COMPILATION]?.firstOrNull())?.let { it != 0 }
         tag.bpm = readIntegerValue(source, items[ITEM_BPM]?.firstOrNull())
         tag.rating = readIntegerValue(source, items[ITEM_RATING]?.firstOrNull())?.coerceIn(0, 100)
+        tag.grouping = texts(FIELD_GROUPING).firstOrNull()
+        tag.copyright = texts(FIELD_COPYRIGHT).firstOrNull()
+        tag.encoder = texts(FIELD_ENCODER).firstOrNull()
+        tag.contentRating = readIntegerValue(source, items[ITEM_CONTENT_RATING]?.firstOrNull())?.coerceIn(0, 255)
         tag.isrc = freeform[FREEFORM_ISRC]
         tag.originalDate = freeform[FREEFORM_ORIGINAL_DATE]
         tag.musicBrainzTrackId = freeform[FREEFORM_MB_TRACK]
@@ -551,6 +559,9 @@ private const val FIELD_GENRE = "©gen"
 private const val FIELD_COMPOSER = "©wrt"
 private const val FIELD_COMMENT = "©cmt"
 private const val FIELD_LYRICS = "©lyr"
+private const val FIELD_GROUPING = "©grp"
+private const val FIELD_COPYRIGHT = "cprt"
+private const val FIELD_ENCODER = "©too"
 private const val FIELD_TITLE_SORT = "sonm"
 private const val FIELD_ALBUM_SORT = "soal"
 private const val FIELD_ARTIST_SORT = "soar"
@@ -558,6 +569,7 @@ private const val FIELD_ALBUM_ARTIST_SORT = "soaa"
 private const val ITEM_COMPILATION = "cpil"
 private const val ITEM_BPM = "tmpo"
 private const val ITEM_RATING = "rate"
+private const val ITEM_CONTENT_RATING = "rtng"
 private const val FREEFORM_ITEM = "----"
 private const val FREEFORM_MEAN = "com.apple.iTunes"
 private const val FREEFORM_ISRC = "ISRC"
@@ -707,6 +719,12 @@ internal object Mp4MetadataWriter {
         }
         tags.bpm?.let { bpm -> items += integerItem(ITEM_BPM, bigEndianShort(bpm.coerceIn(0, 0xFFFF))) }
         tags.rating?.let { rating -> items += integerItem(ITEM_RATING, byteArrayOf(rating.coerceIn(0, 100).toByte())) }
+        tags.grouping?.takeIf(String::isNotEmpty)?.let { items += textItem(FIELD_GROUPING, it) }
+        tags.copyright?.takeIf(String::isNotEmpty)?.let { items += textItem(FIELD_COPYRIGHT, it) }
+        tags.encoder?.takeIf(String::isNotEmpty)?.let { items += textItem(FIELD_ENCODER, it) }
+        tags.contentRating?.let { rating ->
+            items += integerItem(ITEM_CONTENT_RATING, byteArrayOf(rating.coerceIn(0, 255).toByte()))
+        }
         addFreeformItem(items, FREEFORM_ISRC, tags.isrc)
         addFreeformItem(items, FREEFORM_ORIGINAL_DATE, tags.originalDate)
         addFreeformItem(items, FREEFORM_MB_TRACK, tags.musicBrainzTrackId)
@@ -892,7 +910,8 @@ private val REPLACED_ITEMS = setOf(
     FIELD_TITLE, FIELD_ARTIST, FIELD_ALBUM, FIELD_ALBUM_ARTIST, FIELD_YEAR,
     FIELD_GENRE, FIELD_COMPOSER, FIELD_COMMENT, FIELD_LYRICS, ITEM_TRACK, ITEM_DISC, COVER_ITEM,
     FIELD_TITLE_SORT, FIELD_ALBUM_SORT, FIELD_ARTIST_SORT, FIELD_ALBUM_ARTIST_SORT,
-    ITEM_COMPILATION, ITEM_BPM, ITEM_RATING,
+    ITEM_COMPILATION, ITEM_BPM, ITEM_RATING, FIELD_GROUPING, FIELD_COPYRIGHT, FIELD_ENCODER,
+    ITEM_CONTENT_RATING,
 )
 
 private val CONTAINER_TYPES = setOf("moov", "trak", "mdia", "minf", "stbl")

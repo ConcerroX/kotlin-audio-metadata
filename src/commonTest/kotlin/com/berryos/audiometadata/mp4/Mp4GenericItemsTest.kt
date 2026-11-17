@@ -14,34 +14,34 @@ class Mp4GenericItemsTest {
     @Test
     fun readsUnmanagedItems() {
         val source = sourceWith(
-            mp4File(extraItems = textItem("©grp", "Grouping") + freeformItem("LABEL", "Label")),
+            mp4File(extraItems = textItem("©wrk", "Work") + freeformItem("LABEL", "Label")),
         )
         val file = assertNotNull(AudioFile.read(source))
         val mp4 = assertNotNull(file.mp4)
 
-        val grouping = mp4.item("©grp").single()
-        assertEquals("Grouping", grouping.data.decodeToString())
-        assertEquals(Mp4Item.TYPE_UTF8, grouping.dataType)
+        val work = mp4.item("©wrk").single()
+        assertEquals("Work", work.data.decodeToString())
+        assertEquals(Mp4Item.TYPE_UTF8, work.dataType)
         assertEquals("Label", mp4.freeformText("LABEL"))
     }
 
     @Test
     fun writesAndRemovesItems() {
-        val source = sourceWith(mp4File(extraItems = textItem("©grp", "Grouping") + freeformItem("LABEL", "Label")))
+        val source = sourceWith(mp4File(extraItems = textItem("©wrk", "Work") + freeformItem("LABEL", "Label")))
         val file = assertNotNull(AudioFile.read(source))
         val mp4 = assertNotNull(file.mp4)
 
-        mp4.setItem("©too", Mp4Item.TYPE_UTF8, "Encoder".encodeToByteArray())
+        mp4.setItem("ownr", Mp4Item.TYPE_UTF8, "Owner".encodeToByteArray())
         mp4.setFreeform("MOOD", "Calm")
-        mp4.removeItem("©grp")
+        mp4.removeItem("©wrk")
         file.save(source)
 
         val reread = assertNotNull(AudioFile.read(source))
         val updated = assertNotNull(reread.mp4)
-        assertEquals("Encoder", updated.item("©too").single().data.decodeToString())
+        assertEquals("Owner", updated.item("ownr").single().data.decodeToString())
         assertEquals("Calm", updated.freeformText("MOOD"))
         assertEquals("Label", updated.freeformText("LABEL"))
-        assertTrue(updated.item("©grp").isEmpty())
+        assertTrue(updated.item("©wrk").isEmpty())
     }
 
     @Test
