@@ -79,12 +79,10 @@ class RealFileRoundTripTest {
             val samples = offsetsBefore.take(20).map { offset -> readBytesAt(source, offset, 32) }
 
             val image = "MP4-ARTWORK".encodeToByteArray()
-            val updated = before.tags.copy(
-                title = MARKER,
-                artists = listOf(MARKER),
-                artworks = listOf(Artwork(image, "image/png", 3)),
-            )
-            Mp4MetadataWriter.write(source, before, updated)
+            before.tags.title = MARKER
+            before.tags.artists = listOf(MARKER)
+            before.tags.artworks = listOf(Artwork(image, "image/png", 3))
+            Mp4MetadataWriter.write(source, before)
 
             val after = assertNotNull(Mp4MetadataReader.read(source))
             assertEquals(MARKER, after.tags.title)
@@ -217,7 +215,7 @@ class RealFileRoundTripTest {
 
             val after = assertNotNull(Mp3MetadataReader.read(source))
             assertEquals(1, after.tag!!.artworks.size)
-            assertContentEquals(image, after.tag!!.artworks.first().data)
+            assertContentEquals(image, after.tag.artworks.first().data)
             assertContentEquals(tail, readTail(source, after.audioStartOffset))
         } finally {
             source.close()

@@ -6,7 +6,7 @@ import com.berryos.audiometadata.flac.FlacMetadataWriter
 import com.berryos.audiometadata.io.WritableRandomAccessSource
 import com.berryos.audiometadata.mp4.Mp4Metadata
 import com.berryos.audiometadata.mp4.Mp4MetadataWriter
-import com.berryos.audiometadata.mp4.Mp4Tags
+import com.berryos.audiometadata.mp4.Mp4Tag
 import com.berryos.audiometadata.opus.OpusMetadata
 import com.berryos.audiometadata.opus.OpusMetadataWriter
 import com.berryos.audiometadata.vorbis.OggVorbisMetadata
@@ -46,7 +46,7 @@ internal abstract class AudioFileBacking {
     open val vorbisTag: VorbisCommentTag?
         get() = null
 
-    open val mp4Tags: Mp4Tags?
+    open val mp4Tag: Mp4Tag?
         get() = null
 
     abstract fun save(source: WritableRandomAccessSource)
@@ -314,78 +314,78 @@ internal class OpusBacking(
     }
 }
 
-/** iTunes fields are an immutable value object, so every edit replaces [tags] with a copy. */
-internal class Mp4TagFields(var tags: Mp4Tags) : TagFields, ExtensionFields {
+/** Forwards the typed fields to a mutable [Mp4Tag]. */
+internal class Mp4TagFields(val tag: Mp4Tag) : TagFields, ExtensionFields {
     override var title: String?
-        get() = tags.title
+        get() = tag.title
         set(value) {
-            tags = tags.copy(title = value)
+            tag.title = value
         }
 
     override var artists: List<String>
-        get() = tags.artists
+        get() = tag.artists
         set(value) {
-            tags = tags.copy(artists = value)
+            tag.artists = value
         }
 
     override var album: String?
-        get() = tags.album
+        get() = tag.album
         set(value) {
-            tags = tags.copy(album = value)
+            tag.album = value
         }
 
     override var albumArtist: String?
-        get() = tags.albumArtist
+        get() = tag.albumArtist
         set(value) {
-            tags = tags.copy(albumArtist = value)
+            tag.albumArtist = value
         }
 
     override var trackNumber: Int?
-        get() = tags.trackNumber
+        get() = tag.trackNumber
         set(value) {
-            tags = tags.copy(trackNumber = value)
+            tag.trackNumber = value
         }
 
     override var trackTotal: Int?
-        get() = tags.trackTotal
+        get() = tag.trackTotal
         set(value) {
-            tags = tags.copy(trackTotal = value)
+            tag.trackTotal = value
         }
 
     override var discNumber: Int?
-        get() = tags.discNumber
+        get() = tag.discNumber
         set(value) {
-            tags = tags.copy(discNumber = value)
+            tag.discNumber = value
         }
 
     override var discTotal: Int?
-        get() = tags.discTotal
+        get() = tag.discTotal
         set(value) {
-            tags = tags.copy(discTotal = value)
+            tag.discTotal = value
         }
 
     override var year: String?
-        get() = tags.year
+        get() = tag.year
         set(value) {
-            tags = tags.copy(year = value)
+            tag.year = value
         }
 
     override var genres: List<String>
-        get() = tags.genres
+        get() = tag.genres
         set(value) {
-            tags = tags.copy(genres = value)
+            tag.genres = value
         }
 
     override var composers: List<String>
-        get() = tags.composers
+        get() = tag.composers
         set(value) {
-            tags = tags.copy(composers = value)
+            tag.composers = value
         }
 
     override var comments: List<String>
-        get() = tags.comments
+        get() = tag.comments
         set(value) {
-            tags = tags.copy(comments = value)
+            tag.comments = value
         }
 
     override var replayGain: ReplayGain?
@@ -395,51 +395,51 @@ internal class Mp4TagFields(var tags: Mp4Tags) : TagFields, ExtensionFields {
         }
 
     override var titleSort: String?
-        get() = tags.titleSort
+        get() = tag.titleSort
         set(value) {
-            tags = tags.copy(titleSort = value)
+            tag.titleSort = value
         }
 
     override var artistSort: String?
-        get() = tags.artistSort
+        get() = tag.artistSort
         set(value) {
-            tags = tags.copy(artistSort = value)
+            tag.artistSort = value
         }
 
     override var albumSort: String?
-        get() = tags.albumSort
+        get() = tag.albumSort
         set(value) {
-            tags = tags.copy(albumSort = value)
+            tag.albumSort = value
         }
 
     override var albumArtistSort: String?
-        get() = tags.albumArtistSort
+        get() = tag.albumArtistSort
         set(value) {
-            tags = tags.copy(albumArtistSort = value)
+            tag.albumArtistSort = value
         }
 
     override var compilation: Boolean?
-        get() = tags.compilation
+        get() = tag.compilation
         set(value) {
-            tags = tags.copy(compilation = value)
+            tag.compilation = value
         }
 
     override var bpm: Int?
-        get() = tags.bpm
+        get() = tag.bpm
         set(value) {
-            tags = tags.copy(bpm = value)
+            tag.bpm = value
         }
 
     override var isrc: String?
-        get() = tags.isrc
+        get() = tag.isrc
         set(value) {
-            tags = tags.copy(isrc = value)
+            tag.isrc = value
         }
 
     override var originalDate: String?
-        get() = tags.originalDate
+        get() = tag.originalDate
         set(value) {
-            tags = tags.copy(originalDate = value)
+            tag.originalDate = value
         }
 
     override var r128TrackGain: String?
@@ -456,45 +456,45 @@ internal class Mp4TagFields(var tags: Mp4Tags) : TagFields, ExtensionFields {
 
     override val musicBrainz: MusicBrainzFields = object : MusicBrainzFields {
         override var recordingId: String?
-            get() = tags.musicBrainzTrackId
+            get() = tag.musicBrainzTrackId
             set(value) {
-                tags = tags.copy(musicBrainzTrackId = value)
+                tag.musicBrainzTrackId = value
             }
 
         override var releaseTrackId: String?
-            get() = tags.musicBrainzReleaseTrackId
+            get() = tag.musicBrainzReleaseTrackId
             set(value) {
-                tags = tags.copy(musicBrainzReleaseTrackId = value)
+                tag.musicBrainzReleaseTrackId = value
             }
 
         override var albumId: String?
-            get() = tags.musicBrainzAlbumId
+            get() = tag.musicBrainzAlbumId
             set(value) {
-                tags = tags.copy(musicBrainzAlbumId = value)
+                tag.musicBrainzAlbumId = value
             }
 
         override var artistId: String?
-            get() = tags.musicBrainzArtistId
+            get() = tag.musicBrainzArtistId
             set(value) {
-                tags = tags.copy(musicBrainzArtistId = value)
+                tag.musicBrainzArtistId = value
             }
 
         override var albumArtistId: String?
-            get() = tags.musicBrainzAlbumArtistId
+            get() = tag.musicBrainzAlbumArtistId
             set(value) {
-                tags = tags.copy(musicBrainzAlbumArtistId = value)
+                tag.musicBrainzAlbumArtistId = value
             }
 
         override var releaseGroupId: String?
-            get() = tags.musicBrainzReleaseGroupId
+            get() = tag.musicBrainzReleaseGroupId
             set(value) {
-                tags = tags.copy(musicBrainzReleaseGroupId = value)
+                tag.musicBrainzReleaseGroupId = value
             }
 
         override var workId: String?
-            get() = tags.musicBrainzWorkId
+            get() = tag.musicBrainzWorkId
             set(value) {
-                tags = tags.copy(musicBrainzWorkId = value)
+                tag.musicBrainzWorkId = value
             }
     }
 }
@@ -514,16 +514,16 @@ internal class Mp4Backing(private val metadata: Mp4Metadata) : AudioFileBacking(
     override val extensions: ExtensionFields
         get() = tagFields
 
-    override val mp4Tags: Mp4Tags
-        get() = tagFields.tags
+    override val mp4Tag: Mp4Tag
+        get() = tagFields.tag
 
     override var artworks: List<Artwork>?
-        get() = tagFields.tags.artworks
+        get() = tagFields.tag.artworks
         set(value) {
-            tagFields.tags = tagFields.tags.copy(artworks = value)
+            tagFields.tag.artworks = value
         }
 
     override fun save(source: WritableRandomAccessSource) {
-        Mp4MetadataWriter.write(source, metadata, tagFields.tags)
+        Mp4MetadataWriter.write(source, metadata, tagFields.tag)
     }
 }

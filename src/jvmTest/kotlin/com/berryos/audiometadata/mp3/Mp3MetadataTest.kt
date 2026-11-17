@@ -122,10 +122,10 @@ class Mp3MetadataTest {
 
         val after = assertNotNull(Mp3MetadataReader.read(source))
         assertEquals(1, after.tag!!.artworks.size)
-        assertContentEquals(image, after.tag!!.artworks.first().data)
-        assertEquals("image/png", after.tag!!.artworks.first().mimeType)
+        assertContentEquals(image, after.tag.artworks.first().data)
+        assertEquals("image/png", after.tag.artworks.first().mimeType)
 
-        after.tag!!.setArtworks(emptyList())
+        after.tag.setArtworks(emptyList())
         Mp3MetadataWriter.write(source, after)
         assertTrue(assertNotNull(Mp3MetadataReader.read(source)).tag!!.artworks.isEmpty())
     }

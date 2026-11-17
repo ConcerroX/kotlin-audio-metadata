@@ -66,12 +66,10 @@ class Mp4MetadataTest {
         val sampleBefore = readAt(source, offsetsBefore.first(), SAMPLE.size)
 
         val image = "PNG-DATA".encodeToByteArray()
-        val updated = before.tags.copy(
-            title = "A much longer title than before",
-            artists = listOf("New Artist"),
-            artworks = listOf(Artwork(image, "image/png", 3)),
-        )
-        Mp4MetadataWriter.write(source, before, updated)
+        before.tags.title = "A much longer title than before"
+        before.tags.artists = listOf("New Artist")
+        before.tags.artworks = listOf(Artwork(image, "image/png", 3))
+        Mp4MetadataWriter.write(source, before)
 
         val after = assertNotNull(Mp4MetadataReader.read(source))
         assertEquals("A much longer title than before", after.tags.title)
@@ -103,6 +101,7 @@ internal fun mp4File(
     artwork: ByteArray? = null,
     titleSort: String? = null,
     compilation: Boolean? = null,
+    extraItems: ByteArray = ByteArray(0),
 ): ByteArray {
     val ftyp = atom(
         "ftyp",
@@ -151,7 +150,8 @@ internal fun mp4File(
             textItem("©cmt", "Comment") +
             (titleSort?.let { textItem("sonm", it) } ?: ByteArray(0)) +
             compilationItem +
-            (artwork?.let { coverItem(it) } ?: ByteArray(0)),
+            (artwork?.let { coverItem(it) } ?: ByteArray(0)) +
+            extraItems,
     )
     val moov = atom(
         "moov",
@@ -195,9 +195,22 @@ private fun atom(type: String, payload: ByteArray): ByteArray {
 
 private fun fullBox(type: String, payload: ByteArray): ByteArray = atom(type, bigEndianInt(0) + payload)
 
-private fun textItem(field: String, text: String): ByteArray = atom(
+internal fun textItem(field: String, text: String): ByteArray = dataItem(
     field,
-    atom("data", bigEndianInt(DATA_TYPE_UTF8) + bigEndianInt(0) + text.encodeToByteArray()),
+    DATA_TYPE_UTF8,
+    text.encodeToByteArray(),
+)
+
+internal fun freeformItem(name: String, text: String): ByteArray = atom(
+    "----",
+    atom("mean", bigEndianInt(0) + "com.apple.iTunes".encodeToByteArray()) +
+        atom("name", bigEndianInt(0) + name.encodeToByteArray()) +
+        atom("data", bigEndianInt(DATA_TYPE_UTF8) + bigEndianInt(0) + text.encodeToByteArray()),
+)
+
+internal fun dataItem(type: String, dataType: Int, data: ByteArray): ByteArray = atom(
+    type,
+    atom("data", bigEndianInt(dataType) + bigEndianInt(0) + data),
 )
 
 private fun numberItem(field: String, number: Int, total: Int): ByteArray = atom(

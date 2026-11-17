@@ -83,7 +83,7 @@ object Id3v2Writer {
     }
 
     private fun encodeV22Frame(frame: Id3v2Frame): ByteArray {
-        val id = V22_FRAME_IDS[frame.id] ?: frame.id
+        val id = v22FrameId(frame.id) ?: frame.id
         if (id.length != V22_FRAME_ID_SIZE) {
             throw AudioMetadataException("Frame ${frame.id} cannot be represented in ID3v2.2")
         }
@@ -150,35 +150,3 @@ private const val V23_FLAG_GROUPING = 0x20
 private const val V24_FLAG_GROUPING = 0x40
 private const val V24_FLAG_UNSYNCHRONISATION = 0x02
 private const val V24_FLAG_DATA_LENGTH = 0x01
-
-private val V22_FRAME_IDS = mapOf(
-    "TIT2" to "TT2",
-    "TPE1" to "TP1",
-    "TALB" to "TAL",
-    "TPE2" to "TP2",
-    "TCOM" to "TCM",
-    "TRCK" to "TRK",
-    "TPOS" to "TPA",
-    "TYER" to "TYE",
-    "TDRC" to "TYE",
-    "TCON" to "TCO",
-    "COMM" to "COM",
-    "TXXX" to "TXX",
-    "APIC" to "PIC",
-    "TENC" to "TEN",
-    "TSSE" to "TSS",
-    "TCOP" to "TCR",
-    "TPUB" to "TPB",
-    "TBPM" to "TBP",
-    "TKEY" to "TKE",
-    "TLAN" to "TLA",
-    "TEXT" to "TXT",
-    "TIT1" to "TT1",
-    "TIT3" to "TT3",
-    "TPE3" to "TP3",
-    "TPE4" to "TP4",
-    "TOLY" to "TOT",
-    "TOPE" to "TOA",
-    "TORY" to "TOR",
-    "TSRC" to "TRC",
-)

@@ -57,6 +57,44 @@ class Id3v2Tag internal constructor(
 
     fun firstText(id: String): String? = textValues(id).firstOrNull()
 
+    /**
+     * Replaces every frame with [id] by a single frame whose body is [content].
+     *
+     * Use this for frames without a typed property. [content] excludes the frame header and the
+     * extra flag bytes, so the caller owns the frame body layout and its encoding byte. On an
+     * ID3v2.2 tag a four-character [id] is mapped to its three-character equivalent; an ID without
+     * an ID3v2.2 equivalent throws [IllegalArgumentException].
+     *
+     * @throws IllegalArgumentException when [id] is not a valid frame ID for this tag version.
+     */
+    fun setFrame(id: String, content: ByteArray) {
+        val frameId = writableFrameId(id)
+        frameList.removeAll { frame -> frame.id == frameId }
+        frameList += defaultFrame(frameId, content)
+    }
+
+    /**
+     * Adds a frame with [content] without removing existing frames with the same [id].
+     *
+     * See [setFrame] for the expected body layout and ID mapping.
+     */
+    fun addFrame(id: String, content: ByteArray) {
+        frameList += defaultFrame(writableFrameId(id), content)
+    }
+
+    /** Removes every frame whose ID is [id]. */
+    fun removeFrame(id: String) {
+        val frameId = writableFrameId(id)
+        frameList.removeAll { frame -> frame.id == frameId }
+    }
+
+    /** Replaces every frame with [id] by one text frame carrying [values]. */
+    fun setTextFrame(id: String, values: List<String>) {
+        val frameId = writableFrameId(id)
+        frameList.removeAll { frame -> frame.id == frameId }
+        if (values.isNotEmpty()) frameList += defaultFrame(frameId, Id3v2Encoding.textContent(version, values))
+    }
+
     /** Reads a text frame by raw frame ID; used by the extension layer. */
     internal fun frameText(id: String): String? = firstText(id)?.takeIf(String::isNotEmpty)
 
@@ -267,10 +305,19 @@ class Id3v2Tag internal constructor(
     private fun frameId(v22: String, v23OrLater: String): String =
         if (version == Id3Version.V22) v22 else v23OrLater
 
-    private fun setTextFrame(id: String, values: List<String>) {
-        frameList.removeAll { frame -> frame.id == id }
-        if (values.isNotEmpty()) frameList += defaultFrame(id, Id3v2Encoding.textContent(version, values))
+    private fun writableFrameId(id: String): String = when {
+        version != Id3Version.V22 -> {
+            require(id.length == V23_FRAME_ID_SIZE && id.all(::isFrameIdChar)) {
+                "ID3v2.${version.majorVersion} frame IDs have four characters: $id"
+            }
+            id
+        }
+
+        id.length == V22_FRAME_ID_SIZE -> id
+        else -> v22FrameId(id) ?: throw IllegalArgumentException("Frame $id has no ID3v2.2 equivalent")
     }
+
+    private fun isFrameIdChar(char: Char): Boolean = char in 'A'..'Z' || char in '0'..'9'
 
     private fun setNumber(id: String, number: Int?, total: Int?) {
         val text = when {
@@ -686,6 +733,41 @@ private fun versionOf(major: Int): Id3Version? = when (major) {
     4 -> Id3Version.V24
     else -> null
 }
+
+/** Maps a four-character frame ID to its ID3v2.2 equivalent, if one exists. */
+internal fun v22FrameId(id: String): String? = V22_FRAME_IDS[id]
+
+private val V22_FRAME_IDS = mapOf(
+    "TIT2" to "TT2",
+    "TPE1" to "TP1",
+    "TALB" to "TAL",
+    "TPE2" to "TP2",
+    "TCOM" to "TCM",
+    "TRCK" to "TRK",
+    "TPOS" to "TPA",
+    "TYER" to "TYE",
+    "TDRC" to "TYE",
+    "TCON" to "TCO",
+    "COMM" to "COM",
+    "TXXX" to "TXX",
+    "APIC" to "PIC",
+    "TENC" to "TEN",
+    "TSSE" to "TSS",
+    "TCOP" to "TCR",
+    "TPUB" to "TPB",
+    "TBPM" to "TBP",
+    "TKEY" to "TKE",
+    "TLAN" to "TLA",
+    "TEXT" to "TXT",
+    "TIT1" to "TT1",
+    "TIT3" to "TT3",
+    "TPE3" to "TP3",
+    "TPE4" to "TP4",
+    "TOLY" to "TOT",
+    "TOPE" to "TOA",
+    "TORY" to "TOR",
+    "TSRC" to "TRC",
+)
 
 private const val HEADER_SIZE = 10
 private const val V22_FRAME_HEADER_SIZE = 6

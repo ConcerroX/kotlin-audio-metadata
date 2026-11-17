@@ -12,7 +12,7 @@ import com.berryos.audiometadata.io.readFully
 
 /** Parsed MP4/M4A metadata. */
 internal class Mp4Metadata(
-    val tags: Mp4Tags,
+    val tags: Mp4Tag,
     val audioInfo: AudioInfo?,
 ) {
     val artworks: List<Artwork>?
@@ -21,38 +21,131 @@ internal class Mp4Metadata(
     fun toAudioMetadata(): AudioMetadata = tags.toAudioMetadata(audioInfo)
 }
 
-/** Read-only view of the common iTunes `ilst` fields. */
-data class Mp4Tags(
-    val title: String? = null,
-    val artists: List<String> = emptyList(),
-    val album: String? = null,
-    val albumArtist: String? = null,
-    val trackNumber: Int? = null,
-    val trackTotal: Int? = null,
-    val discNumber: Int? = null,
-    val discTotal: Int? = null,
-    val year: String? = null,
-    val genres: List<String> = emptyList(),
-    val composers: List<String> = emptyList(),
-    val comments: List<String> = emptyList(),
-    val titleSort: String? = null,
-    val albumSort: String? = null,
-    val artistSort: String? = null,
-    val albumArtistSort: String? = null,
-    val compilation: Boolean? = null,
-    val bpm: Int? = null,
-    val isrc: String? = null,
-    val originalDate: String? = null,
-    val musicBrainzTrackId: String? = null,
-    val musicBrainzReleaseTrackId: String? = null,
-    val musicBrainzAlbumId: String? = null,
-    val musicBrainzArtistId: String? = null,
-    val musicBrainzAlbumArtistId: String? = null,
-    val musicBrainzReleaseGroupId: String? = null,
-    val musicBrainzWorkId: String? = null,
-    /** Loaded pictures, or null when the reader was asked to skip them. */
-    val artworks: List<Artwork>? = null,
+/** One `ilst` entry that has no typed property. */
+class Mp4Item internal constructor(
+    /** Atom name; `----` for freeform entries. */
+    val type: String,
+    /** Type code of the first `data` atom, or -1 when the entry has no data atom. */
+    val dataType: Int,
+    /** Payload of the first `data` atom, without its header. */
+    val data: ByteArray,
+    /** `mean` value of a freeform entry, otherwise null. */
+    val mean: String? = null,
+    /** `name` value of a freeform entry, otherwise null. */
+    val name: String? = null,
+    /** Original atom bytes, emitted unchanged when the entry was not edited. */
+    internal val raw: ByteArray? = null,
 ) {
+    companion object {
+        const val TYPE_IMPLICIT = 0
+        const val TYPE_UTF8 = 1
+        const val TYPE_JPEG = 13
+        const val TYPE_PNG = 14
+        const val TYPE_INTEGER = 21
+    }
+}
+
+/**
+ * Mutable view of the iTunes `ilst` metadata.
+ *
+ * Typed properties cover the common fields. Every other entry is available through [items] and can
+ * be edited with [setItem], [addItem], [removeItem], [setFreeform] and [removeFreeform].
+ */
+class Mp4Tag internal constructor() {
+    var title: String? = null
+    var artists: List<String> = emptyList()
+    var album: String? = null
+    var albumArtist: String? = null
+    var trackNumber: Int? = null
+    var trackTotal: Int? = null
+    var discNumber: Int? = null
+    var discTotal: Int? = null
+    var year: String? = null
+    var genres: List<String> = emptyList()
+    var composers: List<String> = emptyList()
+    var comments: List<String> = emptyList()
+    var titleSort: String? = null
+    var albumSort: String? = null
+    var artistSort: String? = null
+    var albumArtistSort: String? = null
+    var compilation: Boolean? = null
+    var bpm: Int? = null
+    var isrc: String? = null
+    var originalDate: String? = null
+    var musicBrainzTrackId: String? = null
+    var musicBrainzReleaseTrackId: String? = null
+    var musicBrainzAlbumId: String? = null
+    var musicBrainzArtistId: String? = null
+    var musicBrainzAlbumArtistId: String? = null
+    var musicBrainzReleaseGroupId: String? = null
+    var musicBrainzWorkId: String? = null
+
+    /** Loaded pictures, or null when the reader was asked to skip them. */
+    var artworks: List<Artwork>? = null
+
+    private val otherItems = ArrayList<Mp4Item>()
+
+    /** Entries that have no typed property, in file order. */
+    val items: List<Mp4Item>
+        get() = otherItems
+
+    /** Entries with the atom name [type]. */
+    fun item(type: String): List<Mp4Item> = otherItems.filter { item -> item.type == type }
+
+    /** The freeform entry [name] under [mean], or null. */
+    fun freeformItem(name: String, mean: String = FREEFORM_MEAN): Mp4Item? =
+        otherItems.firstOrNull { item -> item.isFreeform(mean, name) }
+
+    /** Text of the freeform entry [name] under [mean], or null. */
+    fun freeformText(name: String, mean: String = FREEFORM_MEAN): String? =
+        freeformItem(name, mean)?.data?.decodeToString()
+
+    /**
+     * Replaces every entry with [type] by one entry carrying [data].
+     *
+     * @throws IllegalArgumentException when [type] is not a four-character atom name or is `----`.
+     */
+    fun setItem(type: String, dataType: Int, data: ByteArray) {
+        requireItemType(type)
+        otherItems.removeAll { item -> item.type == type }
+        otherItems += Mp4Item(type, dataType, data)
+    }
+
+    /** Adds an entry without removing existing entries with the same [type]. */
+    fun addItem(type: String, dataType: Int, data: ByteArray) {
+        requireItemType(type)
+        otherItems += Mp4Item(type, dataType, data)
+    }
+
+    /** Removes every entry with [type]. */
+    fun removeItem(type: String) {
+        otherItems.removeAll { item -> item.type == type }
+    }
+
+    /** Replaces the freeform text entry [name] under the `com.apple.iTunes` mean. */
+    fun setFreeform(name: String, value: String) {
+        removeFreeform(name)
+        if (value.isNotEmpty()) {
+            otherItems += Mp4Item(
+                type = FREEFORM_ITEM,
+                dataType = Mp4Item.TYPE_UTF8,
+                data = value.encodeToByteArray(),
+                mean = FREEFORM_MEAN,
+                name = name,
+            )
+        }
+    }
+
+    /** Removes the freeform entry [name] under the `com.apple.iTunes` mean. */
+    fun removeFreeform(name: String) {
+        otherItems.removeAll { item -> item.isFreeform(FREEFORM_MEAN, name) }
+    }
+
+    internal fun addReadItem(item: Mp4Item) {
+        otherItems += item
+    }
+
+    /** Immutable snapshot of the typed fields and loaded pictures. */
     fun toAudioMetadata(audioInfo: AudioInfo? = null): AudioMetadata = AudioMetadata(
         format = AudioFormat.Mp4,
         title = title,
@@ -69,6 +162,15 @@ data class Mp4Tags(
         comments = comments,
         audioInfo = audioInfo,
     )
+
+    private fun requireItemType(type: String) {
+        require(type.length == ATOM_TYPE_SIZE && type != FREEFORM_ITEM) {
+            "Item type must be a four-character atom name; use setFreeform for ---- entries: $type"
+        }
+    }
+
+    private fun Mp4Item.isFreeform(mean: String, name: String): Boolean =
+        type == FREEFORM_ITEM && this.mean == mean && this.name == name
 }
 
 /**
@@ -90,13 +192,14 @@ internal object Mp4MetadataReader {
         source: RandomAccessSource,
         moovChildren: List<Mp4Atom>,
         includeArtworks: Boolean,
-    ): Mp4Tags {
-        val noArtworks: List<Artwork>? = if (includeArtworks) emptyList() else null
-        val udta = moovChildren.firstOrNull { it.type == "udta" } ?: return Mp4Tags(artworks = noArtworks)
-        val meta = atomsIn(source, udta).firstOrNull { it.type == "meta" } ?: return Mp4Tags(artworks = noArtworks)
+    ): Mp4Tag {
+        val tag = Mp4Tag()
+        tag.artworks = if (includeArtworks) emptyList() else null
+        val udta = moovChildren.firstOrNull { it.type == "udta" } ?: return tag
+        val meta = atomsIn(source, udta).firstOrNull { it.type == "meta" } ?: return tag
         // meta is a full box: version/flags precede the child atoms.
         val ilst = atomsIn(source, meta, skip = FULL_BOX_HEADER).firstOrNull { it.type == "ilst" }
-            ?: return Mp4Tags(artworks = noArtworks)
+            ?: return tag
         // Some writers repeat an item atom, others put several data atoms under one item.
         val items = atomsIn(source, ilst).groupBy { it.type }
         fun texts(field: String): List<String> =
@@ -105,36 +208,78 @@ internal object Mp4MetadataReader {
         val trackPair = readNumberPair(source, items["trkn"]?.firstOrNull())
         val discPair = readNumberPair(source, items["disk"]?.firstOrNull())
         val freeform = readFreeform(source, items[FREEFORM_ITEM].orEmpty())
-        return Mp4Tags(
-            title = texts(FIELD_TITLE).firstOrNull(),
-            artists = texts(FIELD_ARTIST),
-            album = texts(FIELD_ALBUM).firstOrNull(),
-            albumArtist = texts(FIELD_ALBUM_ARTIST).firstOrNull(),
-            trackNumber = trackPair.first,
-            trackTotal = trackPair.second,
-            discNumber = discPair.first,
-            discTotal = discPair.second,
-            year = texts(FIELD_YEAR).firstOrNull(),
-            genres = texts(FIELD_GENRE),
-            composers = texts(FIELD_COMPOSER),
-            comments = texts(FIELD_COMMENT),
-            titleSort = texts(FIELD_TITLE_SORT).firstOrNull(),
-            albumSort = texts(FIELD_ALBUM_SORT).firstOrNull(),
-            artistSort = texts(FIELD_ARTIST_SORT).firstOrNull(),
-            albumArtistSort = texts(FIELD_ALBUM_ARTIST_SORT).firstOrNull(),
-            compilation = readIntegerValue(source, items[ITEM_COMPILATION]?.firstOrNull())?.let { it != 0 },
-            bpm = readIntegerValue(source, items[ITEM_BPM]?.firstOrNull()),
-            isrc = freeform[FREEFORM_ISRC],
-            originalDate = freeform[FREEFORM_ORIGINAL_DATE],
-            musicBrainzTrackId = freeform[FREEFORM_MB_TRACK],
-            musicBrainzReleaseTrackId = freeform[FREEFORM_MB_RELEASE_TRACK],
-            musicBrainzAlbumId = freeform[FREEFORM_MB_ALBUM],
-            musicBrainzArtistId = freeform[FREEFORM_MB_ARTIST],
-            musicBrainzAlbumArtistId = freeform[FREEFORM_MB_ALBUM_ARTIST],
-            musicBrainzReleaseGroupId = freeform[FREEFORM_MB_RELEASE_GROUP],
-            musicBrainzWorkId = freeform[FREEFORM_MB_WORK],
-            artworks = if (includeArtworks) readArtworks(source, items[COVER_ITEM].orEmpty()) else null,
-        )
+        tag.title = texts(FIELD_TITLE).firstOrNull()
+        tag.artists = texts(FIELD_ARTIST)
+        tag.album = texts(FIELD_ALBUM).firstOrNull()
+        tag.albumArtist = texts(FIELD_ALBUM_ARTIST).firstOrNull()
+        tag.trackNumber = trackPair.first
+        tag.trackTotal = trackPair.second
+        tag.discNumber = discPair.first
+        tag.discTotal = discPair.second
+        tag.year = texts(FIELD_YEAR).firstOrNull()
+        tag.genres = texts(FIELD_GENRE)
+        tag.composers = texts(FIELD_COMPOSER)
+        tag.comments = texts(FIELD_COMMENT)
+        tag.titleSort = texts(FIELD_TITLE_SORT).firstOrNull()
+        tag.albumSort = texts(FIELD_ALBUM_SORT).firstOrNull()
+        tag.artistSort = texts(FIELD_ARTIST_SORT).firstOrNull()
+        tag.albumArtistSort = texts(FIELD_ALBUM_ARTIST_SORT).firstOrNull()
+        tag.compilation = readIntegerValue(source, items[ITEM_COMPILATION]?.firstOrNull())?.let { it != 0 }
+        tag.bpm = readIntegerValue(source, items[ITEM_BPM]?.firstOrNull())
+        tag.isrc = freeform[FREEFORM_ISRC]
+        tag.originalDate = freeform[FREEFORM_ORIGINAL_DATE]
+        tag.musicBrainzTrackId = freeform[FREEFORM_MB_TRACK]
+        tag.musicBrainzReleaseTrackId = freeform[FREEFORM_MB_RELEASE_TRACK]
+        tag.musicBrainzAlbumId = freeform[FREEFORM_MB_ALBUM]
+        tag.musicBrainzArtistId = freeform[FREEFORM_MB_ARTIST]
+        tag.musicBrainzAlbumArtistId = freeform[FREEFORM_MB_ALBUM_ARTIST]
+        tag.musicBrainzReleaseGroupId = freeform[FREEFORM_MB_RELEASE_GROUP]
+        tag.musicBrainzWorkId = freeform[FREEFORM_MB_WORK]
+        tag.artworks = if (includeArtworks) readArtworks(source, items[COVER_ITEM].orEmpty()) else null
+        readOtherItems(source, items).forEach(tag::addReadItem)
+        return tag
+    }
+
+    private fun readOtherItems(
+        source: RandomAccessSource,
+        items: Map<String, List<Mp4Atom>>,
+    ): List<Mp4Item> {
+        val result = ArrayList<Mp4Item>()
+        items.forEach { (type, atoms) ->
+            if (type in REPLACED_ITEMS) return@forEach
+            atoms.forEach { atom ->
+                val children = if (type == FREEFORM_ITEM) atomsIn(source, atom) else emptyList()
+                val mean = children.firstOrNull { child -> child.type == "mean" }
+                    ?.let { atomMean -> fullBoxText(source, atomMean) }
+                val name = children.firstOrNull { child -> child.type == "name" }
+                    ?.let { atomName -> fullBoxText(source, atomName) }
+                if (type == FREEFORM_ITEM && mean == FREEFORM_MEAN && name != null &&
+                    name in MANAGED_FREEFORM_NAMES
+                ) {
+                    return@forEach
+                }
+                val data = readItemData(source, atom)
+                result += Mp4Item(
+                    type = type,
+                    dataType = data?.first ?: MISSING_DATA_TYPE,
+                    data = data?.second ?: ByteArray(0),
+                    mean = mean,
+                    name = name,
+                    raw = readBytes(source, atom.offset, atom.size.toInt()),
+                )
+            }
+        }
+        return result
+    }
+
+    private fun readItemData(source: RandomAccessSource, item: Mp4Atom): Pair<Int, ByteArray>? {
+        val data = atomsIn(source, item).firstOrNull { child -> child.type == "data" } ?: return null
+        if (data.payloadSize <= DATA_HEADER_SIZE) return null
+        val bytes = readBytes(source, data.payloadStart, data.payloadSize.toInt())
+        val dataType = ((bytes[1].toInt() and 0xFF) shl 16) or
+            ((bytes[2].toInt() and 0xFF) shl 8) or
+            (bytes[3].toInt() and 0xFF)
+        return dataType to bytes.copyOfRange(DATA_HEADER_SIZE, bytes.size)
     }
 
     private fun readArtworks(source: RandomAccessSource, items: List<Mp4Atom>): List<Artwork> {
@@ -417,15 +562,17 @@ private const val FREEFORM_MB_ARTIST = "MusicBrainz Artist Id"
 private const val FREEFORM_MB_ALBUM_ARTIST = "MusicBrainz Album Artist Id"
 private const val FREEFORM_MB_RELEASE_GROUP = "MusicBrainz Release Group Id"
 private const val FREEFORM_MB_WORK = "MusicBrainz Work Id"
-private const val DATA_TYPE_JPEG = 13
-private const val DATA_TYPE_PNG = 14
-private const val DATA_TYPE_IMPLICIT = 0
-private const val DATA_TYPE_IMPLICIT_INTEGER = 21
-private const val DATA_TYPE_UTF8 = 1
+private const val DATA_TYPE_JPEG = Mp4Item.TYPE_JPEG
+private const val DATA_TYPE_PNG = Mp4Item.TYPE_PNG
+private const val DATA_TYPE_IMPLICIT = Mp4Item.TYPE_IMPLICIT
+private const val DATA_TYPE_IMPLICIT_INTEGER = Mp4Item.TYPE_INTEGER
+private const val DATA_TYPE_UTF8 = Mp4Item.TYPE_UTF8
+private const val MISSING_DATA_TYPE = -1
+private const val ATOM_TYPE_SIZE = 4
 
 /** Rebuilds `moov` with the supplied tags and keeps sample offsets valid. */
 internal object Mp4MetadataWriter {
-    fun write(source: WritableRandomAccessSource, metadata: Mp4Metadata, tags: Mp4Tags = metadata.tags) {
+    fun write(source: WritableRandomAccessSource, metadata: Mp4Metadata, tags: Mp4Tag = metadata.tags) {
         val topLevel = topLevelAtoms(source) ?: return
         val moov = topLevel.firstOrNull { it.type == "moov" } ?: return
         val oldMoovEnd = moov.offset + moov.size
@@ -439,7 +586,7 @@ internal object Mp4MetadataWriter {
         source.flush()
     }
 
-    private fun rebuildMoov(source: RandomAccessSource, moov: Mp4Atom, tags: Mp4Tags): ByteArray {
+    private fun rebuildMoov(source: RandomAccessSource, moov: Mp4Atom, tags: Mp4Tag): ByteArray {
         val moovChildren = atomsIn(source, moov)
         val udta = moovChildren.firstOrNull { it.type == "udta" }
         val udtaChildren = udta?.let { atomsIn(source, it) }
@@ -496,33 +643,31 @@ internal object Mp4MetadataWriter {
         return buildAtom("meta", prefix + concat(kept + listOf(newIlst)))
     }
 
-    private fun buildIlst(source: RandomAccessSource, ilst: Mp4Atom?, tags: Mp4Tags): ByteArray {
-        val kept = if (ilst != null) {
+    private fun buildIlst(source: RandomAccessSource, ilst: Mp4Atom?, tags: Mp4Tag): ByteArray {
+        val keptCover = if (tags.artworks == null && ilst != null) {
             atomsIn(source, ilst)
-                .filter { atom -> keepItem(source, atom, tags) }
-                .map { raw(source, it) }
+                .filter { atom -> atom.type == COVER_ITEM }
+                .map { atom -> raw(source, atom) }
         } else {
             emptyList()
         }
-        return buildAtom("ilst", concat(kept + buildItems(tags)))
+        val otherItems = tags.items.map { item -> item.raw ?: buildItem(item) }
+        return buildAtom("ilst", concat(keptCover + buildItems(tags) + otherItems))
     }
 
-    private fun keepItem(source: RandomAccessSource, atom: Mp4Atom, tags: Mp4Tags): Boolean {
-        if (atom.type in REPLACED_ITEMS) return atom.type == COVER_ITEM && tags.artworks == null
-        if (atom.type == FREEFORM_ITEM) return !isManagedFreeform(source, atom)
-        return true
+    private fun buildItem(item: Mp4Item): ByteArray {
+        if (item.type == FREEFORM_ITEM && item.mean != null && item.name != null) {
+            return buildAtom(
+                FREEFORM_ITEM,
+                buildAtom("mean", bigEndianInt(0) + item.mean.encodeToByteArray()) +
+                    buildAtom("name", bigEndianInt(0) + item.name.encodeToByteArray()) +
+                    dataAtom(item.dataType, item.data),
+            )
+        }
+        return buildAtom(item.type, dataAtom(item.dataType, item.data))
     }
 
-    private fun isManagedFreeform(source: RandomAccessSource, atom: Mp4Atom): Boolean {
-        val children = atomsIn(source, atom)
-        val mean = children.firstOrNull { child -> child.type == "mean" }?.let { mean -> fullBoxText(source, mean) }
-        if (mean != FREEFORM_MEAN) return false
-        val name = children.firstOrNull { child -> child.type == "name" }?.let { name -> fullBoxText(source, name) }
-            ?: return false
-        return name in MANAGED_FREEFORM_NAMES
-    }
-
-    private fun buildItems(tags: Mp4Tags): List<ByteArray> {
+    private fun buildItems(tags: Mp4Tag): List<ByteArray> {
         val items = ArrayList<ByteArray>()
         tags.title?.takeIf(String::isNotEmpty)?.let { items += textItem(FIELD_TITLE, it) }
         if (tags.artists.isNotEmpty()) items += multiTextItem(FIELD_ARTIST, tags.artists)
@@ -544,7 +689,7 @@ internal object Mp4MetadataWriter {
         return items
     }
 
-    private fun addExtensionItems(items: MutableList<ByteArray>, tags: Mp4Tags) {
+    private fun addExtensionItems(items: MutableList<ByteArray>, tags: Mp4Tag) {
         tags.titleSort?.takeIf(String::isNotEmpty)?.let { items += textItem(FIELD_TITLE_SORT, it) }
         tags.albumSort?.takeIf(String::isNotEmpty)?.let { items += textItem(FIELD_ALBUM_SORT, it) }
         tags.artistSort?.takeIf(String::isNotEmpty)?.let { items += textItem(FIELD_ARTIST_SORT, it) }

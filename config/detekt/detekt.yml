@@ -22,9 +22,10 @@ complexity:
     allowedComplexity: 25
   ComplexCondition:
     allowedConditions: 4
+  # Id3v2Tag exposes the typed fields plus the generic frame readers and editors for all versions.
   TooManyFunctions:
     allowedFunctionsPerFile: 20
-    allowedFunctionsPerClass: 25
+    allowedFunctionsPerClass: 30
     allowedFunctionsPerObject: 20
     allowedFunctionsPerInterface: 20
 

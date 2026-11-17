@@ -2,11 +2,11 @@ package com.berryos.audiometadata
 
 import com.berryos.audiometadata.aiff.AiffMetadataReader
 import com.berryos.audiometadata.flac.FlacMetadataReader
-import com.berryos.audiometadata.id3.Id3Tag
+import com.berryos.audiometadata.id3.Id3v2Tag
 import com.berryos.audiometadata.io.RandomAccessSource
 import com.berryos.audiometadata.io.WritableRandomAccessSource
 import com.berryos.audiometadata.mp4.Mp4MetadataReader
-import com.berryos.audiometadata.mp4.Mp4Tags
+import com.berryos.audiometadata.mp4.Mp4Tag
 import com.berryos.audiometadata.opus.OpusMetadataReader
 import com.berryos.audiometadata.vorbis.OggVorbisMetadataReader
 import com.berryos.audiometadata.vorbis.VorbisCommentTag
@@ -46,12 +46,12 @@ class AudioFile internal constructor(
 
     /** Low-level iTunes fields for MP4/M4A files. */
     @ExperimentalAudioMetadataApi
-    val mp4: Mp4Tags?
-        get() = backing.mp4Tags
+    val mp4: Mp4Tag?
+        get() = backing.mp4Tag
 
     /** Low-level ID3 tag shared by MP3, WAV and AIFF. */
     @ExperimentalAudioMetadataApi
-    val id3: Id3Tag?
+    val id3: Id3v2Tag?
         get() = (backing as? Id3FileBacking)?.id3Tag
 
     var title: String?

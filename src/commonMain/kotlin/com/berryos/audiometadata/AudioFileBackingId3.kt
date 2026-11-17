@@ -97,9 +97,9 @@ internal class Id3TagFields(private val tag: Id3Tag) : TagFields {
         }
 }
 
-/** Backings that expose a low-level [Id3Tag]. */
+/** Backings that expose a low-level [Id3v2Tag]. */
 internal interface Id3FileBacking {
-    val id3Tag: Id3Tag
+    val id3Tag: Id3v2Tag
 }
 
 /** Extension storage for ID3 tags; ID3v2.2 has no sort/compilation frames. */

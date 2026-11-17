@@ -46,9 +46,20 @@ FileChannelSource(file).use { source ->
 - `artworks` is `null` when the file was opened without pictures. In that case `save` leaves the
   embedded pictures untouched; assign an empty list to remove them.
 - `extensions` holds well-known non-core tags (sort keys, compilation flag, BPM, ISRC,
-  MusicBrainz IDs, R128, original date) in their own namespace. Unknown or vendor-specific keys are
-  only reachable through the format-specific tag objects.
+  MusicBrainz IDs, R128, original date) in their own namespace.
 - `save` writes only the data that changed and keeps unknown frames, blocks and atoms.
+
+Every low-level tag also exposes entries that have no typed property:
+
+```kotlin
+audio.id3?.setTextFrame("TPUB", listOf("Publisher"))       // or setFrame(id, rawBytes)
+audio.id3?.removeFrame("PRIV")
+audio.mp4?.setItem("©grp", Mp4Item.TYPE_UTF8, "Grouping".encodeToByteArray())
+audio.mp4?.setFreeform("LABEL", "Record Label")            // ----:com.apple.iTunes:LABEL
+audio.vorbis?.set("MOOD", "Calm")
+```
+
+`Mp4Tag.item(type)` / `freeformItem(name)` and `Id3v2Tag.framesOf(id)` read those entries back.
 
 For a read-only value object use `toAudioMetadata()`. `AudioMetadataReader.read(source)` returns the
 same snapshot without opening an editable file.
