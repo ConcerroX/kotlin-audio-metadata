@@ -1,3 +1,4 @@
+import org.gradle.api.publish.maven.MavenPublication
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {
@@ -49,18 +50,14 @@ dependencies {
 }
 
 publishing {
-    publications {
-        create<MavenPublication>("maven") {
-            from(components["kotlin"])
-            artifactId = "kotlin-audio-metadata"
-            pom {
-                name.set("kotlin-audio-metadata")
-                description.set("Kotlin Multiplatform audio metadata reader and writer")
-                licenses {
-                    license {
-                        name.set("Apache License, Version 2.0")
-                        url.set("https://www.apache.org/licenses/LICENSE-2.0")
-                    }
+    publications.withType<MavenPublication>().configureEach {
+        pom {
+            name.set("kotlin-audio-metadata")
+            description.set("Kotlin Multiplatform audio metadata reader and writer")
+            licenses {
+                license {
+                    name.set("Apache License, Version 2.0")
+                    url.set("https://www.apache.org/licenses/LICENSE-2.0")
                 }
             }
         }
