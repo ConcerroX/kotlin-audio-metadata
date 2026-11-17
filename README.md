@@ -23,7 +23,8 @@ Known limitations:
 
 - Only the JVM target is wired up today. Every container parser runs in common code; only
   `FileChannelSource` is JVM-specific.
-- Fragmented MP4 and non-iTunes MP4 metadata keys are not handled.
+- Fragmented MP4 is not specially handled. MP4 keys without a typed property are available through
+  `Mp4Tag.items` rather than typed properties.
 - ID3v2.2 keeps its existing artwork when saving and does not write the extension fields (sort
   keys, compilation, MusicBrainz, R128).
 - WAV and AIFF are written as an embedded ID3 chunk. When a file has no ID3 chunk, WAV
