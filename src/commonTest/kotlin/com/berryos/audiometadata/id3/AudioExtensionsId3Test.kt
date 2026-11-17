@@ -26,6 +26,7 @@ class AudioExtensionsId3Test {
         file.extensions.originalDate = "1990-01-01"
         file.extensions.r128TrackGain = "-1500"
         file.extensions.r128AlbumGain = "-1600"
+        file.extensions.rating = 80
         file.save(source)
 
         val reread = assertNotNull(AudioFile.read(source))
@@ -39,6 +40,7 @@ class AudioExtensionsId3Test {
         assertEquals("1990-01-01", reread.extensions.originalDate)
         assertEquals("-1500", reread.extensions.r128TrackGain)
         assertEquals("-1600", reread.extensions.r128AlbumGain)
+        assertEquals(80, reread.extensions.rating)
         assertContentEquals(AUDIO_TAIL, audioTail(source))
     }
 
@@ -65,6 +67,24 @@ class AudioExtensionsId3Test {
         val reread = assertNotNull(AudioFile.read(source))
         assertNull(reread.extensions.titleSort)
         assertNull(reread.extensions.compilation)
+    }
+
+    @Test
+    fun mapsAndPreservesPopularimeter() {
+        val popm = "user@example.com".encodeToByteArray() + byteArrayOf(0, 255.toByte(), 0, 0, 0, 7)
+        val source = sourceWith(buildTag(3, frames = listOf(frame(3, "POPM", popm))))
+        val file = assertNotNull(AudioFile.read(source))
+        assertEquals(100, file.extensions.rating)
+
+        file.extensions.rating = 50
+        file.save(source)
+
+        val reread = assertNotNull(AudioFile.read(source))
+        assertEquals(50, reread.extensions.rating)
+        val content = assertNotNull(reread.id3).framesOf("POPM").single().content
+        assertEquals("user@example.com", Id3Text.decode(Id3Text.LATIN1, content, 0, content.indexOf(0)))
+        assertEquals(128, content[content.indexOf(0) + 1].toInt() and 0xFF)
+        assertContentEquals(byteArrayOf(0, 0, 0, 7), content.copyOfRange(content.size - 4, content.size))
     }
 
     @Test

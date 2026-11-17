@@ -71,6 +71,7 @@ class Mp4Tag internal constructor() {
     var albumArtistSort: String? = null
     var compilation: Boolean? = null
     var bpm: Int? = null
+    var rating: Int? = null
     var isrc: String? = null
     var originalDate: String? = null
     var musicBrainzTrackId: String? = null
@@ -229,6 +230,7 @@ internal object Mp4MetadataReader {
         tag.albumArtistSort = texts(FIELD_ALBUM_ARTIST_SORT).firstOrNull()
         tag.compilation = readIntegerValue(source, items[ITEM_COMPILATION]?.firstOrNull())?.let { it != 0 }
         tag.bpm = readIntegerValue(source, items[ITEM_BPM]?.firstOrNull())
+        tag.rating = readIntegerValue(source, items[ITEM_RATING]?.firstOrNull())?.coerceIn(0, 100)
         tag.isrc = freeform[FREEFORM_ISRC]
         tag.originalDate = freeform[FREEFORM_ORIGINAL_DATE]
         tag.musicBrainzTrackId = freeform[FREEFORM_MB_TRACK]
@@ -555,6 +557,7 @@ private const val FIELD_ARTIST_SORT = "soar"
 private const val FIELD_ALBUM_ARTIST_SORT = "soaa"
 private const val ITEM_COMPILATION = "cpil"
 private const val ITEM_BPM = "tmpo"
+private const val ITEM_RATING = "rate"
 private const val FREEFORM_ITEM = "----"
 private const val FREEFORM_MEAN = "com.apple.iTunes"
 private const val FREEFORM_ISRC = "ISRC"
@@ -703,6 +706,7 @@ internal object Mp4MetadataWriter {
             items += integerItem(ITEM_COMPILATION, byteArrayOf(if (compilation) 1 else 0))
         }
         tags.bpm?.let { bpm -> items += integerItem(ITEM_BPM, bigEndianShort(bpm.coerceIn(0, 0xFFFF))) }
+        tags.rating?.let { rating -> items += integerItem(ITEM_RATING, byteArrayOf(rating.coerceIn(0, 100).toByte())) }
         addFreeformItem(items, FREEFORM_ISRC, tags.isrc)
         addFreeformItem(items, FREEFORM_ORIGINAL_DATE, tags.originalDate)
         addFreeformItem(items, FREEFORM_MB_TRACK, tags.musicBrainzTrackId)
@@ -888,7 +892,7 @@ private val REPLACED_ITEMS = setOf(
     FIELD_TITLE, FIELD_ARTIST, FIELD_ALBUM, FIELD_ALBUM_ARTIST, FIELD_YEAR,
     FIELD_GENRE, FIELD_COMPOSER, FIELD_COMMENT, FIELD_LYRICS, ITEM_TRACK, ITEM_DISC, COVER_ITEM,
     FIELD_TITLE_SORT, FIELD_ALBUM_SORT, FIELD_ARTIST_SORT, FIELD_ALBUM_ARTIST_SORT,
-    ITEM_COMPILATION, ITEM_BPM,
+    ITEM_COMPILATION, ITEM_BPM, ITEM_RATING,
 )
 
 private val CONTAINER_TYPES = setOf("moov", "trak", "mdia", "minf", "stbl")

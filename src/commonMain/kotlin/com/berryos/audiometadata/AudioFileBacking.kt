@@ -186,6 +186,10 @@ internal class VorbisExtensionFields(private val tag: VorbisCommentTag) : Extens
         get() = value("R128_ALBUM_GAIN")
         set(value) = tag.set("R128_ALBUM_GAIN", value.orEmpty())
 
+    override var rating: Int?
+        get() = value("RATING")?.toIntOrNull()?.coerceIn(0, 100)
+        set(value) = tag.set("RATING", value?.toString().orEmpty())
+
     override val musicBrainz: MusicBrainzFields = object : MusicBrainzFields {
         override var recordingId: String?
             get() = key("MUSICBRAINZ_TRACKID")
@@ -444,6 +448,12 @@ internal class Mp4TagFields(val tag: Mp4Tag) : TagFields, ExtensionFields {
         get() = tag.bpm
         set(value) {
             tag.bpm = value
+        }
+
+    override var rating: Int?
+        get() = tag.rating
+        set(value) {
+            tag.rating = value
         }
 
     override var isrc: String?

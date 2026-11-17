@@ -79,6 +79,19 @@ class AudioExtensions internal constructor(private val fields: ExtensionFields) 
             fields.r128AlbumGain = value
         }
 
+    /**
+     * User rating from 0 to 100.
+     *
+     * ID3 uses POPM (its 0-255 value is mapped linearly), Vorbis uses `RATING`, and MP4 uses the
+     * `rate` atom. Setting an out-of-range value throws [IllegalArgumentException].
+     */
+    var rating: Int?
+        get() = fields.rating
+        set(value) {
+            require(value == null || value in 0..100) { "Rating must be between 0 and 100: $value" }
+            fields.rating = value
+        }
+
     /** MusicBrainz identifiers; each format uses its conventional storage. */
     val musicBrainz: MusicBrainzTags = MusicBrainzTags(fields.musicBrainz)
 }
@@ -146,6 +159,7 @@ internal interface ExtensionFields {
     var originalDate: String?
     var r128TrackGain: String?
     var r128AlbumGain: String?
+    var rating: Int?
     val musicBrainz: MusicBrainzFields
 }
 

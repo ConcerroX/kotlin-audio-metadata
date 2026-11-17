@@ -50,8 +50,8 @@ FileChannelSource(file).use { source ->
   Lyrics use USLT on ID3, LYRICS on Vorbis comments and `©lyr` on MP4.
 - `artworks` is `null` when the file was opened without pictures. In that case `save` leaves the
   embedded pictures untouched; assign an empty list to remove them.
-- `extensions` holds well-known non-core tags (sort keys, compilation flag, BPM, ISRC,
-  MusicBrainz IDs, R128, original date) in their own namespace.
+- `extensions` holds well-known non-core tags (sort keys, compilation flag, BPM, rating, ISRC,
+  MusicBrainz IDs, R128, original date) in their own namespace. Ratings use a 0-100 scale.
 - `save` writes only the data that changed and keeps unknown frames, blocks and atoms.
 
 Every low-level tag also exposes entries that have no typed property:

@@ -46,13 +46,13 @@ class Mp4GenericItemsTest {
 
     @Test
     fun preservesUnknownBinaryItems() {
-        val source = sourceWith(mp4File(extraItems = dataItem("rate", Mp4Item.TYPE_INTEGER, byteArrayOf(1, 2, 3))))
+        val source = sourceWith(mp4File(extraItems = dataItem("apID", Mp4Item.TYPE_INTEGER, byteArrayOf(1, 2, 3))))
         val file = assertNotNull(AudioFile.read(source))
         file.title = "Changed title"
         file.save(source)
 
         val reread = assertNotNull(AudioFile.read(source))
-        val item = assertNotNull(reread.mp4).item("rate").single()
+        val item = assertNotNull(reread.mp4).item("apID").single()
         assertEquals(Mp4Item.TYPE_INTEGER, item.dataType)
         assertContentEquals(byteArrayOf(1, 2, 3), item.data)
     }

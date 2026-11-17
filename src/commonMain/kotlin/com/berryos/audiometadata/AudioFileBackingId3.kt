@@ -4,10 +4,13 @@ import com.berryos.audiometadata.aiff.AiffMetadata
 import com.berryos.audiometadata.aiff.AiffMetadataReader
 import com.berryos.audiometadata.aiff.AiffMetadataWriter
 import com.berryos.audiometadata.id3.Id3Tag
+import com.berryos.audiometadata.id3.Id3Text
 import com.berryos.audiometadata.id3.Id3v1Writer
+import com.berryos.audiometadata.id3.Id3v2Frame
 import com.berryos.audiometadata.id3.Id3v2Reader
 import com.berryos.audiometadata.id3.Id3v2Tag
 import com.berryos.audiometadata.id3.Id3v2Writer
+import com.berryos.audiometadata.id3.isDecodable
 import com.berryos.audiometadata.id3.toEditableTag
 import com.berryos.audiometadata.io.RandomAccessSource
 import com.berryos.audiometadata.io.WritableRandomAccessSource
@@ -158,6 +161,12 @@ internal class Id3ExtensionFields(private val tag: Id3v2Tag) : ExtensionFields {
             if (supported) tag.setUserText("R128_ALBUM_GAIN", value)
         }
 
+    override var rating: Int?
+        get() = if (supported) ratingValue() else null
+        set(value) {
+            if (supported) writeRating(value)
+        }
+
     override val musicBrainz: MusicBrainzFields = Id3MusicBrainzFields(tag)
 
     private val originalDateFrameId: String
@@ -169,6 +178,36 @@ internal class Id3ExtensionFields(private val tag: Id3v2Tag) : ExtensionFields {
 
     private fun setText(id: String, value: String?) {
         if (supported) tag.setFrameText(id, value)
+    }
+
+    private fun ratingValue(): Int? {
+        val frame = tag.framesOf("POPM").firstOrNull { it.isDecodable() } ?: return null
+        val separator = frame.content.indexOf(0.toByte())
+        if (separator < 0 || separator + 1 >= frame.content.size) return null
+        val raw = frame.content[separator + 1].toInt() and 0xFF
+        return (raw * 100 + 127) / 255
+    }
+
+    private fun writeRating(value: Int?) {
+        val existing = tag.framesOf("POPM").firstOrNull { it.isDecodable() }
+        val email = existing?.let(::ratingEmail).orEmpty()
+        val counter = existing?.let(::ratingCounter) ?: ByteArray(0)
+        tag.removeFrame("POPM")
+        if (value == null) return
+        val raw = (value * 255 + 50) / 100
+        tag.addFrame("POPM", email.encodeToByteArray() + byteArrayOf(0, raw.toByte()) + counter)
+    }
+
+    private fun ratingEmail(frame: Id3v2Frame): String {
+        val separator = frame.content.indexOf(0.toByte())
+        if (separator <= 0) return ""
+        return Id3Text.decode(Id3Text.LATIN1, frame.content, 0, separator)
+    }
+
+    private fun ratingCounter(frame: Id3v2Frame): ByteArray {
+        val separator = frame.content.indexOf(0.toByte())
+        if (separator < 0 || separator + 2 >= frame.content.size) return ByteArray(0)
+        return frame.content.copyOfRange(separator + 2, frame.content.size)
     }
 }
 

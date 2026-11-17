@@ -457,7 +457,7 @@ class Id3v2Tag internal constructor(
     }
 }
 
-private fun Id3v2Frame.isDecodable(): Boolean = !compressed && !encrypted && rawHeader == null
+internal fun Id3v2Frame.isDecodable(): Boolean = !compressed && !encrypted && rawHeader == null
 
 private fun Id3v2Frame.ownerMatches(owner: String): Boolean {
     val separator = content.indexOf(0.toByte())

@@ -25,6 +25,7 @@ class AudioExtensionsMp4Test {
         file.extensions.albumArtistSort = "Artist, The"
         file.extensions.compilation = true
         file.extensions.bpm = 128
+        file.extensions.rating = 60
         file.extensions.isrc = "US-XXX-12-34567"
         file.extensions.originalDate = "1990-01-01"
         file.extensions.musicBrainz.recordingId = TRACK_ID
@@ -39,6 +40,7 @@ class AudioExtensionsMp4Test {
         assertEquals("Artist, The", reread.extensions.albumArtistSort)
         assertEquals(true, reread.extensions.compilation)
         assertEquals(128, reread.extensions.bpm)
+        assertEquals(60, reread.extensions.rating)
         assertEquals("US-XXX-12-34567", reread.extensions.isrc)
         assertEquals("1990-01-01", reread.extensions.originalDate)
         assertEquals(TRACK_ID, reread.extensions.musicBrainz.recordingId)
@@ -47,6 +49,16 @@ class AudioExtensionsMp4Test {
         val offsetsAfter = readChunkOffsets(source)
         samples.forEachIndexed { index, bytes ->
             assertContentEquals(bytes, readAt(source, offsetsAfter[index], bytes.size))
+        }
+    }
+
+    @Test
+    fun rejectsOutOfRangeRating() {
+        val source = sourceWith(mp4File())
+        val file = assertNotNull(AudioFile.read(source))
+
+        assertFailsWith<IllegalArgumentException> {
+            file.extensions.rating = 101
         }
     }
 
