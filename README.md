@@ -3,15 +3,15 @@
 Kotlin Multiplatform audio metadata reader and writer. Byte-based I/O lets callers read and update
 tags without a `File`, and the same API is meant to work on every Kotlin target.
 
-MP3/ID3, WAV and AIFF support on the JVM uses
-[jaudiotagger](https://bitbucket.org/ijabz/jaudiotagger) 3.0.1 as a dependency
-(LGPL-2.1-or-later); see [NOTICE.md](NOTICE.md) and [LICENSE](LICENSE).
+All format handling lives in common code, written from the published format specifications and
+RFCs; see [NOTICE.md](NOTICE.md). Behavior and field mappings were informed by jaudiotagger, which
+is used only as a test-time comparison oracle.
 
 ## Supported formats
 
 | Format | Read | Write |
 |---|---|---|
-| MP3 (ID3v2.2/2.3/2.4, ID3v1) | Yes | Yes (ID3v2) |
+| MP3 (ID3v2.2/2.3/2.4, ID3v1) | Yes | Yes (ID3v2.2/2.3/2.4) |
 | FLAC | Yes | Yes |
 | Ogg Vorbis | Yes | Yes |
 | Opus | Yes | Yes |
@@ -21,10 +21,11 @@ MP3/ID3, WAV and AIFF support on the JVM uses
 
 Known limitations:
 
-- Only the JVM target is wired up today. FLAC/Ogg/Opus/MP4 live in common code; MP3/WAV/AIFF are
-  provided through a platform hook until the ID3 parser is rewritten in common Kotlin.
+- Only the JVM target is wired up today. Every container parser runs in common code; only
+  `FileChannelSource` is JVM-specific.
 - Fragmented MP4 and non-iTunes MP4 metadata keys are not handled.
-- ID3v2.2 files keep their existing artwork and ReplayGain frames; writing them requires 2.3/2.4.
+- ID3v2.2 keeps its existing artwork when saving and does not write the extension fields (sort
+  keys, compilation, MusicBrainz, R128).
 
 ## Usage
 
@@ -33,6 +34,7 @@ FileChannelSource(file).use { source ->
     val audio = AudioFile.read(source) ?: return
     audio.title = "New title"
     audio.artists = listOf("Artist", "Guest")
+    audio.extensions.musicBrainz.recordingId = "8f3471b5-7e6a-48da-86a9-c1c07a0f47ae"
     audio.save(source)
 }
 ```
@@ -43,6 +45,9 @@ FileChannelSource(file).use { source ->
   (`vorbis`, `mp4`, `id3`) edit the same state, so changes are visible through both.
 - `artworks` is `null` when the file was opened without pictures. In that case `save` leaves the
   embedded pictures untouched; assign an empty list to remove them.
+- `extensions` holds well-known non-core tags (sort keys, compilation flag, BPM, ISRC,
+  MusicBrainz IDs, R128, original date) in their own namespace. Unknown or vendor-specific keys are
+  only reachable through the format-specific tag objects.
 - `save` writes only the data that changed and keeps unknown frames, blocks and atoms.
 
 For a read-only value object use `toAudioMetadata()`. `AudioMetadataReader.read(source)` returns the
@@ -53,6 +58,10 @@ same snapshot without opening an editable file.
 - Unrecognised containers: `AudioFile.read` / `AudioMetadataReader.read` return `null`.
 - Recognised container with malformed metadata: `AudioMetadataException` is thrown.
 
+## License
+
+Apache License, Version 2.0. See [LICENSE](LICENSE) and [NOTICE.md](NOTICE.md).
+
 ## Building
 
 ```shell
@@ -61,5 +70,5 @@ same snapshot without opening an editable file.
 ./gradlew publishToMavenLocal
 ```
 
-Test fixtures from upstream jaudiotagger are not redistributed; real-file tests are skipped on a
-clean checkout.
+Test fixtures used by the differential tests are not redistributed; real-file tests are skipped on
+a clean checkout.

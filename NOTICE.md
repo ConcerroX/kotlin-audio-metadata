@@ -1,21 +1,20 @@
 # Notices
 
-kotlin-audio-metadata provides a Kotlin Multiplatform API over audio metadata. MP3/ID3, WAV and
-AIFF support on the JVM uses the jaudiotagger library as a dependency; field mappings and parsing
-behavior are ported from it. This project is not affiliated with or endorsed by the upstream
-authors.
+kotlin-audio-metadata is an independent Kotlin Multiplatform implementation of audio metadata
+readers and writers.
 
-Upstream lineage:
+The parsers and writers are implemented from the published format specifications:
 
-- Entagged audio tag library, Copyright (C) 2003-2005 Raphael Slinckx (LGPL-2.1-or-later)
-- jaudiotagger / MusicTag, Copyright (C) 2003-2015 Paul Taylor, Eric Farng and contributors (LGPL-2.1-or-later)
+- ID3v1, ID3v2.2, ID3v2.3 and ID3v2.4 (id3.org)
+- RFC 3533 (Ogg encapsulation) and RFC 7845 (Ogg Opus)
+- RFC 9639 (FLAC)
+- Vorbis I specification and Vorbis comment specification (Xiph.Org)
+- RIFF/WAVE, RF64 (EBU Tech 3306) and AIFF/AIFF-C specifications
+- QuickTime file format documentation (Apple)
 
-Dependency: `net.jthink:jaudiotagger` 3.0.1
-(https://bitbucket.org/ijabz/jaudiotagger, tag v3.0.1). No upstream source code is embedded in
-this repository.
+Behavior and field mappings were informed by the jaudiotagger project
+(https://bitbucket.org/ijabz/jaudiotagger, LGPL-2.1-or-later) and its Entagged predecessor. No
+source code from those projects is included in this repository or in the published artifacts;
+jaudiotagger is used only as a test-time comparison oracle.
 
-The Opus reader/writer and the Ogg page/packet handling are implemented from RFC 3533 (Ogg
-encapsulation) and RFC 7845 (Ogg Opus); no code from the jaudiotagger 2.3.x fork is included.
-
-Because this project contains code derived from the works above, it is distributed under the GNU
-Lesser General Public License, version 2.1 or later. See LICENSE.
+The library is distributed under the Apache License, Version 2.0. See LICENSE.
