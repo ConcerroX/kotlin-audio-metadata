@@ -134,7 +134,30 @@ internal class Id3ExtensionFields(private val tag: Id3v2Tag) : ExtensionFields {
         get() = if (supported) tag.frameText("TSRC") else null
         set(value) = setText("TSRC", value)
 
+    override var originalDate: String?
+        get() = if (supported) tag.frameText(originalDateFrameId) else null
+        set(value) = setText(originalDateFrameId, value)
+
+    override var r128TrackGain: String?
+        get() = if (supported) tag.userText("R128_TRACK_GAIN") else null
+        set(value) {
+            if (supported) tag.setUserText("R128_TRACK_GAIN", value)
+        }
+
+    override var r128AlbumGain: String?
+        get() = if (supported) tag.userText("R128_ALBUM_GAIN") else null
+        set(value) {
+            if (supported) tag.setUserText("R128_ALBUM_GAIN", value)
+        }
+
     override val musicBrainz: MusicBrainzFields = Id3MusicBrainzFields(tag)
+
+    private val originalDateFrameId: String
+        get() = when (tag.version) {
+            Id3Version.V22 -> "TOR"
+            Id3Version.V23 -> "TORY"
+            Id3Version.V24 -> "TDOR"
+        }
 
     private fun setText(id: String, value: String?) {
         if (supported) tag.setFrameText(id, value)

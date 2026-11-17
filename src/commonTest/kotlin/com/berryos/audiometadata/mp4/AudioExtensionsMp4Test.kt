@@ -6,6 +6,7 @@ import com.berryos.audiometadata.io.ByteArraySource
 import kotlin.test.Test
 import kotlin.test.assertContentEquals
 import kotlin.test.assertEquals
+import kotlin.test.assertFailsWith
 import kotlin.test.assertNotNull
 import kotlin.test.assertNull
 
@@ -25,6 +26,7 @@ class AudioExtensionsMp4Test {
         file.extensions.compilation = true
         file.extensions.bpm = 128
         file.extensions.isrc = "US-XXX-12-34567"
+        file.extensions.originalDate = "1990-01-01"
         file.extensions.musicBrainz.recordingId = TRACK_ID
         file.extensions.musicBrainz.albumId = ALBUM_ID
         file.extensions.musicBrainz.artistId = ARTIST_ID
@@ -38,6 +40,7 @@ class AudioExtensionsMp4Test {
         assertEquals(true, reread.extensions.compilation)
         assertEquals(128, reread.extensions.bpm)
         assertEquals("US-XXX-12-34567", reread.extensions.isrc)
+        assertEquals("1990-01-01", reread.extensions.originalDate)
         assertEquals(TRACK_ID, reread.extensions.musicBrainz.recordingId)
         assertEquals(ALBUM_ID, reread.extensions.musicBrainz.albumId)
         assertEquals(ARTIST_ID, reread.extensions.musicBrainz.artistId)
@@ -66,6 +69,16 @@ class AudioExtensionsMp4Test {
         val reread = assertNotNull(AudioFile.read(source))
         assertNull(reread.extensions.titleSort)
         assertNull(reread.extensions.compilation)
+    }
+
+    @Test
+    fun rejectsUnsupportedR128Gain() {
+        val source = sourceWith(mp4File())
+        val file = assertNotNull(AudioFile.read(source))
+
+        assertFailsWith<UnsupportedOperationException> {
+            file.extensions.r128TrackGain = "-1500"
+        }
     }
 
     private fun sourceWith(bytes: ByteArray): ByteArraySource =

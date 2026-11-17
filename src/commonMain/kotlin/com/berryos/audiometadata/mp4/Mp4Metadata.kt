@@ -42,6 +42,7 @@ data class Mp4Tags(
     val compilation: Boolean? = null,
     val bpm: Int? = null,
     val isrc: String? = null,
+    val originalDate: String? = null,
     val musicBrainzTrackId: String? = null,
     val musicBrainzReleaseTrackId: String? = null,
     val musicBrainzAlbumId: String? = null,
@@ -124,6 +125,7 @@ internal object Mp4MetadataReader {
             compilation = readIntegerValue(source, items[ITEM_COMPILATION]?.firstOrNull())?.let { it != 0 },
             bpm = readIntegerValue(source, items[ITEM_BPM]?.firstOrNull()),
             isrc = freeform[FREEFORM_ISRC],
+            originalDate = freeform[FREEFORM_ORIGINAL_DATE],
             musicBrainzTrackId = freeform[FREEFORM_MB_TRACK],
             musicBrainzReleaseTrackId = freeform[FREEFORM_MB_RELEASE_TRACK],
             musicBrainzAlbumId = freeform[FREEFORM_MB_ALBUM],
@@ -407,6 +409,7 @@ private const val ITEM_BPM = "tmpo"
 private const val FREEFORM_ITEM = "----"
 private const val FREEFORM_MEAN = "com.apple.iTunes"
 private const val FREEFORM_ISRC = "ISRC"
+private const val FREEFORM_ORIGINAL_DATE = "originaldate"
 private const val FREEFORM_MB_TRACK = "MusicBrainz Track Id"
 private const val FREEFORM_MB_RELEASE_TRACK = "MusicBrainz Release Track Id"
 private const val FREEFORM_MB_ALBUM = "MusicBrainz Album Id"
@@ -551,6 +554,7 @@ internal object Mp4MetadataWriter {
         }
         tags.bpm?.let { bpm -> items += integerItem(ITEM_BPM, bigEndianShort(bpm.coerceIn(0, 0xFFFF))) }
         addFreeformItem(items, FREEFORM_ISRC, tags.isrc)
+        addFreeformItem(items, FREEFORM_ORIGINAL_DATE, tags.originalDate)
         addFreeformItem(items, FREEFORM_MB_TRACK, tags.musicBrainzTrackId)
         addFreeformItem(items, FREEFORM_MB_RELEASE_TRACK, tags.musicBrainzReleaseTrackId)
         addFreeformItem(items, FREEFORM_MB_ALBUM, tags.musicBrainzAlbumId)
@@ -741,6 +745,7 @@ private val CONTAINER_TYPES = setOf("moov", "trak", "mdia", "minf", "stbl")
 
 private val MANAGED_FREEFORM_NAMES = setOf(
     FREEFORM_ISRC,
+    FREEFORM_ORIGINAL_DATE,
     FREEFORM_MB_TRACK,
     FREEFORM_MB_RELEASE_TRACK,
     FREEFORM_MB_ALBUM,

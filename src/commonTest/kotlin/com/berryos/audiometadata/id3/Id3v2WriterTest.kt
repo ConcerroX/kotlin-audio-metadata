@@ -1,14 +1,12 @@
 package com.berryos.audiometadata.id3
 
 import com.berryos.audiometadata.Artwork
-import com.berryos.audiometadata.AudioMetadataException
 import com.berryos.audiometadata.Id3Version
 import com.berryos.audiometadata.ReplayGain
 import com.berryos.audiometadata.io.ByteArraySource
 import kotlin.test.Test
 import kotlin.test.assertContentEquals
 import kotlin.test.assertEquals
-import kotlin.test.assertFailsWith
 import kotlin.test.assertNotNull
 import kotlin.test.assertNull
 
@@ -140,16 +138,19 @@ class Id3v2WriterTest {
     }
 
     @Test
-    fun refusesExtendedHeaderTags() {
+    fun dropsExtendedHeaderWhenRewriting() {
         val extendedHeader = contentInt(6) + byteArrayOf(0, 0) + contentInt(0)
         val source = sourceWith(
             buildTag(3, flags = 0x40, bodyPrefix = extendedHeader, frames = listOf(textFrame(3, "TIT2", 0, "Song"))),
         )
         val tag = read(source)
 
-        assertFailsWith<AudioMetadataException> {
-            Id3v2Writer.write(source, tag, HEADER_SIZE + tag.declaredSize.toLong(), tag.declaredSize)
-        }
+        Id3v2Writer.write(source, tag, HEADER_SIZE + tag.declaredSize.toLong(), tag.declaredSize)
+
+        val reread = read(source)
+        assertEquals("Song", reread.title)
+        assertEquals(0, reread.extendedHeaderSize)
+        assertContentEquals(AUDIO, tail(source, HEADER_SIZE + reread.declaredSize))
     }
 
     @Test
@@ -166,7 +167,7 @@ class Id3v2WriterTest {
     }
 
     @Test
-    fun refusesUnsynchronisedV23Tags() {
+    fun rewritesUnsynchronisedV23Tags() {
         val body = unsynchronise(textFrame(3, "TIT2", 0, "ÿ"))
         val header = ByteArray(HEADER_SIZE)
         "ID3".encodeToByteArray().copyInto(header)
@@ -176,9 +177,12 @@ class Id3v2WriterTest {
         val source = sourceWith(header + body)
         val tag = read(source)
 
-        assertFailsWith<AudioMetadataException> {
-            Id3v2Writer.write(source, tag, HEADER_SIZE + tag.declaredSize.toLong(), tag.declaredSize)
-        }
+        Id3v2Writer.write(source, tag, HEADER_SIZE + tag.declaredSize.toLong(), tag.declaredSize)
+
+        val reread = read(source)
+        assertEquals("ÿ", reread.title)
+        assertEquals(false, reread.unsynchronised)
+        assertContentEquals(AUDIO, tail(source, HEADER_SIZE + reread.declaredSize))
     }
 
     private fun read(source: ByteArraySource): Id3v2Tag = assertNotNull(Id3v2Reader.read(source))

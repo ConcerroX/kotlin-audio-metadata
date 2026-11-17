@@ -164,6 +164,18 @@ internal class VorbisExtensionFields(private val tag: VorbisCommentTag) : Extens
         get() = value("ISRC")
         set(value) = tag.set("ISRC", value.orEmpty())
 
+    override var originalDate: String?
+        get() = value("ORIGINALDATE")
+        set(value) = tag.set("ORIGINALDATE", value.orEmpty())
+
+    override var r128TrackGain: String?
+        get() = value("R128_TRACK_GAIN")
+        set(value) = tag.set("R128_TRACK_GAIN", value.orEmpty())
+
+    override var r128AlbumGain: String?
+        get() = value("R128_ALBUM_GAIN")
+        set(value) = tag.set("R128_ALBUM_GAIN", value.orEmpty())
+
     override val musicBrainz: MusicBrainzFields = object : MusicBrainzFields {
         override var recordingId: String?
             get() = key("MUSICBRAINZ_TRACKID")
@@ -422,6 +434,24 @@ internal class Mp4TagFields(var tags: Mp4Tags) : TagFields, ExtensionFields {
         get() = tags.isrc
         set(value) {
             tags = tags.copy(isrc = value)
+        }
+
+    override var originalDate: String?
+        get() = tags.originalDate
+        set(value) {
+            tags = tags.copy(originalDate = value)
+        }
+
+    override var r128TrackGain: String?
+        get() = null
+        set(value) {
+            if (value != null) throw UnsupportedOperationException("MP4 does not store R128 gain")
+        }
+
+    override var r128AlbumGain: String?
+        get() = null
+        set(value) {
+            if (value != null) throw UnsupportedOperationException("MP4 does not store R128 gain")
         }
 
     override val musicBrainz: MusicBrainzFields = object : MusicBrainzFields {

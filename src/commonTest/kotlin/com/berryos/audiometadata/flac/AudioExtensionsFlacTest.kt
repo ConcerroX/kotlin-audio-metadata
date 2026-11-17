@@ -24,6 +24,9 @@ class AudioExtensionsFlacTest {
         file.extensions.compilation = true
         file.extensions.bpm = 128
         file.extensions.isrc = "US-XXX-12-34567"
+        file.extensions.originalDate = "1990-01-01"
+        file.extensions.r128TrackGain = "-1500"
+        file.extensions.r128AlbumGain = "-1600"
         file.save(source)
 
         val reread = assertNotNull(AudioFile.read(source))
@@ -34,6 +37,9 @@ class AudioExtensionsFlacTest {
         assertEquals(true, reread.extensions.compilation)
         assertEquals(128, reread.extensions.bpm)
         assertEquals("US-XXX-12-34567", reread.extensions.isrc)
+        assertEquals("1990-01-01", reread.extensions.originalDate)
+        assertEquals("-1500", reread.extensions.r128TrackGain)
+        assertEquals("-1600", reread.extensions.r128AlbumGain)
         assertContentEquals(AUDIO, audioTail(source))
     }
 

@@ -19,7 +19,6 @@ object Id3v2Writer {
         audioStart: Long,
         originalTagSize: Int,
     ) {
-        validate(tag)
         val framesBytes = encodeFrames(tag)
         val bodySize = maxOf(originalTagSize, framesBytes.size)
         val newAudioStart = HEADER_SIZE + bodySize.toLong()
@@ -32,24 +31,12 @@ object Id3v2Writer {
 
     /** Serializes the tag as header plus frames, without padding; used by embedded ID3 chunks. */
     internal fun encode(tag: Id3v2Tag): ByteArray {
-        validate(tag)
         val framesBytes = encodeFrames(tag)
         return header(tag.version, framesBytes.size) + framesBytes
     }
 
     private fun encodeFrames(tag: Id3v2Tag): ByteArray =
         tag.frames.fold(ByteArray(0)) { accumulated, frame -> accumulated + encodeFrame(tag.version, frame) }
-
-    private fun validate(tag: Id3v2Tag) {
-        val error = when {
-            tag.extendedHeaderSize > 0 -> "Rewriting a tag with an extended header is not supported yet"
-            tag.version == Id3Version.V23 && tag.unsynchronised ->
-                "Rewriting an unsynchronised ID3v2.3 tag is not supported yet"
-
-            else -> null
-        }
-        if (error != null) throw AudioMetadataException(error)
-    }
 
     private fun header(version: Id3Version, bodySize: Int): ByteArray {
         val header = ByteArray(HEADER_SIZE)

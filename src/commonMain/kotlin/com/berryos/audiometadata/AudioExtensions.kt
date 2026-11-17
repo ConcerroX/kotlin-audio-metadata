@@ -58,6 +58,27 @@ class AudioExtensions internal constructor(private val fields: ExtensionFields) 
             fields.isrc = value
         }
 
+    /** ID3: TDOR/TORY, Vorbis: ORIGINALDATE, MP4: freeform atom `originaldate`. */
+    var originalDate: String?
+        get() = fields.originalDate
+        set(value) {
+            fields.originalDate = value
+        }
+
+    /** ID3: TXXX:R128_TRACK_GAIN, Vorbis/Opus: R128_TRACK_GAIN. */
+    var r128TrackGain: String?
+        get() = fields.r128TrackGain
+        set(value) {
+            fields.r128TrackGain = value
+        }
+
+    /** ID3: TXXX:R128_ALBUM_GAIN, Vorbis/Opus: R128_ALBUM_GAIN. */
+    var r128AlbumGain: String?
+        get() = fields.r128AlbumGain
+        set(value) {
+            fields.r128AlbumGain = value
+        }
+
     /** MusicBrainz identifiers; each format uses its conventional storage. */
     val musicBrainz: MusicBrainzTags = MusicBrainzTags(fields.musicBrainz)
 }
@@ -122,6 +143,9 @@ internal interface ExtensionFields {
     var compilation: Boolean?
     var bpm: Int?
     var isrc: String?
+    var originalDate: String?
+    var r128TrackGain: String?
+    var r128AlbumGain: String?
     val musicBrainz: MusicBrainzFields
 }
 
