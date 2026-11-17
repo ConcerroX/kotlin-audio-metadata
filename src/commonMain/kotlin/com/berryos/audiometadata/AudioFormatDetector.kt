@@ -3,7 +3,7 @@ package com.berryos.audiometadata
 import com.berryos.audiometadata.io.RandomAccessSource
 
 /**
- * Detects the container format from the leading bytes of [source].
+ * Detects the container format from the leading bytes of the given source.
  *
  * Returns [AudioFormat.UNKNOWN] when no known signature matches. A recognised signature does not
  * guarantee that the rest of the file is valid; readers report that by throwing

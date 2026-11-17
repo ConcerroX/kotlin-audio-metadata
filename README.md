@@ -91,8 +91,9 @@ Apache License, Version 2.0. See [LICENSE](LICENSE) and [NOTICE.md](NOTICE.md).
 ## Building
 
 ```shell
-./gradlew jvmTest          # unit tests (real-file tests skip when testdata/ is absent)
-./gradlew detekt           # static analysis, ktlint rules included
+./gradlew jvmTest                      # unit tests (real-file tests skip when testdata/ is absent)
+./gradlew detekt                       # static analysis, ktlint rules included
+./gradlew dokkaGeneratePublicationHtml # API documentation in build/dokka/html
 ./gradlew publishToMavenLocal
 ```
 

@@ -3,6 +3,7 @@ import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {
     alias(libs.plugins.kotlin.multiplatform)
+    alias(libs.plugins.dokka)
     alias(libs.plugins.detekt)
     `maven-publish`
 }
@@ -47,6 +48,13 @@ detekt {
 
 dependencies {
     detektPlugins(libs.detekt.rules.ktlint.wrapper)
+}
+
+dokka {
+    dokkaPublications.html {
+        moduleName.set("kotlin-audio-metadata")
+        includes.from("README.md")
+    }
 }
 
 publishing {

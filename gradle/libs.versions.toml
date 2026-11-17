@@ -1,5 +1,6 @@
 [versions]
 kotlin = "2.4.21"
+dokka = "2.3.0"
 detekt = "2.0.0-alpha.6"
 jaudiotagger = "3.0.1"
 
@@ -9,4 +10,5 @@ jaudiotagger = { module = "net.jthink:jaudiotagger", version.ref = "jaudiotagger
 
 [plugins]
 kotlin-multiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref = "kotlin" }
+dokka = { id = "org.jetbrains.dokka", version.ref = "dokka" }
 detekt = { id = "dev.detekt", version.ref = "detekt" }
