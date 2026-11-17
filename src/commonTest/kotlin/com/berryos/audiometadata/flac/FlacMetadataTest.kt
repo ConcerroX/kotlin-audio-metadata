@@ -2,6 +2,7 @@ package com.berryos.audiometadata.flac
 
 import com.berryos.audiometadata.Artwork
 import com.berryos.audiometadata.AudioFormat
+import com.berryos.audiometadata.decodeLatin1
 import com.berryos.audiometadata.flacPicture
 import com.berryos.audiometadata.io.ByteArraySource
 import com.berryos.audiometadata.vorbis.VorbisCommentTag
@@ -199,7 +200,7 @@ private fun streamInfo(): ByteArray {
 }
 
 private fun ByteArray.containsAscii(value: String): Boolean =
-    String(this, Charsets.ISO_8859_1).contains(value)
+    decodeLatin1().contains(value)
 
 internal const val TYPE_STREAMINFO = 0
 internal const val TYPE_PADDING = 1

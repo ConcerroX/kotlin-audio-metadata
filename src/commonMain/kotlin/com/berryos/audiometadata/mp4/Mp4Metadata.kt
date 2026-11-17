@@ -532,10 +532,10 @@ internal object Mp4MetadataWriter {
 
         val newMoovChildren = ArrayList<ByteArray>()
         when {
-            metaInUdta != null && udta != null && udtaChildren != null -> {
+            metaInUdta != null -> {
                 val newUdta = buildAtom(
                     "udta",
-                    concat(udtaChildren.filter { it.type != "meta" }.map { raw(source, it) } + newMeta),
+                    concat(udtaChildren.orEmpty().filter { it.type != "meta" }.map { raw(source, it) } + newMeta),
                 )
                 moovChildren.forEach { child ->
                     newMoovChildren += if (child.type == "udta") newUdta else raw(source, child)

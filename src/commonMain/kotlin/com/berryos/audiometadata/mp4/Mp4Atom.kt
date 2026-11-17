@@ -115,7 +115,7 @@ private fun collectChunkOffsets(source: RandomAccessSource, parent: Mp4Atom, off
 internal fun buildAtom(type: String, payload: ByteArray): ByteArray {
     val atom = ByteArray(ATOM_HEADER_SIZE + payload.size)
     atom.writeBigEndianInt(0, atom.size)
-    type.toByteArray(Charsets.ISO_8859_1).copyInto(atom, 4)
+    type.forEachIndexed { index, char -> atom[ATOM_TYPE_OFFSET + index] = char.code.toByte() }
     payload.copyInto(atom, ATOM_HEADER_SIZE)
     return atom
 }
@@ -166,6 +166,7 @@ internal fun ByteArray.writeBigEndianLong(offset: Int, value: Long) {
 }
 
 internal const val ATOM_HEADER_SIZE = 8
+internal const val ATOM_TYPE_OFFSET = 4
 internal const val LARGE_ATOM_HEADER_SIZE = 16
 internal const val FULL_BOX_HEADER = 4
 internal const val DATA_HEADER_SIZE = 8

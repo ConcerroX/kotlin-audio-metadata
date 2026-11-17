@@ -2,6 +2,7 @@ package com.berryos.audiometadata.mp4
 
 import com.berryos.audiometadata.Artwork
 import com.berryos.audiometadata.AudioFormat
+import com.berryos.audiometadata.encodeLatin1
 import com.berryos.audiometadata.io.ByteArraySource
 import kotlin.test.Test
 import kotlin.test.assertContentEquals
@@ -188,7 +189,7 @@ private fun ByteArray.indexOfSequence(needle: ByteArray): Int {
 private fun atom(type: String, payload: ByteArray): ByteArray {
     val output = ByteArray(8 + payload.size)
     writeBigEndianInt(output, 0, output.size)
-    type.toByteArray(Charsets.ISO_8859_1).copyInto(output, 4)
+    type.encodeLatin1().copyInto(output, 4)
     payload.copyInto(output, 8)
     return output
 }

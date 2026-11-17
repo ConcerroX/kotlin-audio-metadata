@@ -23,8 +23,9 @@ API documentation: https://concerrox.github.io/kotlin-audio-metadata/
 
 Known limitations:
 
-- Only the JVM target is wired up today. Every container parser runs in common code; only
-  `FileChannelSource` is JVM-specific.
+- Targets: JVM, JS (Node.js), MinGW x64 and Linux x64. All container parsers run in common code;
+  only the JVM target ships a file-backed source (`FileChannelSource`). Other targets use
+  `ByteArraySource` or a custom `RandomAccessSource`.
 - Fragmented MP4 is not specially handled. MP4 keys without a typed property are available through
   `Mp4Tag.items` rather than typed properties.
 - ID3v2.2 keeps its existing artwork when saving and does not write the extension fields (sort
@@ -94,6 +95,8 @@ Apache License, Version 2.0. See [LICENSE](LICENSE) and [NOTICE.md](NOTICE.md).
 
 ```shell
 ./gradlew jvmTest                      # unit tests (real-file tests skip when testdata/ is absent)
+./gradlew jsNodeTest                   # common tests on Node.js
+./gradlew mingwX64Test                 # common tests on Windows native
 ./gradlew detekt                       # static analysis, ktlint rules included
 ./gradlew dokkaGeneratePublicationHtml # API documentation in build/dokka/html
 ./gradlew publishToMavenLocal

@@ -1,6 +1,7 @@
 package com.berryos.audiometadata.opus
 
 import com.berryos.audiometadata.AudioFormat
+import com.berryos.audiometadata.decodeLatin1
 import com.berryos.audiometadata.encodeBase64
 import com.berryos.audiometadata.flacPicture
 import com.berryos.audiometadata.io.ByteArraySource
@@ -145,7 +146,7 @@ private fun oggPage(payload: ByteArray, sequence: Int, flags: Int, granule: Long
 }
 
 private fun ByteArray.containsAscii(value: String): Boolean =
-    String(this, Charsets.ISO_8859_1).contains(value)
+    decodeLatin1().contains(value)
 
 private fun writeLeInt(bytes: ByteArray, offset: Int, value: Int) {
     bytes[offset] = value.toByte()

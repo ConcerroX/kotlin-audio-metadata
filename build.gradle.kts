@@ -19,6 +19,11 @@ kotlin {
             jvmTarget.set(JvmTarget.JVM_11)
         }
     }
+    js {
+        nodejs()
+    }
+    mingwX64()
+    linuxX64()
 
     sourceSets {
         commonTest.dependencies {
