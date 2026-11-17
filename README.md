@@ -68,6 +68,14 @@ audio.vorbis?.set("MOOD", "Calm")
 
 `Mp4Tag.item(type)` / `freeformItem(name)` and `Id3v2Tag.framesOf(id)` read those entries back.
 
+On the JVM, `File` convenience functions open and close the source for you:
+
+```kotlin
+val audio = file.readAudioFile()
+file.updateAudioFile { it.title = "New title" }
+val snapshot = file.readAudioMetadata()
+```
+
 For a read-only value object use `toAudioMetadata()`. `AudioMetadataReader.read(source)` returns the
 same snapshot without opening an editable file.
 
